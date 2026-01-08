@@ -24,19 +24,19 @@ const TEST_IDS = {
   }),
 };
 
-// IDs de production (à remplir avec vos vrais IDs AdMob)
+// IDs de production NinjaKana
 const PRODUCTION_IDS = {
   BANNER: Platform.select({
-    ios: 'ca-app-pub-XXXX/YYYY', // Remplacer
-    android: 'ca-app-pub-XXXX/YYYY', // Remplacer
+    ios: 'ca-app-pub-XXXX/YYYY', // TODO: Ajouter iOS
+    android: 'ca-app-pub-7853846912857601/8766062594',
   }),
   INTERSTITIAL: Platform.select({
-    ios: 'ca-app-pub-XXXX/YYYY',
-    android: 'ca-app-pub-XXXX/YYYY',
+    ios: 'ca-app-pub-XXXX/YYYY', // TODO: Ajouter iOS
+    android: 'ca-app-pub-7853846912857601/7195822446',
   }),
   REWARDED: Platform.select({
-    ios: 'ca-app-pub-XXXX/YYYY',
-    android: 'ca-app-pub-XXXX/YYYY',
+    ios: 'ca-app-pub-XXXX/YYYY', // TODO: Ajouter iOS
+    android: 'ca-app-pub-7853846912857601/9945097100',
   }),
 };
 

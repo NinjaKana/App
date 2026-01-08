@@ -6,8 +6,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
-// Mode développement : désactiver RevenueCat pour Expo Go
-const REVENUECAT_ENABLED = false; // Mettre à true après EAS Build
+// Mode production : RevenueCat activé (désactiver pour Expo Go)
+const REVENUECAT_ENABLED = !__DEV__; // Activé en production, désactivé en dev
 
 // RevenueCat (chargé dynamiquement si disponible)
 let Purchases = null;
@@ -20,14 +20,14 @@ if (REVENUECAT_ENABLED) {
 }
 
 // Configuration RevenueCat
-const REVENUECAT_API_KEY_IOS = 'appl_VOTRE_CLE_IOS';
-const REVENUECAT_API_KEY_ANDROID = 'goog_VOTRE_CLE_ANDROID';
+const REVENUECAT_API_KEY_IOS = 'appl_VOTRE_CLE_IOS'; // TODO: Ajouter clé iOS
+const REVENUECAT_API_KEY_ANDROID = 'test_JgjwEdUXezpXdIhMzVTJVcQTSYR';
 
 // Identifiants des produits
 export const PRODUCT_IDS = {
-  MONTHLY: 'japonaisapp_premium_monthly',
-  YEARLY: 'japonaisapp_premium_yearly',
-  LIFETIME: 'japonaisapp_premium_lifetime',
+  MONTHLY: 'ninjakana_pro_monthly',
+  YEARLY: 'ninjakana_pro_yearly',
+  LIFETIME: 'ninjakana_pro_lifetime',
 };
 
 // Prix affichés
@@ -44,7 +44,7 @@ export const DISPLAY_PRICES = {
 
 // Entitlements
 export const ENTITLEMENTS = {
-  PREMIUM: 'premium',
+  PREMIUM: 'NinjaKana Pro',
 };
 
 // Limites pour utilisateurs gratuits

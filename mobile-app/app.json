@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Apprendre le Japonais",
-    "slug": "apprendre-japonais",
-    "version": "5.5.0",
+    "name": "NinjaKana",
+    "slug": "ninjakana",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -37,6 +37,14 @@
     },
     "updates": {
       "url": "https://u.expo.dev/efab330b-4cc7-437e-acce-1d2cd0a93860"
-    }
+    },
+    "plugins": [
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-7853846912857601~2258178774"
+        }
+      ]
+    ]
   }
 }
