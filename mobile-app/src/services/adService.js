@@ -28,15 +28,15 @@ const TEST_IDS = {
 const PRODUCTION_IDS = {
   BANNER: Platform.select({
     ios: 'ca-app-pub-XXXX/YYYY', // TODO: Ajouter iOS
-    android: 'ca-app-pub-7853846912857601/8766062594',
+    android: 'ca-app-pub-3554291855047296/3651151498',
   }),
   INTERSTITIAL: Platform.select({
     ios: 'ca-app-pub-XXXX/YYYY', // TODO: Ajouter iOS
-    android: 'ca-app-pub-7853846912857601/7195822446',
+    android: 'ca-app-pub-3554291855047296/2809854877',
   }),
   REWARDED: Platform.select({
     ios: 'ca-app-pub-XXXX/YYYY', // TODO: Ajouter iOS
-    android: 'ca-app-pub-7853846912857601/9945097100',
+    android: 'ca-app-pub-3554291855047296/8559013183',
   }),
 };
 
