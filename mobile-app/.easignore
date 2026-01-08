@@ -1,0 +1,14 @@
+# Build artifacts
+android/
+ios/
+dist/
+web-build/
+
+# Development
+.expo/
+*.log
+
+# Large unnecessary files
+*.apk
+*.aab
+*.ipa
