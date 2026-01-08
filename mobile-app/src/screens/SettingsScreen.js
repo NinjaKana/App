@@ -153,8 +153,8 @@ export default function SettingsScreen({ navigation }) {
   };
 
   const handleContact = () => {
-    const email = 'support@apprendre-japonais.app';
-    const subject = 'Support - Apprendre le Japonais';
+    const email = 'g2077consultations@gmail.com';
+    const subject = 'Support - NinjaKana';
     const url = `mailto:${email}?subject=${encodeURIComponent(subject)}`;
 
     Linking.openURL(url).catch(() => {
@@ -282,13 +282,7 @@ export default function SettingsScreen({ navigation }) {
           <SettingLink
             icon="🔒"
             title="Politique de confidentialité"
-            onPress={() => Linking.openURL('https://apprendre-japonais.app/privacy')}
-          />
-
-          <SettingLink
-            icon="📄"
-            title="Conditions d'utilisation"
-            onPress={() => Linking.openURL('https://apprendre-japonais.app/terms')}
+            onPress={() => Linking.openURL('https://ninjakana.github.io/App/privacy-policy.html')}
             isLast
           />
         </View>
@@ -313,8 +307,8 @@ export default function SettingsScreen({ navigation }) {
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text style={styles.version}>Version 2.1.0</Text>
-          <Text style={styles.copyright}>© 2026 Apprendre le Japonais</Text>
+          <Text style={styles.version}>Version 1.0.0</Text>
+          <Text style={styles.copyright}>© 2026 NinjaKana</Text>
         </View>
       </ScrollView>
     </SafeAreaView>

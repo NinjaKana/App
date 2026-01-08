@@ -24,17 +24,17 @@ import {
 } from '../services/premiumService';
 import { COLORS, FONTS, SIZES } from '../styles/theme';
 
-// Features Premium - Design Figma
+// Features Premium - Fonctionnalités réelles
 const PREMIUM_FEATURES = [
   {
     icon: '📚',
     title: 'Apprentissage illimité',
-    description: 'Exercices et révisions sans limite',
+    description: 'Exercices et révisions sans limite quotidienne',
   },
   {
     icon: '🈳',
     title: 'Tous les Kanji',
-    description: '2136 kanji du JLPT N5 à N1',
+    description: '100 kanji essentiels du JLPT N5',
   },
   {
     icon: '🧠',
@@ -42,19 +42,19 @@ const PREMIUM_FEATURES = [
     description: 'SRS illimité pour ancrer les connaissances',
   },
   {
-    icon: '🎧',
-    title: 'Audio natif',
-    description: 'Prononciation par locuteurs japonais',
-  },
-  {
-    icon: '📴',
-    title: 'Mode hors-ligne',
-    description: 'Étudiez partout, même sans connexion',
+    icon: '❤️',
+    title: '7 vies maximum',
+    description: 'Plus de vies pour apprendre sans interruption',
   },
   {
     icon: '🚫',
     title: 'Sans publicité',
     description: 'Concentration maximale',
+  },
+  {
+    icon: '⭐',
+    title: 'Soutenir le projet',
+    description: 'Aidez-nous à ajouter plus de contenu',
   },
 ];
 
@@ -181,7 +181,7 @@ export default function PaywallModal({ visible, onClose, onPurchaseSuccess }) {
             <View style={styles.heroIcon}>
               <Text style={styles.heroEmoji}>👑</Text>
             </View>
-            <Text style={styles.heroTitle}>Unlock Premium</Text>
+            <Text style={styles.heroTitle}>Passer Premium</Text>
             <Text style={styles.heroSubtitle}>
               Débloquez toutes les fonctionnalités et maîtrisez le japonais
             </Text>

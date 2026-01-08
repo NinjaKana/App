@@ -19,13 +19,13 @@ const STORAGE_KEYS = {
 
 // Configuration
 export const SHARE_CONFIG = {
-  APP_NAME: 'Apprendre le Japonais',
+  APP_NAME: 'NinjaKana',
   APP_STORE_URL: Platform.select({
-    ios: 'https://apps.apple.com/app/apprendre-japonais/idXXXXXX', // TODO: Remplacer
+    ios: 'https://apps.apple.com/app/ninjakana/idXXXXXX', // TODO: Remplacer après publication iOS
     android: 'https://play.google.com/store/apps/details?id=com.apprendre.japonais',
   }),
-  WEBSITE_URL: 'https://apprendre-japonais.app', // TODO: Créer landing page
-  HASHTAGS: ['LearnJapanese', 'Japonais', '日本語', 'LanguageLearning', 'Streak'],
+  WEBSITE_URL: 'https://ninjakana.github.io/App/',
+  HASHTAGS: ['NinjaKana', 'LearnJapanese', '日本語', 'Japonais', 'LanguageLearning'],
 };
 
 /**

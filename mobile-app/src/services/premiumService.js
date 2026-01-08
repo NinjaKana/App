@@ -49,10 +49,10 @@ export const ENTITLEMENTS = {
 
 // Limites pour utilisateurs gratuits
 export const FREE_LIMITS = {
-  EXERCISES_PER_DAY: 20,
+  EXERCISES_PER_DAY: 15,
   SRS_REVIEWS_PER_DAY: 10,
-  LIVES_MAX: 3,
-  KANJI_UNLOCKED: 10,
+  LIVES_MAX: 5,
+  KANJI_UNLOCKED: 20,
   AI_QUESTIONS_PER_DAY: 3,
 };
 

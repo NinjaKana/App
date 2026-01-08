@@ -53,32 +53,32 @@ export const REFERRAL_REWARDS = {
 // Messages de partage
 const SHARE_MESSAGES = {
   default: {
-    title: "J'apprends le japonais avec cette app incroyable !",
+    title: "J'apprends le japonais avec NinjaKana !",
     message:
-      "Rejoins-moi sur l'app Apprendre le Japonais ! C'est gratuit et super efficace. 🇯🇵\n\nUtilise mon code {CODE} pour recevoir 3 vies gratuites !",
+      "Rejoins-moi sur NinjaKana ! 🥷🇯🇵\n\nUtilise mon code {CODE} pour recevoir 3 vies gratuites !",
   },
   streak: {
     title: 'Mon streak de {STREAK} jours !',
     message:
-      "J'ai maintenu mon streak de {STREAK} jours sur Apprendre le Japonais ! 🔥\n\nRejoins-moi avec le code {CODE} pour 3 vies gratuites !",
+      "J'ai maintenu mon streak de {STREAK} jours sur NinjaKana ! 🔥\n\nRejoins-moi avec le code {CODE} pour 3 vies gratuites !",
   },
   badge: {
     title: "J'ai débloqué un nouveau badge !",
     message:
-      "Je viens de débloquer le badge {BADGE} sur Apprendre le Japonais ! 🏆\n\nRejoins-moi avec le code {CODE}",
+      "Je viens de débloquer le badge {BADGE} sur NinjaKana ! 🏆\n\nRejoins-moi avec le code {CODE}",
   },
   levelUp: {
     title: 'Niveau {LEVEL} atteint !',
     message:
-      "J'ai atteint le niveau {LEVEL} sur Apprendre le Japonais ! 🎌\n\nViens apprendre avec moi, code : {CODE}",
+      "J'ai atteint le niveau {LEVEL} sur NinjaKana ! 🎌\n\nViens apprendre avec moi, code : {CODE}",
   },
 };
 
-// URL de l'app (à personnaliser)
-const APP_URL = 'https://apprendre-japonais.app';
+// URL de l'app
+const APP_URL = 'https://ninjakana.github.io/App';
 const STORE_URLS = {
-  ios: 'https://apps.apple.com/app/apprendre-japonais/id123456789',
-  android: 'https://play.google.com/store/apps/details?id=com.apprendrejaponais',
+  ios: 'https://apps.apple.com/app/ninjakana/idXXXXXX', // TODO: Après publication iOS
+  android: 'https://play.google.com/store/apps/details?id=com.apprendre.japonais',
 };
 
 /**

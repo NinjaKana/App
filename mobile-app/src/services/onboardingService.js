@@ -29,7 +29,7 @@ export const ONBOARDING_SLIDES = [
     subtitle: 'La Voie du Japonais',
     description:
       'Deviens un maître du japonais. De Genin à Hokage, ta progression commence ici.',
-    highlight: '47 leçons • 245 audios natifs • 102 kanji N5',
+    highlight: '22 leçons • 100 kanji N5 • Audio japonais',
   },
   {
     id: 'method',

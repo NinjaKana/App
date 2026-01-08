@@ -12,8 +12,6 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  TextInput,
-  ImageBackground,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { COLORS, FONTS, SIZES } from '../styles/theme';
@@ -36,10 +34,9 @@ export default function HomeScreen({ navigation }) {
   const [showRecoveryModal, setShowRecoveryModal] = useState(false);
   const [currentStreak, setCurrentStreak] = useState(0);
   const [totalKi, setTotalKi] = useState(0);
-  const [searchText, setSearchText] = useState('');
 
   // Jours de la semaine pour le calendrier
-  const weekDays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  const weekDays = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
   const today = new Date().getDay(); // 0 = Sunday, 1 = Monday...
   const todayIndex = today === 0 ? 6 : today - 1; // Convertir pour commencer par lundi
 
@@ -158,26 +155,6 @@ export default function HomeScreen({ navigation }) {
                 ]}>{day}</Text>
               </View>
             ))}
-          </View>
-        </View>
-
-        {/* Barre de recherche */}
-        <View style={styles.searchContainer}>
-          <Text style={styles.searchLabel}>What do you want to learn today?</Text>
-          <View style={styles.searchInputContainer}>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Write here..."
-              placeholderTextColor={COLORS.textMuted}
-              value={searchText}
-              onChangeText={setSearchText}
-            />
-            <TouchableOpacity
-              style={styles.searchButton}
-              onPress={() => navigation.navigate('Lessons')}
-            >
-              <Text style={styles.searchButtonIcon}>→</Text>
-            </TouchableOpacity>
           </View>
         </View>
 
