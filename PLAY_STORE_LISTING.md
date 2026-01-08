@@ -7,7 +7,7 @@
 | **Nom de l'app** | NinjaKana |
 | **Développeur** | NinjaKana |
 | **Catégorie** | Éducation |
-| **Email contact** | g2077consultations@gmail.com |
+| **Email contact** | contact.ninjakana@gmail.com |
 | **Privacy Policy** | https://ninjakana.github.io/App/privacy-policy.html |
 | **Site web** | https://ninjakana.github.io/App/ |
 

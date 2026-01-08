@@ -153,7 +153,7 @@ export default function SettingsScreen({ navigation }) {
   };
 
   const handleContact = () => {
-    const email = 'g2077consultations@gmail.com';
+    const email = 'contact.ninjakana@gmail.com';
     const subject = 'Support - NinjaKana';
     const url = `mailto:${email}?subject=${encodeURIComponent(subject)}`;
 
