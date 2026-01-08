@@ -43,8 +43,8 @@ const PREMIUM_FEATURES = [
   },
   {
     icon: '❤️',
-    title: '7 vies maximum',
-    description: 'Plus de vies pour apprendre sans interruption',
+    title: 'Vies illimitées',
+    description: 'Apprends sans interruption, sans attendre',
   },
   {
     icon: '🚫',

@@ -47,7 +47,7 @@ export const ONBOARDING_SLIDES = [
     subtitle: 'Ta Flamme Quotidienne',
     description:
       'Maintiens ta flamme en pratiquant chaque jour. Le Bouclier Ninja te protège gratuitement !',
-    highlight: '7 cœurs • Bouclier Ninja GRATUIT • Missions quotidiennes',
+    highlight: '5 cœurs • Bouclier Ninja GRATUIT • Missions quotidiennes',
   },
   {
     id: 'ranks',

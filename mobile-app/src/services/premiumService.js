@@ -60,7 +60,7 @@ export const FREE_LIMITS = {
 export const PREMIUM_LIMITS = {
   EXERCISES_PER_DAY: Infinity,
   SRS_REVIEWS_PER_DAY: Infinity,
-  LIVES_MAX: 7,
+  LIVES_MAX: Infinity,
   KANJI_UNLOCKED: Infinity,
   AI_QUESTIONS_PER_DAY: Infinity,
 };
