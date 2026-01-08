@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>NinjaKana - Feature Graphic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #333;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .feature-graphic {
+            width: 1024px;
+            height: 500px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f1419 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Floating characters background */
+        .floating-chars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.08;
+            font-size: 48px;
+            color: white;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-content: space-around;
+            padding: 20px;
+        }
+
+        .floating-chars span {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .floating-chars span:nth-child(odd) {
+            animation-delay: -1.5s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Main content */
+        .content {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 50px;
+        }
+
+        /* Logo section */
+        .logo-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo-icon {
+            width: 160px;
+            height: 160px;
+            border-radius: 35px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            margin-bottom: 15px;
+        }
+
+        .logo-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .app-name {
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            letter-spacing: 3px;
+        }
+
+        /* Text section */
+        .text-section {
+            max-width: 520px;
+        }
+
+        .tagline {
+            font-size: 46px;
+            font-weight: bold;
+            color: white;
+            line-height: 1.2;
+            margin-bottom: 25px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .tagline .highlight {
+            color: #4ade80;
+        }
+
+        .features {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .feature-badge {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 12px 22px;
+            border-radius: 25px;
+            color: white;
+            font-size: 17px;
+            font-weight: 500;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .feature-badge .emoji {
+            margin-right: 8px;
+        }
+
+        /* Decorative elements */
+        .decoration {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+
+        .decoration-1 {
+            width: 300px;
+            height: 300px;
+            background: #4ade80;
+            top: -100px;
+            right: -50px;
+        }
+
+        .decoration-2 {
+            width: 200px;
+            height: 200px;
+            background: #e53935;
+            bottom: -80px;
+            left: -50px;
+        }
+
+        .decoration-3 {
+            width: 150px;
+            height: 150px;
+            background: #4ade80;
+            bottom: -50px;
+            right: 150px;
+            opacity: 0.05;
+        }
+    </style>
+</head>
+<body>
+    <div class="feature-graphic">
+        <!-- Background floating characters -->
+        <div class="floating-chars">
+            <span>あ</span><span>カ</span><span>日</span><span>い</span>
+            <span>本</span><span>ア</span><span>う</span><span>語</span>
+            <span>イ</span><span>え</span><span>学</span><span>ウ</span>
+            <span>お</span><span>習</span><span>エ</span><span>か</span>
+        </div>
+
+        <!-- Decorative circles -->
+        <div class="decoration decoration-1"></div>
+        <div class="decoration decoration-2"></div>
+        <div class="decoration decoration-3"></div>
+
+        <!-- Main content -->
+        <div class="content">
+            <!-- Logo - Using actual app icon -->
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <img src="../mobile-app/assets/icon.png" alt="NinjaKana Logo">
+                </div>
+                <div class="app-name">NINJAKANA</div>
+            </div>
+
+            <!-- Text -->
+            <div class="text-section">
+                <div class="tagline">
+                    Maîtrise le <span class="highlight">Japonais</span><br>
+                    comme un <span class="highlight">Ninja</span>
+                </div>
+                <div class="features">
+                    <div class="feature-badge">
+                        <span class="emoji">あ</span>Hiragana
+                    </div>
+                    <div class="feature-badge">
+                        <span class="emoji">ア</span>Katakana
+                    </div>
+                    <div class="feature-badge">
+                        <span class="emoji">漢</span>100 Kanji N5
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('=== INSTRUCTIONS ===');
+        console.log('1. Appuie sur F12 pour ouvrir DevTools');
+        console.log('2. Clique sur l\'onglet "Elements"');
+        console.log('3. Clic droit sur <div class="feature-graphic">');
+        console.log('4. "Capture node screenshot"');
+        console.log('5. L\'image sera sauvegardée en 1024x500');
+    </script>
+</body>
+</html>
