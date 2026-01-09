@@ -1,55 +1,34 @@
 # Play Store Assets - NinjaKana
 
-## Structure du dossier
+## Statut : UPLOADÉ SUR PLAY CONSOLE
 
-```
-play-store-assets/
-├── icon-512.png              ← Icône (redimensionner à 512x512)
-├── feature-graphic.png       ← Feature Graphic (1024x500) ⚠️ À SAUVEGARDER ICI
-├── feature-graphic.html      ← Template HTML (source)
-├── screenshots/              ← Screenshots de l'app
-│   ├── 01-accueil.png
-│   ├── 02-lecon.png
-│   ├── 03-exercice.png
-│   └── 04-premium.png
-└── README.md
-```
+Tous les assets ont été uploadés sur Google Play Console le 9 janvier 2026.
 
-## Checklist des assets
+## Fichiers
 
-### Obligatoires
-- [ ] **Icône** : 512x512 PNG (icon-512.png - redimensionner depuis 1024x1024)
-- [ ] **Feature Graphic** : 1024x500 PNG
-- [ ] **Screenshots** : Minimum 2, recommandé 4-8
+| Fichier | Description | Statut |
+|---------|-------------|--------|
+| `icon-512.png` | Icône 512x512 | Uploadé |
+| `feature-graphic.html` | Template pour Feature Graphic | Utilisé |
+| `screenshots/` | Screenshots de l'app | Uploadés (6) |
 
-### Spécifications
+## Spécifications
 
 | Asset | Dimensions | Format |
 |-------|------------|--------|
-| Icône | 512x512 | PNG 32-bit |
-| Feature Graphic | 1024x500 | PNG ou JPG |
-| Screenshots Phone | 16:9 ou 9:16 | PNG ou JPG |
+| Icône | 512x512 | PNG |
+| Feature Graphic | 1024x500 | PNG |
+| Screenshots | 1080x1920 | PNG (portrait) |
 
-### Screenshots recommandés
-1. **Accueil** - Dashboard avec streak et quêtes
-2. **Leçon** - Apprentissage Hiragana/Katakana
-3. **Exercice** - QCM ou transcription
-4. **Premium** - Écran Paywall avec fonctionnalités
-
-## Instructions
+## Instructions (pour référence future)
 
 ### Feature Graphic
 1. Ouvrir `feature-graphic.html` dans Chrome
-2. F12 → Inspecteur → Clic droit sur `<div class="feature-graphic">`
+2. F12 → Inspecteur → Clic droit sur le `<div>` principal
 3. "Capturer une capture d'écran du nœud"
-4. Sauvegarder comme `feature-graphic.png` dans ce dossier
-
-### Icône 512x512
-L'icône source est 1024x1024. Pour redimensionner :
-- Utiliser un éditeur d'image (Paint, Photoshop, GIMP)
-- Ou en ligne : https://www.iloveimg.com/resize-image
+4. Sauvegarder en PNG
 
 ### Screenshots
-- Prendre directement depuis le téléphone via Expo Go
-- Format portrait (9:16) recommandé
-- Résolution minimum : 320px, maximum : 3840px
+- Lancer l'app via Expo Go sur téléphone
+- Prendre des captures d'écran des écrans clés
+- Redimensionner à 1080x1920 si nécessaire

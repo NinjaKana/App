@@ -64,27 +64,17 @@ Commence ton voyage ninja dès maintenant !
 
 ## Assets graphiques
 
-### Icône (512x512) - PRÊT
-- Fichier source : `mobile-app/assets/icon.png` (1024x1024)
-- Redimensionner à 512x512 pour upload
+### Icône (512x512) - FAIT
+- Fichier : `play-store-assets/icon-512.png`
+- Uploadé sur Play Console
 
-### Feature Graphic (1024x500) - À CRÉER
-Suggestion de design :
-- Fond : Dégradé bleu foncé (#1a1a2e → #16213e)
-- Logo NinjaKana au centre
-- Texte : "Maîtrise le Japonais comme un Ninja"
-- Éléments : Hiragana/Katakana flottants, torii, soleil rouge
+### Feature Graphic (1024x500) - FAIT
+- Créé via `play-store-assets/feature-graphic.html`
+- Uploadé sur Play Console
 
-### Screenshots (min 2, recommandé 4-8) - À CRÉER
-Captures d'écran recommandées :
-1. **Écran d'accueil** - Dashboard avec stats et streak
-2. **Leçon Hiragana** - Apprentissage d'un caractère
-3. **Exercice QCM** - Interface de quiz
-4. **Système SRS** - Écran de révision
-5. **Paywall Premium** - Fonctionnalités premium
-6. **Profil/Badges** - Gamification et progression
-
-Dimensions : 1080x1920 (portrait) ou 1920x1080 (paysage)
+### Screenshots (6 uploadés) - FAIT
+- 6 captures d'écran uploadées sur Play Console
+- Écrans : Accueil, Leçons, Exercices, Premium, etc.
 
 ---
 
@@ -123,27 +113,34 @@ Tous les pays (ou sélection personnalisée)
 
 ---
 
-## Checklist avant soumission
+## Checklist Play Console
 
-- [ ] Build AAB uploadé
-- [ ] Icône 512x512 uploadée
-- [ ] Feature Graphic 1024x500 créée et uploadée
-- [ ] Minimum 2 screenshots uploadés
-- [ ] Description courte remplie
-- [ ] Description complète remplie
-- [ ] Catégorie sélectionnée (Éducation)
-- [ ] Email contact renseigné
-- [ ] Privacy Policy URL ajoutée
-- [ ] Questionnaire de classification rempli
-- [ ] Tarification configurée
-- [ ] Pays de distribution sélectionnés
-- [ ] Produits in-app créés dans RevenueCat/Play Console
+- [x] Build AAB uploadé (v1.0.0)
+- [x] Icône 512x512 uploadée
+- [x] Feature Graphic 1024x500 uploadée
+- [x] Screenshots uploadés (6)
+- [x] Description courte remplie
+- [x] Description complète remplie
+- [x] Catégorie sélectionnée (Enseignement)
+- [x] Email contact renseigné (contact.ninjakana@gmail.com)
+- [x] Privacy Policy URL ajoutée
+- [x] Questionnaire de classification rempli (PEGI 3)
+- [x] Sécurité des données remplie
+- [x] Déclaration identifiant publicitaire remplie
+- [x] Pays de distribution sélectionnés (176 pays)
+- [x] Test fermé configuré (1 testeur)
+- [ ] Validation identité Google (en attente)
+- [ ] Validation numéro de téléphone (bloqué)
+- [ ] Ajouter 11 testeurs supplémentaires
+- [ ] Attendre 14 jours de test fermé
+- [ ] Demander accès production
 
 ---
 
 ## Notes
 
-- Le build EAS est en cours (ID: da9191f4-9c51-431c-b488-4060a836caba)
-- L'app utilise RevenueCat pour la gestion des abonnements
-- L'app utilise AdMob pour la publicité
-- Audio généré avec VOICEVOX (libre de droits commerciaux)
+- **Build AAB** : https://expo.dev/artifacts/eas/rVzwNofn8aMhjRw243HB7d.aab
+- **AdMob App ID** : ca-app-pub-3554291855047296~5296417418
+- **RevenueCat** : Configuré pour gestion abonnements
+- **Audio** : VOICEVOX (libre de droits commerciaux)
+- **Statut** : En attente validation identité Google
