@@ -21,7 +21,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1a1a2e"
       },
-      "package": "com.apprendre.japonais"
+      "package": "com.apprendre.japonais",
+      "versionCode": 5
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -43,6 +44,12 @@
         "react-native-google-mobile-ads",
         {
           "androidAppId": "ca-app-pub-3554291855047296~5296417418"
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#e94560"
         }
       ]
     ]

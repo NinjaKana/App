@@ -1,6 +1,7 @@
 /**
  * Exercise MCQ Component - Nouveau Design Figma
  * Questions à choix multiples avec card violette
+ * Audio intégré : prononciation au clic + bonne réponse après validation
  */
 
 import React, { useState, useEffect } from 'react';
@@ -12,6 +13,7 @@ import {
   Animated,
 } from 'react-native';
 import { COLORS, FONTS, SIZES } from '../styles/theme';
+import audioService from '../services/audioService';
 
 export default function ExerciseMCQ({ exercise, onAnswer }) {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -31,8 +33,11 @@ export default function ExerciseMCQ({ exercise, onAnswer }) {
     scaleAnims.forEach(anim => anim.setValue(1));
   }, [exercise]);
 
-  const handleOptionPress = (option, index) => {
+  const handleOptionPress = async (option, index) => {
     if (answered) return;
+
+    // Jouer l'audio de l'option cliquée (aide à l'apprentissage)
+    await audioService.play(option);
 
     setSelectedOption(option);
     setAnswered(true);
@@ -51,10 +56,18 @@ export default function ExerciseMCQ({ exercise, onAnswer }) {
       }),
     ]).start();
 
+    // Jouer l'audio de la bonne réponse après un court délai (renforcement)
+    setTimeout(async () => {
+      // Si mauvaise réponse, jouer la bonne pour renforcer l'apprentissage
+      if (option !== exercise.correct) {
+        await audioService.play(exercise.correct);
+      }
+    }, 400);
+
     // Délai pour montrer la sélection avant de valider
     setTimeout(() => {
       onAnswer(option);
-    }, 600);
+    }, 800);
   };
 
   const getOptionStyle = (option, index) => {

@@ -8,12 +8,19 @@ import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigator from './src/navigation/AppNavigator';
 import { PremiumProvider, usePremium } from './src/contexts/PremiumContext';
 import PaywallModal from './src/components/PaywallModal';
 import OnboardingScreen from './src/screens/OnboardingScreen';
 import { isOnboardingCompleted } from './src/services/onboardingService';
 import { trackSession } from './src/services/reviewService';
+import {
+  configureNotifications,
+  requestPermissions,
+  scheduleAllNotifications,
+  isNotificationAvailable
+} from './src/services/notificationService';
 import { COLORS } from './src/styles/theme';
 
 // Composant wrapper pour le Paywall global
@@ -28,6 +35,16 @@ function AppWithPaywall() {
   const initializeApp = async () => {
     // Track session for review prompt
     await trackSession();
+
+    // Initialize push notifications for retention
+    if (isNotificationAvailable()) {
+      configureNotifications();
+      const { granted } = await requestPermissions();
+      if (granted) {
+        await scheduleAllNotifications();
+      }
+    }
+
     // Check onboarding status
     await checkOnboarding();
   };
@@ -93,8 +110,10 @@ const styles = StyleSheet.create({
 
 export default function App() {
   return (
-    <PremiumProvider>
-      <AppWithPaywall />
-    </PremiumProvider>
+    <SafeAreaProvider>
+      <PremiumProvider>
+        <AppWithPaywall />
+      </PremiumProvider>
+    </SafeAreaProvider>
   );
 }

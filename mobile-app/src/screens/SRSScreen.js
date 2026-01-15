@@ -7,11 +7,11 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { getSRSStats, getDueCards } from '../services/srsSystem';
 import { COLORS, FONTS, SIZES } from '../styles/theme';
 import globalStyles from '../styles/globalStyles';
@@ -48,7 +48,7 @@ export default function SRSScreen({ navigation }) {
 
   if (loading) {
     return (
-      <SafeAreaView style={globalStyles.safeArea}>
+      <SafeAreaView style={globalStyles.safeArea} edges={['top']}>
         <View style={globalStyles.centerContainer}>
           <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
@@ -60,7 +60,7 @@ export default function SRSScreen({ navigation }) {
   const hasCards = stats && stats.total > 0;
 
   return (
-    <SafeAreaView style={globalStyles.safeArea}>
+    <SafeAreaView style={globalStyles.safeArea} edges={['top']}>
       <ScrollView style={styles.container}>
         {/* Header */}
         <View style={styles.header}>

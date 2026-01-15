@@ -15,10 +15,10 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   RefreshControl,
   TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { COLORS, FONTS, SIZES } from '../styles/theme';
 import globalStyles from '../styles/globalStyles';
@@ -71,7 +71,7 @@ export default function LeaderboardScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={globalStyles.safeArea}>
+    <SafeAreaView style={globalStyles.safeArea} edges={['bottom']}>
       <ScrollView
         style={styles.container}
         refreshControl={

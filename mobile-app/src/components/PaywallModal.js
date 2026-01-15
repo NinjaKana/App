@@ -13,8 +13,8 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
-  SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   getOfferings,
   purchasePackage,
@@ -161,7 +161,7 @@ export default function PaywallModal({ visible, onClose, onPurchaseSuccess }) {
       transparent={false}
       onRequestClose={onClose}
     >
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerSpacer} />

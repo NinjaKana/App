@@ -3,15 +3,18 @@
  * Liste des leçons avec tabs catégories
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
+  Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
+import { getProgress } from '../services/storage';
 import {
   hiraganaLessons,
   katakanaLessons,
@@ -25,6 +28,19 @@ import AdBanner from '../components/AdBanner';
 
 export default function LessonsScreen({ navigation }) {
   const [selectedCategory, setSelectedCategory] = useState(LESSON_CATEGORIES.HIRAGANA);
+  const [completedLessons, setCompletedLessons] = useState([]);
+
+  // Charger la progression à chaque focus de l'écran
+  useFocusEffect(
+    useCallback(() => {
+      loadProgress();
+    }, [])
+  );
+
+  const loadProgress = async () => {
+    const progress = await getProgress();
+    setCompletedLessons(progress?.lessonsCompleted || []);
+  };
 
   const categories = [
     { id: LESSON_CATEGORIES.HIRAGANA, name: 'Hiragana', char: 'あ', count: hiraganaLessons.length },
@@ -48,8 +64,40 @@ export default function LessonsScreen({ navigation }) {
     }
   };
 
+  // Vérifie si une leçon est débloquée
+  const isLessonUnlocked = (lessons, index) => {
+    // La première leçon de chaque catégorie est toujours débloquée
+    if (index === 0) return true;
+
+    // Les autres leçons sont débloquées si la précédente est complétée
+    const previousLesson = lessons[index - 1];
+    return completedLessons.includes(previousLesson.id);
+  };
+
+  // Vérifie si une leçon est complétée
+  const isLessonCompleted = (lessonId) => {
+    return completedLessons.includes(lessonId);
+  };
+
+  const handleLessonPress = (lesson, index, lessons) => {
+    if (!isLessonUnlocked(lessons, index)) {
+      Alert.alert(
+        '🔒 Leçon verrouillée',
+        'Complète la leçon précédente pour débloquer celle-ci !',
+        [{ text: 'Compris', style: 'default' }]
+      );
+      return;
+    }
+
+    navigation.navigate('LessonDetail', {
+      lessonId: lesson.id,
+      lessonTitle: lesson.title,
+      category: selectedCategory,
+    });
+  };
+
   return (
-    <SafeAreaView style={globalStyles.safeArea}>
+    <SafeAreaView style={globalStyles.safeArea} edges={['top']}>
       <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={styles.header}>
@@ -95,54 +143,72 @@ export default function LessonsScreen({ navigation }) {
         {/* Liste des leçons - Design Figma */}
         <View style={styles.lessonsContainer}>
           {getLessons().length > 0 ? (
-            getLessons().map((lesson, index) => (
-              <TouchableOpacity
-                key={lesson.id}
-                style={styles.lessonCard}
-                onPress={() =>
-                  navigation.navigate('LessonDetail', {
-                    lessonId: lesson.id,
-                    lessonTitle: lesson.title,
-                    category: selectedCategory,
-                  })
-                }
-              >
-                {/* Icône verte */}
-                <View style={styles.lessonIcon}>
-                  <Text style={styles.lessonIconText}>📗</Text>
-                </View>
+            getLessons().map((lesson, index) => {
+              const lessons = getLessons();
+              const unlocked = isLessonUnlocked(lessons, index);
+              const completed = isLessonCompleted(lesson.id);
 
-                {/* Contenu */}
-                <View style={styles.lessonContent}>
-                  <Text style={styles.lessonNumber}>Leçon {index + 1}</Text>
-                  <Text style={styles.lessonTitle}>{lesson.title}</Text>
-                  <Text style={styles.lessonChars} numberOfLines={1}>
-                    {lesson.kanji
-                      ? lesson.kanji.map(k => k.kanji).join(', ')
-                      : lesson.characters?.map(c => c.hiragana || c.katakana || c.romaji).join(', ')
-                    }
-                  </Text>
+              return (
+                <TouchableOpacity
+                  key={lesson.id}
+                  style={[
+                    styles.lessonCard,
+                    !unlocked && styles.lessonCardLocked,
+                  ]}
+                  onPress={() => handleLessonPress(lesson, index, lessons)}
+                  activeOpacity={unlocked ? 0.7 : 0.5}
+                >
+                  {/* Icône avec état */}
+                  <View style={[
+                    styles.lessonIcon,
+                    completed && styles.lessonIconCompleted,
+                    !unlocked && styles.lessonIconLocked,
+                  ]}>
+                    <Text style={styles.lessonIconText}>
+                      {!unlocked ? '🔒' : completed ? '✅' : '📗'}
+                    </Text>
+                  </View>
 
-                  {/* Tags */}
-                  <View style={styles.lessonTags}>
-                    <View style={styles.tag}>
-                      <Text style={styles.tagText}>
-                        {lesson.kanji
-                          ? `${lesson.kanji.length} kanji`
-                          : `${lesson.characters?.length || 0} caractères`
-                        }
-                      </Text>
-                    </View>
-                    <View style={styles.tag}>
-                      <Text style={styles.tagText}>{lesson.difficulty || 'Débutant'}</Text>
+                  {/* Contenu */}
+                  <View style={[styles.lessonContent, !unlocked && styles.lessonContentLocked]}>
+                    <Text style={[styles.lessonNumber, !unlocked && styles.textLocked]}>
+                      Leçon {index + 1}
+                    </Text>
+                    <Text style={[styles.lessonTitle, !unlocked && styles.textLocked]}>
+                      {lesson.title}
+                    </Text>
+                    <Text style={[styles.lessonChars, !unlocked && styles.textLocked]} numberOfLines={1}>
+                      {lesson.kanji
+                        ? lesson.kanji.map(k => k.kanji).join(', ')
+                        : lesson.characters?.map(c => c.hiragana || c.katakana || c.romaji).join(', ')
+                      }
+                    </Text>
+
+                    {/* Tags */}
+                    <View style={styles.lessonTags}>
+                      <View style={[styles.tag, !unlocked && styles.tagLocked]}>
+                        <Text style={[styles.tagText, !unlocked && styles.textLocked]}>
+                          {lesson.kanji
+                            ? `${lesson.kanji.length} kanji`
+                            : `${lesson.characters?.length || 0} caractères`
+                          }
+                        </Text>
+                      </View>
+                      <View style={[styles.tag, !unlocked && styles.tagLocked]}>
+                        <Text style={[styles.tagText, !unlocked && styles.textLocked]}>
+                          {lesson.difficulty || 'Débutant'}
+                        </Text>
+                      </View>
                     </View>
                   </View>
-                </View>
 
-                {/* Flèche */}
-                <Text style={styles.lessonArrow}>›</Text>
-              </TouchableOpacity>
-            ))
+                  {/* Flèche ou cadenas */}
+                  <Text style={[styles.lessonArrow, !unlocked && styles.textLocked]}>
+                    {unlocked ? '›' : '🔒'}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })
           ) : (
             <View style={styles.emptyCard}>
               <Text style={styles.emptyText}>
@@ -316,5 +382,26 @@ const styles = StyleSheet.create({
     marginTop: SIZES.margin,
     borderRadius: SIZES.radius,
     overflow: 'hidden',
+  },
+
+  // Styles pour les leçons verrouillées
+  lessonCardLocked: {
+    opacity: 0.6,
+    backgroundColor: COLORS.surfaceDark,
+  },
+  lessonIconCompleted: {
+    backgroundColor: COLORS.success,
+  },
+  lessonIconLocked: {
+    backgroundColor: COLORS.surfaceLight,
+  },
+  lessonContentLocked: {
+    opacity: 0.7,
+  },
+  textLocked: {
+    color: COLORS.textMuted,
+  },
+  tagLocked: {
+    backgroundColor: COLORS.surfaceDark,
   },
 });

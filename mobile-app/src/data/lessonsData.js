@@ -8,14 +8,14 @@
 import { kanjiN5Lessons } from './kanjiN5';
 
 // ========================================
-// HIRAGANA LESSONS (10 leçons)
+// HIRAGANA LESSONS (11 leçons)
 // ========================================
 
 export const hiraganaLessons = [
   {
     "id": 1,
-    "title": "Voyelles + K",
-    "description": "a, i, u, e, o, ka, ki, ku, ke, ko",
+    "title": "Les Voyelles",
+    "description": "a, i, u, e, o",
     "difficulty": "Débutant",
     "category": "hiragana",
     "free": true,
@@ -59,46 +59,6 @@ export const hiraganaLessons = [
         "mnemonic": "Caractère お",
         "examples": [],
         "audio": "o.mp3"
-      },
-      {
-        "hiragana": "か",
-        "romaji": "ka",
-        "pronunciation": "ka",
-        "mnemonic": "Caractère か",
-        "examples": [],
-        "audio": "ka.mp3"
-      },
-      {
-        "hiragana": "き",
-        "romaji": "ki",
-        "pronunciation": "ki",
-        "mnemonic": "Caractère き",
-        "examples": [],
-        "audio": "ki.mp3"
-      },
-      {
-        "hiragana": "く",
-        "romaji": "ku",
-        "pronunciation": "ku",
-        "mnemonic": "Caractère く",
-        "examples": [],
-        "audio": "ku.mp3"
-      },
-      {
-        "hiragana": "け",
-        "romaji": "ke",
-        "pronunciation": "ke",
-        "mnemonic": "Caractère け",
-        "examples": [],
-        "audio": "ke.mp3"
-      },
-      {
-        "hiragana": "こ",
-        "romaji": "ko",
-        "pronunciation": "ko",
-        "mnemonic": "Caractère こ",
-        "examples": [],
-        "audio": "ko.mp3"
       }
     ],
     "exercises": [
@@ -163,6 +123,79 @@ export const hiraganaLessons = [
         "character": "お"
       },
       {
+        "type": "transcription",
+        "question": "Tapez le romaji de: あい",
+        "correct": "ai",
+        "character": "あい",
+        "meaning": "amour"
+      },
+      {
+        "type": "transcription",
+        "question": "Tapez le romaji de: いえ",
+        "correct": "ie",
+        "character": "いえ",
+        "meaning": "maison"
+      },
+      {
+        "type": "transcription",
+        "question": "Tapez le romaji de: うえ",
+        "correct": "ue",
+        "character": "うえ",
+        "meaning": "dessus"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Colonne KA",
+    "description": "ka, ki, ku, ke, ko",
+    "difficulty": "Débutant",
+    "category": "hiragana",
+    "free": true,
+    "characters": [
+      {
+        "hiragana": "か",
+        "romaji": "ka",
+        "pronunciation": "ka",
+        "mnemonic": "Caractère か",
+        "examples": [],
+        "audio": "ka.mp3"
+      },
+      {
+        "hiragana": "き",
+        "romaji": "ki",
+        "pronunciation": "ki",
+        "mnemonic": "Caractère き",
+        "examples": [],
+        "audio": "ki.mp3"
+      },
+      {
+        "hiragana": "く",
+        "romaji": "ku",
+        "pronunciation": "ku",
+        "mnemonic": "Caractère く",
+        "examples": [],
+        "audio": "ku.mp3"
+      },
+      {
+        "hiragana": "け",
+        "romaji": "ke",
+        "pronunciation": "ke",
+        "mnemonic": "Caractère け",
+        "examples": [],
+        "audio": "ke.mp3"
+      },
+      {
+        "hiragana": "こ",
+        "romaji": "ko",
+        "pronunciation": "ko",
+        "mnemonic": "Caractère こ",
+        "examples": [],
+        "audio": "ko.mp3"
+      }
+    ],
+    "exercises": [
+      {
         "type": "mcq",
         "question": "Quel est le romaji de か ?",
         "options": [
@@ -223,56 +256,11 @@ export const hiraganaLessons = [
         "character": "こ"
       },
       {
-        "type": "intruder",
-        "question": "Trouvez l'intrus",
-        "options": [
-          "あ",
-          "い",
-          "か",
-          "お"
-        ],
-        "correct": "か",
-        "explanation": "'か' (ka) est une consonne, les autres sont des voyelles"
-      },
-      {
-        "type": "intruder",
-        "question": "Trouvez l'intrus",
-        "options": [
-          "か",
-          "き",
-          "す",
-          "こ"
-        ],
-        "correct": "す",
-        "explanation": "'す' (su) n'appartient pas à la série K"
-      },
-      {
         "type": "transcription",
-        "question": "Tapez le romaji de: あい",
-        "correct": "ai",
-        "character": "あい",
-        "meaning": "amour"
-      },
-      {
-        "type": "transcription",
-        "question": "Tapez le romaji de: いえ",
-        "correct": "ie",
-        "character": "いえ",
-        "meaning": "maison"
-      },
-      {
-        "type": "transcription",
-        "question": "Tapez le romaji de: うえ",
-        "correct": "ue",
-        "character": "うえ",
-        "meaning": "dessus"
-      },
-      {
-        "type": "transcription",
-        "question": "Tapez le romaji de: えき",
-        "correct": "eki",
-        "character": "えき",
-        "meaning": "gare"
+        "question": "Tapez le romaji de: かお",
+        "correct": "kao",
+        "character": "かお",
+        "meaning": "visage"
       },
       {
         "type": "transcription",
@@ -283,15 +271,15 @@ export const hiraganaLessons = [
       },
       {
         "type": "transcription",
-        "question": "Tapez le romaji de: かお",
-        "correct": "kao",
-        "character": "かお",
-        "meaning": "visage"
+        "question": "Tapez le romaji de: いけ",
+        "correct": "ike",
+        "character": "いけ",
+        "meaning": "étang"
       }
     ]
   },
   {
-    "id": 2,
+    "id": 3,
     "title": "S + T",
     "description": "sa, shi, su, se, so, ta, chi, tsu, te, to",
     "difficulty": "Débutant",
@@ -495,7 +483,7 @@ export const hiraganaLessons = [
     ]
   },
   {
-    "id": 3,
+    "id": 4,
     "title": "N + H",
     "description": "na, ni, nu, ne, no, ha, hi, fu, he, ho",
     "difficulty": "Débutant",
@@ -687,7 +675,7 @@ export const hiraganaLessons = [
     ]
   },
   {
-    "id": 4,
+    "id": 5,
     "title": "M + Y + R",
     "description": "ma, mi, mu, me, mo, ya, yu, yo, ra, ri, ru, re, ro",
     "difficulty": "Intermédiaire",
@@ -891,7 +879,7 @@ export const hiraganaLessons = [
     ]
   },
   {
-    "id": 5,
+    "id": 6,
     "title": "W + N",
     "description": "wa, wo, n",
     "difficulty": "Intermédiaire",
@@ -984,7 +972,7 @@ export const hiraganaLessons = [
     ]
   },
   {
-    "id": 6,
+    "id": 7,
     "title": "Dakuten G + Z",
     "description": "ga, gi, gu, ge, go, za, ji, zu, ze, zo",
     "difficulty": "Intermédiaire",
@@ -1145,7 +1133,7 @@ export const hiraganaLessons = [
     ]
   },
   {
-    "id": 7,
+    "id": 8,
     "title": "Dakuten D + B",
     "description": "da, ji, zu, de, do, ba, bi, bu, be, bo",
     "difficulty": "Intermédiaire",
@@ -1294,7 +1282,7 @@ export const hiraganaLessons = [
     ]
   },
   {
-    "id": 8,
+    "id": 9,
     "title": "Handakuten P",
     "description": "pa, pi, pu, pe, po",
     "difficulty": "Avancé",
@@ -1403,7 +1391,7 @@ export const hiraganaLessons = [
     ]
   },
   {
-    "id": 9,
+    "id": 10,
     "title": "Combinaisons",
     "description": "kya, kyu, kyo, sha, shu, sho...",
     "difficulty": "Avancé",
@@ -1544,7 +1532,7 @@ export const hiraganaLessons = [
     ]
   },
   {
-    "id": 10,
+    "id": 11,
     "title": "Révision",
     "description": "Révision complète de tous les hiragana",
     "difficulty": "Avancé",
@@ -4442,7 +4430,7 @@ export const katakanaLessons = [
 
 export const vocabularyLessons = [
   {
-    "id": 11,
+    "id": 43,
     "title": "Chiffres 1-100",
     "description": "Apprenez à compter en japonais",
     "difficulty": "Intermédiaire",
@@ -4715,7 +4703,7 @@ export const vocabularyLessons = [
     ]
   },
   {
-    "id": 12,
+    "id": 44,
     "title": "Salutations",
     "description": "Les expressions essentielles du quotidien",
     "difficulty": "Débutant",
@@ -4873,7 +4861,7 @@ export const vocabularyLessons = [
     ]
   },
   {
-    "id": 13,
+    "id": 45,
     "title": "Jours de la semaine",
     "description": "Les 7 jours en japonais",
     "difficulty": "Débutant",
@@ -4990,7 +4978,7 @@ export const vocabularyLessons = [
     ]
   },
   {
-    "id": 14,
+    "id": 46,
     "title": "Couleurs",
     "description": "Les couleurs principales",
     "difficulty": "Débutant",
@@ -5141,7 +5129,7 @@ export const vocabularyLessons = [
     ]
   },
   {
-    "id": 15,
+    "id": 47,
     "title": "Famille",
     "description": "Les membres de la famille",
     "difficulty": "Débutant",
@@ -5267,7 +5255,7 @@ export const vocabularyLessons = [
     ]
   },
   {
-    "id": 16,
+    "id": 48,
     "title": "Nourriture de base",
     "description": "Aliments et boissons essentiels",
     "difficulty": "Débutant",

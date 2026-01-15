@@ -490,10 +490,10 @@ export const kanjiN5Lessons = [
     ]
   },
 
-  // Leçon 7 : Taille & Direction
+  // Leçon 7 : Taille & Position
   {
     id: 29,
-    title: 'Kanji N5 - Leçon 7 : Taille & Direction',
+    title: 'Kanji N5 - Leçon 7 : Taille & Position',
     category: 'kanji',
     type: 'kanji',
     description: 'Grand, petit, haut, bas, milieu',
@@ -1300,10 +1300,10 @@ export const kanjiN5Lessons = [
     ]
   },
 
-  // Leçon 17 : Couleurs & Directions
+  // Leçon 17 : Couleurs & Points cardinaux
   {
     id: 39,
-    title: 'Kanji N5 - Leçon 17 : Couleurs & Directions',
+    title: 'Kanji N5 - Leçon 17 : Couleurs & Points cardinaux',
     category: 'kanji',
     type: 'kanji',
     description: 'Noir, rouge, nord, sud et est',

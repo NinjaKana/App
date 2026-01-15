@@ -5,15 +5,16 @@ Application mobile React Native / Expo pour apprendre le japonais (Hiragana, Kat
 ## Version
 
 **Version** : 1.0.0
-**Statut** : En attente validation Google Play (test fermé configuré)
+**Statut** : Test fermé en préparation
 **Package** : com.apprendre.japonais
 
 ## Play Store
 
 - **Compte développeur** : NinjaKana (ID: 7341651006470984727)
 - **Fiche Play Store** : Complète
-- **Test fermé** : Configuré (en attente validation identité)
-- **Prochaine étape** : Validation identité Google → 12 testeurs → 14 jours → Production
+- **Identité Google** : ✅ Validée (9 janvier 2026)
+- **Test fermé** : Prêt à soumettre (14 modifications)
+- **Prochaine étape** : Soumettre pour examen → 12 testeurs → 14 jours → Production
 
 ## Fonctionnalités
 

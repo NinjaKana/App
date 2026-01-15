@@ -3,21 +3,22 @@
  * Détail d'une leçon avec liste de caractères et bouton exercices
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { getLessonById } from '../data/lessonsData';
 import audioService from '../services/audioService';
 import { COLORS, FONTS, SIZES } from '../styles/theme';
 import globalStyles from '../styles/globalStyles';
 import KanjiCard from '../components/KanjiCard';
 import GrammarTips from '../components/GrammarTips';
+import FirstTimeLessonTip, { shouldShowFirstTimeTip, markFirstTimeTipAsShown } from '../components/FirstTimeLessonTip';
 
 export default function LessonDetailScreen({ route, navigation }) {
   const { lessonId, lessonTitle, category } = route.params;
@@ -25,6 +26,25 @@ export default function LessonDetailScreen({ route, navigation }) {
   const [playingRomaji, setPlayingRomaji] = useState(null);
   const [currentKanjiIndex, setCurrentKanjiIndex] = useState(0);
   const [showGrammar, setShowGrammar] = useState(false);
+  const [showFirstTimeTip, setShowFirstTimeTip] = useState(false);
+
+  // Vérifier si on doit afficher le conseil première fois
+  useEffect(() => {
+    checkFirstTimeTip();
+  }, []);
+
+  const checkFirstTimeTip = async () => {
+    const shouldShow = await shouldShowFirstTimeTip();
+    if (shouldShow) {
+      // Attendre 500ms pour laisser l'écran se charger
+      setTimeout(() => setShowFirstTimeTip(true), 500);
+    }
+  };
+
+  const handleCloseTip = async () => {
+    await markFirstTimeTipAsShown();
+    setShowFirstTimeTip(false);
+  };
 
   // Détermine si c'est une leçon de kanji
   const isKanjiLesson = lesson?.type === 'kanji' || lesson?.category === 'kanji';
@@ -48,7 +68,7 @@ export default function LessonDetailScreen({ route, navigation }) {
 
   if (!lesson) {
     return (
-      <SafeAreaView style={globalStyles.safeArea}>
+      <SafeAreaView style={globalStyles.safeArea} edges={['top', 'bottom']}>
         <View style={styles.errorContainer}>
           <Text style={styles.errorIcon}>📚</Text>
           <Text style={styles.errorText}>Leçon introuvable</Text>
@@ -64,7 +84,7 @@ export default function LessonDetailScreen({ route, navigation }) {
   }
 
   return (
-    <SafeAreaView style={globalStyles.safeArea}>
+    <SafeAreaView style={globalStyles.safeArea} edges={['top']}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
@@ -190,10 +210,10 @@ export default function LessonDetailScreen({ route, navigation }) {
             onPress={() => navigation.navigate('Exercise', { lesson })}
           >
             <Text style={styles.startButtonText}>
-              Commencer les exercices
+              Commencer le quiz
             </Text>
             <Text style={styles.startButtonCount}>
-              {lesson.exercises.length} exercices
+              {lesson.exercises.length} exercices • {lesson.id <= 3 ? '5' : '3'} erreurs = -1 vie
             </Text>
           </TouchableOpacity>
         </View>
@@ -204,6 +224,14 @@ export default function LessonDetailScreen({ route, navigation }) {
         visible={showGrammar}
         onClose={() => setShowGrammar(false)}
         lessonType={lesson?.type || lesson?.category}
+        lessonId={lessonId}
+        lessonTitle={lesson?.title}
+      />
+
+      {/* Modal Première Fois - Comment utiliser une leçon */}
+      <FirstTimeLessonTip
+        visible={showFirstTimeTip}
+        onClose={handleCloseTip}
         lessonId={lessonId}
       />
     </SafeAreaView>

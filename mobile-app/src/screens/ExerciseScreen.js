@@ -8,11 +8,11 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   TouchableOpacity,
   Animated,
   Modal,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import ExerciseMCQ from '../components/ExerciseMCQ';
 import ExerciseTranscription from '../components/ExerciseTranscription';
 import ExerciseIntruder from '../components/ExerciseIntruder';
@@ -27,11 +27,12 @@ import {
   EXERCISE_TYPES,
 } from '../services/exerciseService';
 import { getCognitiveFeedback, trackError } from '../services/confusionTracker';
-import { getProgress, saveProgress } from '../services/storage';
-import { getLives, loseLife, checkAutoRecharge, CONFIG } from '../services/livesSystem';
+import { getProgress, saveProgress, getData, saveData, STORAGE_KEYS } from '../services/storage';
+import { getLives, loseLife, checkAutoRecharge, getTimeUntilNextRecharge, formatTime, CONFIG } from '../services/livesSystem';
 import { incrementQuestProgress } from '../services/questsSystem';
 import audioService from '../services/audioService';
 import haptic from '../services/hapticService';
+import { scheduleStreakDangerNotification, scheduleInactivityNotification } from '../services/notificationService';
 import { COLORS, FONTS, SIZES } from '../styles/theme';
 import globalStyles from '../styles/globalStyles';
 import { usePremium } from '../contexts/PremiumContext';
@@ -50,6 +51,8 @@ export default function ExerciseScreen({ route, navigation }) {
   const [showResults, setShowResults] = useState(false);
   const [shakeError, setShakeError] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
+  const [showOutOfLivesModal, setShowOutOfLivesModal] = useState(false);
+  const [timeUntilRecharge, setTimeUntilRecharge] = useState(0);
 
   // Animations
   const feedbackAnim = useState(new Animated.Value(0))[0];
@@ -59,6 +62,24 @@ export default function ExerciseScreen({ route, navigation }) {
     initializeExercises();
     loadLives();
   }, []);
+
+  // Timer pour le modal "Out of Lives"
+  useEffect(() => {
+    if (showOutOfLivesModal && timeUntilRecharge > 0) {
+      const interval = setInterval(async () => {
+        const newTime = await getTimeUntilNextRecharge();
+        setTimeUntilRecharge(newTime);
+
+        // Si rechargé, fermer le modal et recharger les vies
+        if (newTime === 0) {
+          await loadLives();
+          setShowOutOfLivesModal(false);
+        }
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [showOutOfLivesModal, timeUntilRecharge]);
 
   const checkExerciseLimit = async () => {
     const result = await checkCanDoExercise();
@@ -181,13 +202,22 @@ export default function ExerciseScreen({ route, navigation }) {
       setShowFeedback(false);
     });
 
-    // Vérifier perte de vie (3 erreurs consécutives)
-    if (shouldLoseLife(newResults, 3) && lives > 0) {
+    // Vérifier perte de vie (5 erreurs pour leçons 1-3, 3 erreurs pour les autres)
+    const maxErrors = (lesson.id <= 3) ? 5 : 3;
+    if (shouldLoseLife(newResults, maxErrors) && lives > 0) {
       const newLives = await loseLife();
       setLives(newLives);
+
       // Haptic feedback pour perte de vie
       if (newLives === 1) {
         haptic.lastLife(); // Warning intense pour dernière vie
+      } else if (newLives === 0) {
+        // Plus de vies ! Bloquer le quiz
+        haptic.error();
+        const timeLeft = await getTimeUntilNextRecharge();
+        setTimeUntilRecharge(timeLeft);
+        setShowOutOfLivesModal(true);
+        return; // BLOQUER la progression
       } else {
         haptic.lifeLost();
       }
@@ -213,7 +243,7 @@ export default function ExerciseScreen({ route, navigation }) {
     const progress = await getProgress();
     const updatedProgress = {
       ...progress,
-      totalXP: (progress.totalXP || 0) + stats.totalPoints,
+      totalPoints: (progress.totalPoints || 0) + stats.totalPoints,
       lessonsCompleted: [...new Set([...(progress.lessonsCompleted || []), lesson.id])],
       exercisesCompleted: (progress.exercisesCompleted || 0) + stats.total,
       correctAnswers: (progress.correctAnswers || 0) + stats.correct,
@@ -228,6 +258,11 @@ export default function ExerciseScreen({ route, navigation }) {
     if (isNewLesson) {
       await incrementQuestProgress('lesson_completed');
     }
+
+    // Programmer notifications de rétention
+    const currentStreak = updatedProgress.streak || 0;
+    await scheduleStreakDangerNotification(currentStreak);
+    await scheduleInactivityNotification();
 
     setShowResults(true);
   };
@@ -289,6 +324,95 @@ export default function ExerciseScreen({ route, navigation }) {
     }
   };
 
+  const renderOutOfLivesModal = () => {
+    return (
+      <Modal visible={showOutOfLivesModal} animationType="fade" transparent={true}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.outOfLivesContainer}>
+            {/* Header */}
+            <Text style={styles.outOfLivesEmoji}>💔</Text>
+            <Text style={styles.outOfLivesTitle}>Plus de vies !</Text>
+            <Text style={styles.outOfLivesSubtitle}>
+              Tu as fait trop d'erreurs. Prends une pause ou récupère des vies.
+            </Text>
+
+            {/* Lives display */}
+            <View style={styles.livesDisplay}>
+              <Text style={styles.livesDisplayText}>❤️ 0 / {CONFIG.MAX_LIVES}</Text>
+            </View>
+
+            {/* Recharge timer */}
+            <View style={styles.timerCard}>
+              <Text style={styles.timerLabel}>⏱️ Prochaine recharge dans</Text>
+              <Text style={styles.timerValue}>{formatTime(timeUntilRecharge)}</Text>
+            </View>
+
+            {/* Options */}
+            <View style={styles.optionsContainer}>
+              {/* Option 1: Récupérer via SRS (Feature Anti-Duolingo) */}
+              <TouchableOpacity
+                style={[styles.optionButton, styles.optionButtonSRS]}
+                onPress={() => {
+                  setShowOutOfLivesModal(false);
+                  navigation.navigate('SRSReview');
+                }}
+              >
+                <Text style={styles.optionButtonIcon}>🧠</Text>
+                <View style={styles.optionButtonContent}>
+                  <Text style={styles.optionButtonTitle}>Révisions SRS</Text>
+                  <Text style={styles.optionButtonSubtitle}>
+                    Gratuit • 5 révisions = +1 vie
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* Option 2: Premium (si pas déjà premium) */}
+              {!isPremium && (
+                <TouchableOpacity
+                  style={[styles.optionButton, styles.optionButtonPremium]}
+                  onPress={() => {
+                    setShowOutOfLivesModal(false);
+                    openPaywall();
+                  }}
+                >
+                  <Text style={styles.optionButtonIcon}>👑</Text>
+                  <View style={styles.optionButtonContent}>
+                    <Text style={styles.optionButtonTitle}>Vies illimitées</Text>
+                    <Text style={styles.optionButtonSubtitle}>Devenir Premium</Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {/* Bouton Quitter */}
+            <TouchableOpacity
+              style={styles.quitButton}
+              onPress={() => {
+                setShowOutOfLivesModal(false);
+                navigation.goBack();
+              }}
+            >
+              <Text style={styles.quitButtonText}>← Quitter</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    );
+  };
+
+  // Gère la fin de leçon avec paywall stratégique après leçon 3
+  const handleFinish = async () => {
+    // Afficher paywall après leçon 3 pour utilisateurs gratuits (conversion +28%)
+    if (lesson.id === 3 && !isPremium) {
+      const paywallShown = await getData(STORAGE_KEYS.PAYWALL_LESSON3_SHOWN, false);
+      if (!paywallShown) {
+        await saveData(STORAGE_KEYS.PAYWALL_LESSON3_SHOWN, true);
+        openPaywall();
+      }
+    }
+    navigation.goBack();
+  };
+
   const renderResultsModal = () => {
     const stats = calculateSessionStats(results);
 
@@ -316,7 +440,7 @@ export default function ExerciseScreen({ route, navigation }) {
 
           <TouchableOpacity
             style={styles.doneButton}
-            onPress={() => navigation.goBack()}
+            onPress={handleFinish}
           >
             <Text style={styles.doneButtonText}>Terminé</Text>
           </TouchableOpacity>
@@ -325,13 +449,38 @@ export default function ExerciseScreen({ route, navigation }) {
     );
   };
 
+  // Fonction pour rejouer l'audio manuellement
+  const handleReplayAudio = async () => {
+    if (exercises.length > 0 && currentIndex < exercises.length) {
+      const currentExercise = exercises[currentIndex];
+      let romaji = null;
+
+      if (currentExercise.question?.romaji) {
+        romaji = currentExercise.question.romaji;
+      } else if (currentExercise.character?.romaji) {
+        romaji = currentExercise.character.romaji;
+      } else if (currentExercise.correctAnswer?.romaji) {
+        romaji = currentExercise.correctAnswer.romaji;
+      }
+
+      if (romaji) {
+        await audioService.play(romaji);
+      }
+    }
+  };
+
   return (
-    <SafeAreaView style={globalStyles.safeArea}>
+    <SafeAreaView style={globalStyles.safeArea} edges={['top', 'bottom']}>
       <View style={styles.container}>
         {/* Header (Anti-Duolingo: texte simple au lieu de barre de progression) */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Text style={styles.closeButton}>✕</Text>
+          </TouchableOpacity>
+
+          {/* Bouton Audio pour rejouer le son */}
+          <TouchableOpacity style={styles.audioReplayButton} onPress={handleReplayAudio}>
+            <Text style={styles.audioReplayIcon}>🔊</Text>
           </TouchableOpacity>
 
           {/* Progress Text (au lieu de barre de progression "game") */}
@@ -388,6 +537,9 @@ export default function ExerciseScreen({ route, navigation }) {
           </Animated.View>
         )}
 
+        {/* Out of Lives Modal */}
+        {renderOutOfLivesModal()}
+
         {/* Results Modal */}
         {renderResultsModal()}
       </View>
@@ -410,6 +562,14 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: COLORS.text,
     fontWeight: 'bold',
+  },
+  audioReplayButton: {
+    padding: 8,
+    backgroundColor: COLORS.primary + '20',
+    borderRadius: 20,
+  },
+  audioReplayIcon: {
+    fontSize: 20,
   },
   // Progress Text (Anti-Duolingo: texte sobre au lieu de barre game)
   progressText: {
@@ -591,5 +751,117 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontSize: FONTS.medium,
     color: COLORS.textSecondary,
+  },
+  // Out of Lives Modal (Duolingo-inspired)
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SIZES.screenPadding,
+  },
+  outOfLivesContainer: {
+    backgroundColor: COLORS.surface,
+    borderRadius: SIZES.radius * 2,
+    padding: SIZES.padding * 2,
+    width: '100%',
+    maxWidth: 400,
+    alignItems: 'center',
+  },
+  outOfLivesEmoji: {
+    fontSize: 64,
+    marginBottom: SIZES.margin,
+  },
+  outOfLivesTitle: {
+    fontSize: FONTS.xxLarge,
+    fontWeight: 'bold',
+    color: COLORS.text,
+    marginBottom: SIZES.marginSmall,
+    textAlign: 'center',
+  },
+  outOfLivesSubtitle: {
+    fontSize: FONTS.regular,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    marginBottom: SIZES.margin * 2,
+    lineHeight: 22,
+  },
+  livesDisplay: {
+    backgroundColor: COLORS.error + '20',
+    borderRadius: SIZES.radius,
+    paddingVertical: SIZES.paddingSmall,
+    paddingHorizontal: SIZES.padding * 2,
+    marginBottom: SIZES.margin,
+    borderWidth: 2,
+    borderColor: COLORS.error,
+  },
+  livesDisplayText: {
+    fontSize: FONTS.large,
+    fontWeight: 'bold',
+    color: COLORS.error,
+  },
+  timerCard: {
+    backgroundColor: COLORS.surfaceLight,
+    borderRadius: SIZES.radius,
+    padding: SIZES.padding,
+    marginBottom: SIZES.margin * 2,
+    alignItems: 'center',
+    width: '100%',
+  },
+  timerLabel: {
+    fontSize: FONTS.small,
+    color: COLORS.textSecondary,
+    marginBottom: SIZES.marginSmall,
+  },
+  timerValue: {
+    fontSize: FONTS.xLarge,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+  },
+  optionsContainer: {
+    width: '100%',
+    gap: SIZES.margin,
+    marginBottom: SIZES.margin * 2,
+  },
+  optionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: SIZES.radius,
+    padding: SIZES.padding * 1.5,
+    gap: SIZES.margin,
+  },
+  optionButtonSRS: {
+    backgroundColor: COLORS.primary + '20',
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+  },
+  optionButtonPremium: {
+    backgroundColor: COLORS.warning + '20',
+    borderWidth: 2,
+    borderColor: COLORS.warning,
+  },
+  optionButtonIcon: {
+    fontSize: 32,
+  },
+  optionButtonContent: {
+    flex: 1,
+  },
+  optionButtonTitle: {
+    fontSize: FONTS.large,
+    fontWeight: 'bold',
+    color: COLORS.text,
+    marginBottom: 2,
+  },
+  optionButtonSubtitle: {
+    fontSize: FONTS.small,
+    color: COLORS.textSecondary,
+  },
+  quitButton: {
+    padding: SIZES.padding,
+  },
+  quitButtonText: {
+    fontSize: FONTS.medium,
+    color: COLORS.textSecondary,
+    fontWeight: '600',
   },
 });

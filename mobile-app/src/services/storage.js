@@ -26,6 +26,7 @@ export const STORAGE_KEYS = {
   LIVES_RECOVERY_COOLDOWN: 'lives_recovery_cooldown',
   LIVES_DAILY_RECOVERIES: 'lives_daily_recoveries',
   STREAK_GRACE: 'streak_grace',
+  PAYWALL_LESSON3_SHOWN: 'paywall_lesson3_shown',
 };
 
 /**

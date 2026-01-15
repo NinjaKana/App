@@ -1,6 +1,7 @@
 /**
  * Exercise Transcription Component - Saisie de texte (romaji)
  * L'utilisateur doit taper la transcription romaji d'un caractère
+ * Audio intégré : prononciation de la bonne réponse après validation
  */
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -17,6 +18,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { COLORS, FONTS, SIZES } from '../styles/theme';
+import audioService from '../services/audioService';
 
 export default function ExerciseTranscription({ exercise, onAnswer }) {
   const [userInput, setUserInput] = useState('');
@@ -40,12 +42,15 @@ export default function ExerciseTranscription({ exercise, onAnswer }) {
     shakeAnim.setValue(0);
   }, [exercise]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!userInput.trim() || answered) return;
 
     const correct = userInput.trim().toLowerCase() === exercise.correct.toLowerCase();
     setIsCorrect(correct);
     setAnswered(true);
+
+    // Jouer l'audio de la bonne réponse (renforcement apprentissage)
+    await audioService.play(exercise.correct);
 
     if (!correct) {
       // Animation de shake si incorrect

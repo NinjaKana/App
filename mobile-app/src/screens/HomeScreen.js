@@ -1,6 +1,6 @@
 /**
  * Home Screen - Nouveau Design Figma
- * Dashboard avec stats, calendrier, défi du jour et quêtes
+ * Dashboard avec stats, calendrier et quêtes
  */
 
 import React, { useState, useEffect } from 'react';
@@ -8,16 +8,15 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { COLORS, FONTS, SIZES } from '../styles/theme';
 import { getLives, gainLife } from '../services/livesSystem';
 import { getAllCards, getCardsForReview } from '../services/srsSystem';
-import { getDailyChallenge } from '../services/dailyChallengesSystem';
 import { getDailyQuests } from '../services/questsSystem';
 import { getCurrentStreak, updateStreak } from '../services/streakSystem';
 import { getProgress } from '../services/storage';
@@ -29,7 +28,6 @@ export default function HomeScreen({ navigation }) {
   const [lives, setLives] = useState(7);
   const [reviewCount, setReviewCount] = useState(0);
   const [totalCards, setTotalCards] = useState(0);
-  const [dailyChallenge, setDailyChallenge] = useState(null);
   const [dailyQuests, setDailyQuests] = useState([]);
   const [showRecoveryModal, setShowRecoveryModal] = useState(false);
   const [currentStreak, setCurrentStreak] = useState(0);
@@ -44,12 +42,11 @@ export default function HomeScreen({ navigation }) {
     try {
       setLoading(true);
 
-      const [currentLives, cards, cardsToReview, todayChallenge, quests, progress] =
+      const [currentLives, cards, cardsToReview, quests, progress] =
         await Promise.all([
           getLives(),
           getAllCards(),
           getCardsForReview(),
-          getDailyChallenge(),
           getDailyQuests(),
           getProgress(),
         ]);
@@ -57,7 +54,6 @@ export default function HomeScreen({ navigation }) {
       setLives(currentLives);
       setTotalCards(cards.length);
       setReviewCount(cardsToReview.length);
-      setDailyChallenge(todayChallenge);
       setDailyQuests(quests);
       setTotalKi(progress?.totalPoints || 0);
 
@@ -96,7 +92,7 @@ export default function HomeScreen({ navigation }) {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['top']}>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={COLORS.primary} />
           <Text style={styles.loadingText}>Chargement...</Text>
@@ -106,7 +102,7 @@ export default function HomeScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header avec Rank et Ki */}
         <View style={styles.header}>
@@ -158,30 +154,6 @@ export default function HomeScreen({ navigation }) {
           </View>
         </View>
 
-        {/* Défi du jour */}
-        {dailyChallenge && (
-          <TouchableOpacity
-            style={styles.challengeCard}
-            onPress={() => navigation.navigate('DailyChallenge')}
-          >
-            <View style={styles.challengeHeader}>
-              <Text style={styles.challengeEmoji}>🏆</Text>
-              <Text style={styles.challengeTitle}>Défi du jour</Text>
-              <View style={styles.challengeBadge}>
-                <Text style={styles.challengeBadgeText}>Facile</Text>
-              </View>
-            </View>
-            <Text style={styles.challengeProverb}>サルも木から落ちる</Text>
-            <Text style={styles.challengeRomaji}>Saru mo ki kara ochiru</Text>
-            <View style={styles.challengeFooter}>
-              <View style={styles.kiReward}>
-                <Text style={styles.kiRewardText}>+10 Ki</Text>
-              </View>
-              <Text style={styles.challengeLink}>Toucher pour voir {'>'}</Text>
-            </View>
-          </TouchableOpacity>
-        )}
-
         {/* Quêtes du Jour */}
         <View style={styles.questsSection}>
           <View style={styles.questsHeader}>
@@ -201,7 +173,7 @@ export default function HomeScreen({ navigation }) {
             </View>
             <View style={styles.questContent}>
               <Text style={styles.questName}>Maîtrise parfaite</Text>
-              <Text style={styles.questDescription}>Fais 5 exercises sans erreur</Text>
+              <Text style={styles.questDescription}>Fais 5 exercices sans erreur</Text>
               <View style={styles.questProgressContainer}>
                 <View style={styles.questProgressBar}>
                   <View style={[styles.questProgressFill, { width: '40%' }]} />
@@ -221,7 +193,7 @@ export default function HomeScreen({ navigation }) {
             </View>
             <View style={styles.questContent}>
               <Text style={styles.questName}>Régularité</Text>
-              <Text style={styles.questDescription}>Garde ton Flamme vivant aujourd'hui</Text>
+              <Text style={styles.questDescription}>Garde ta Flamme vivante aujourd'hui</Text>
               <View style={styles.questProgressContainer}>
                 <View style={styles.questProgressBar}>
                   <View style={[styles.questProgressFill, { width: '0%', backgroundColor: COLORS.textMuted }]} />
@@ -240,7 +212,7 @@ export default function HomeScreen({ navigation }) {
             </View>
             <View style={styles.questContent}>
               <Text style={styles.questName}>Réviser et mémoriser</Text>
-              <Text style={styles.questDescription}>Complete 10 révisions SRS</Text>
+              <Text style={styles.questDescription}>Complète 10 révisions SRS</Text>
               <View style={styles.questProgressContainer}>
                 <View style={styles.questProgressBar}>
                   <View style={[styles.questProgressFill, { width: '30%' }]} />

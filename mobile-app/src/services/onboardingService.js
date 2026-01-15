@@ -42,12 +42,21 @@ export const ONBOARDING_SLIDES = [
   },
   {
     id: 'gamification',
-    emoji: '🔥',
-    title: 'Volonté du Feu',
-    subtitle: 'Ta Flamme Quotidienne',
+    emoji: '❤️',
+    title: 'Système de Vies',
+    subtitle: 'Comment ça marche',
     description:
-      'Maintiens ta flamme en pratiquant chaque jour. Le Bouclier Ninja te protège gratuitement !',
-    highlight: '5 cœurs • Bouclier Ninja GRATUIT • Missions quotidiennes',
+      'Tu as 7 vies (cœurs). 3 erreurs consécutives dans un quiz = -1 vie. À 0 vies, tu es bloqué.\n\nRécupération :\n• Automatique : +1 vie toutes les 3h\n• Révisions : 5 révisions SRS = +1 vie\n• Abonnement Premium : vies illimitées',
+    highlight: 'Astuce : Mémorise bien avant de commencer un quiz !',
+  },
+  {
+    id: 'encouragement',
+    emoji: '🌸',
+    title: 'Pour les débutants',
+    subtitle: 'C\'est normal de trouver ça difficile',
+    description:
+      'Le japonais est une langue complexe. Si tu trouves les premières leçons difficiles, c\'est NORMAL !\n\nLes 3 premières leçons sont plus indulgentes (5 erreurs au lieu de 3). Prends ton temps, mémorise bien, et persévère.',
+    highlight: 'La maîtrise vient avec la pratique. Tu vas progresser !',
   },
   {
     id: 'ranks',

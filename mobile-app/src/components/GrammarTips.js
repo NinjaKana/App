@@ -54,6 +54,69 @@ const GRAMMAR_DATA = {
       },
     ],
   },
+  dakuten: {
+    title: 'Caractères Voisés (Dakuten ゛)',
+    sections: [
+      {
+        heading: "Qu'est-ce que c'est ?",
+        content: "Le dakuten (゛) ou \"ten-ten\" est un signe diacritique qui transforme certains sons en versions voisées (sonores). Il se place en haut à droite du caractère.",
+      },
+      {
+        heading: 'Transformations',
+        content: "• K → G (か→が ka→ga)\n• S → Z (さ→ざ sa→za)\n• T → D (た→だ ta→da)\n• H → B (は→ば ha→ba)\n\nAttention : し devient じ (shi→ji) et つ devient づ (tsu→zu)",
+      },
+      {
+        heading: 'Prononciation',
+        content: "Les sons voisés sont prononcés avec vibration des cordes vocales :\n• GA, GI, GU, GE, GO (comme dans 'gare')\n• ZA, JI, ZU, ZE, ZO (comme dans 'zoo')\n• DA, DI, DU, DE, DO (comme dans 'dodo')\n• BA, BI, BU, BE, BO (comme dans 'balle')",
+      },
+      {
+        heading: 'Astuce',
+        content: "Prononcez d'abord le son de base (ka, sa, ta, ha) puis ajoutez de la 'voix' : c'est comme passer du chuchotement à la voix normale !",
+      },
+    ],
+  },
+  handakuten: {
+    title: 'Caractères Semi-voisés (Handakuten ゜)',
+    sections: [
+      {
+        heading: "Qu'est-ce que c'est ?",
+        content: "Le handakuten (゜) ou \"maru\" (cercle) transforme uniquement la ligne H en sons P. C'est un petit cercle placé en haut à droite du caractère.",
+      },
+      {
+        heading: 'Transformation H → P',
+        content: "• は → ぱ (ha → pa)\n• ひ → ぴ (hi → pi)\n• ふ → ぷ (hu → pu)\n• へ → ぺ (he → pe)\n• ほ → ぽ (ho → po)",
+      },
+      {
+        heading: 'Prononciation',
+        content: "Le son P est explosif, comme en français :\n• PA comme dans 'papa'\n• PI comme dans 'pizza'\n• PU comme dans 'pull'\n• PE comme dans 'pet'\n• PO comme dans 'pot'",
+      },
+      {
+        heading: 'Différence',
+        content: "Ne confondez pas :\n• Dakuten (゛) = H → B (vibration)\n• Handakuten (゜) = H → P (explosion d'air)",
+      },
+    ],
+  },
+  combinations: {
+    title: 'Combinaisons (Yōon 拗音)',
+    sections: [
+      {
+        heading: "Qu'est-ce que c'est ?",
+        content: "Les yōon sont des combinaisons de deux caractères formant un seul son. Le 2e caractère (や, ゆ, よ) est écrit plus petit.",
+      },
+      {
+        heading: 'Structure',
+        content: "Consonne + i + petit ya/yu/yo :\n• きゃ = kya (ki + ya)\n• しゅ = shu (shi + yu)\n• ちょ = cho (chi + yo)\n• りゃ = rya (ri + ya)",
+      },
+      {
+        heading: 'Prononciation',
+        content: "Les deux caractères se prononcent en UN SEUL son :\n• KYA (comme 'Kya!' en criant)\n• SHU (comme 'chou')\n• CHO (comme 'chaud')\n• NYA (comme le miaulement du chat)",
+      },
+      {
+        heading: 'Usage courant',
+        content: "Très fréquent en japonais :\n• きゃく (kyaku) = client\n• しゅう (shuu) = semaine\n• ちょっと (chotto) = un peu\n• りょう (ryou) = dortoir",
+      },
+    ],
+  },
   kanji: {
     title: 'Les Kanji 漢字',
     sections: [
@@ -83,12 +146,16 @@ const GRAMMAR_DATA = {
         content: "Apprenez le vocabulaire en contexte, pas en isolation. Les mots s'ancrent mieux avec des phrases d'exemple.",
       },
       {
-        heading: 'Catégories N5',
-        content: "• Salutations et politesse\n• Nombres et compteurs\n• Temps (jours, mois, heures)\n• Famille et personnes\n• Objets quotidiens",
+        heading: 'Thèmes disponibles',
+        content: "• Salutations et politesse (こんにちは, ありがとう...)\n• Jours de la semaine (月曜日, 火曜日...)\n• Couleurs (赤, 青, 白...)\n• Famille (お父さん, お母さん...)\n• Nourriture de base (水, ご飯, パン...)",
       },
       {
         heading: 'Conseils',
-        content: "• Révisez régulièrement (SRS)\n• Écoutez la prononciation\n• Utilisez les mots dans des phrases\n• 10-20 mots nouveaux par jour maximum",
+        content: "• Révisez régulièrement avec le SRS\n• Écoutez la prononciation (bouton audio)\n• Utilisez les mots dans des phrases\n• Apprenez 5-10 mots nouveaux par jour maximum",
+      },
+      {
+        heading: 'Vocabulaire JLPT N5',
+        content: "Ces leçons couvrent le vocabulaire essentiel pour le JLPT N5 (niveau débutant). Environ 800 mots à maîtriser pour le test.",
       },
     ],
   },
@@ -128,26 +195,53 @@ const GRAMMAR_DATA = {
   },
 };
 
-// Déterminer la catégorie de grammaire basée sur le type de leçon
-function getGrammarCategory(lessonType, lessonId) {
-  // Convertir lessonId en string pour la comparaison
+// Déterminer la catégorie de grammaire basée sur le type de leçon et son titre
+function getGrammarCategory(lessonType, lessonId, lessonTitle) {
+  // Convertir en minuscules pour la comparaison
+  const title = (lessonTitle || '').toLowerCase();
   const idStr = String(lessonId || '');
 
+  // Détection par titre (prioritaire car plus précis)
+  // IMPORTANT : Vérifier handakuten AVANT dakuten (car "handakuten" contient "dakuten")
+  if (title.includes('semi-voisées') || title.includes('handakuten') ||
+      title.includes('p (')) {
+    return 'handakuten';
+  }
+
+  if (title.includes('voisées') || title.includes('dakuten') ||
+      title.includes('g +') || title.includes('z +') ||
+      title.includes('d +') || title.includes('b +')) {
+    return 'dakuten';
+  }
+
+  if (title.includes('combinaisons') || title.includes('yōon')) {
+    return 'combinations';
+  }
+
+  // Détection spécifique pour Chiffres/Nombres
+  if (title.includes('chiffres') || title.includes('nombres') ||
+      title.includes('1-100') || title.includes('(1-')) {
+    return 'numbers';
+  }
+
+  // Détection par type de leçon
   if (lessonType === 'kanji' || idStr.includes('kanji')) return 'kanji';
   if (lessonType === 'hiragana') return 'hiragana';
   if (lessonType === 'katakana') return 'katakana';
   if (lessonType === 'vocabulary') return 'vocabulary';
-  if (idStr.includes('number') || idStr.includes('nombre')) return 'numbers';
 
   // Pour les leçons kanji avec ID numérique (23-42)
   const numId = Number(lessonId);
   if (numId >= 23 && numId <= 42) return 'kanji';
 
+  // Pour les leçons vocabulary avec ID numérique (43-48)
+  if (numId >= 43 && numId <= 48) return 'vocabulary';
+
   return 'default';
 }
 
-export default function GrammarTips({ visible, onClose, lessonType, lessonId }) {
-  const category = getGrammarCategory(lessonType, lessonId);
+export default function GrammarTips({ visible, onClose, lessonType, lessonId, lessonTitle }) {
+  const category = getGrammarCategory(lessonType, lessonId, lessonTitle);
   const data = GRAMMAR_DATA[category] || GRAMMAR_DATA.default;
 
   return (
@@ -168,7 +262,11 @@ export default function GrammarTips({ visible, onClose, lessonType, lessonId }) 
           </View>
 
           {/* Content */}
-          <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          <ScrollView
+            style={styles.content}
+            contentContainerStyle={styles.contentContainer}
+            showsVerticalScrollIndicator={true}
+          >
             {data.sections.map((section, index) => (
               <View key={index} style={styles.section}>
                 <Text style={styles.heading}>{section.heading}</Text>
@@ -183,12 +281,12 @@ export default function GrammarTips({ visible, onClose, lessonType, lessonId }) 
                 Utilisez le bouton audio pour entendre la prononciation correcte !
               </Text>
             </View>
-          </ScrollView>
 
-          {/* Footer */}
-          <TouchableOpacity style={styles.gotItButton} onPress={onClose}>
-            <Text style={styles.gotItText}>Compris !</Text>
-          </TouchableOpacity>
+            {/* Footer - Maintenant DANS le ScrollView */}
+            <TouchableOpacity style={styles.gotItButton} onPress={onClose}>
+              <Text style={styles.gotItText}>Compris !</Text>
+            </TouchableOpacity>
+          </ScrollView>
         </View>
       </View>
     </Modal>
@@ -205,8 +303,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     borderTopLeftRadius: SIZES.radius * 2,
     borderTopRightRadius: SIZES.radius * 2,
-    maxHeight: '85%',
-    paddingBottom: 20,
+    height: '85%',
+    display: 'flex',
+    flexDirection: 'column',
   },
   header: {
     flexDirection: 'row',
@@ -235,7 +334,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   content: {
+    flex: 1,
+  },
+  contentContainer: {
     padding: SIZES.padding * 1.5,
+    paddingBottom: 40,
   },
   section: {
     marginBottom: SIZES.margin * 1.5,
@@ -271,9 +374,9 @@ const styles = StyleSheet.create({
   },
   gotItButton: {
     backgroundColor: COLORS.primary,
-    marginHorizontal: SIZES.padding * 1.5,
+    marginTop: SIZES.margin * 2,
     borderRadius: SIZES.radius,
-    padding: SIZES.padding,
+    padding: SIZES.padding * 1.5,
     alignItems: 'center',
   },
   gotItText: {

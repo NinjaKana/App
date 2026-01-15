@@ -4,10 +4,11 @@
  */
 
 import React from 'react';
-import { Text } from 'react-native';
+import { Text, Platform } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Screens
 import HomeScreen from '../screens/HomeScreen';
@@ -17,7 +18,6 @@ import ExerciseScreen from '../screens/ExerciseScreen';
 import SRSScreen from '../screens/SRSScreen';
 import SRSReviewScreen from '../screens/SRSReviewScreen';
 import ProfileScreen from '../screens/ProfileScreen';
-import DailyChallengeScreen from '../screens/DailyChallengeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import LeaderboardScreen from '../screens/LeaderboardScreen';
 
@@ -36,6 +36,8 @@ const Tab = createBottomTabNavigator();
 
 // Tab Navigator pour les écrans principaux
 function MainTabs() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -44,9 +46,9 @@ function MainTabs() {
           backgroundColor: COLORS.surface,
           borderTopColor: COLORS.border,
           borderTopWidth: 1,
-          paddingBottom: 8,
-          paddingTop: 8,
-          height: 70,
+          paddingBottom: Math.max(insets.bottom, 16),
+          paddingTop: 10,
+          height: 80 + Math.max(insets.bottom - 8, 0),
         },
         tabBarActiveTintColor: COLORS.primary,
         tabBarInactiveTintColor: COLORS.textMuted,
@@ -142,13 +144,6 @@ function AppNavigator() {
           component={SRSReviewScreen}
           options={{
             headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="DailyChallenge"
-          component={DailyChallengeScreen}
-          options={{
-            title: 'Défi du Jour',
           }}
         />
         <Stack.Screen

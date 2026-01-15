@@ -8,11 +8,11 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   TouchableOpacity,
   Modal,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import SRSCard from '../components/SRSCard';
 import {
   getDueCards,
@@ -101,7 +101,7 @@ export default function SRSReviewScreen({ route, navigation }) {
 
     return (
       <Modal visible={showResults} animationType="fade" transparent={false}>
-        <SafeAreaView style={globalStyles.safeArea}>
+        <SafeAreaView style={globalStyles.safeArea} edges={['top', 'bottom']}>
           <View style={styles.resultsContainer}>
             <Text style={styles.resultsTitle}>🎉 Révisions Terminées !</Text>
 
@@ -174,7 +174,7 @@ export default function SRSReviewScreen({ route, navigation }) {
 
   if (loading) {
     return (
-      <SafeAreaView style={globalStyles.safeArea}>
+      <SafeAreaView style={globalStyles.safeArea} edges={['top', 'bottom']}>
         <View style={globalStyles.centerContainer}>
           <ActivityIndicator size="large" color={COLORS.primary} />
           <Text style={[globalStyles.text, { marginTop: SIZES.margin }]}>
@@ -187,7 +187,7 @@ export default function SRSReviewScreen({ route, navigation }) {
 
   if (cards.length === 0) {
     return (
-      <SafeAreaView style={globalStyles.safeArea}>{renderNoCards()}</SafeAreaView>
+      <SafeAreaView style={globalStyles.safeArea} edges={['top', 'bottom']}>{renderNoCards()}</SafeAreaView>
     );
   }
 
@@ -195,7 +195,7 @@ export default function SRSReviewScreen({ route, navigation }) {
   const progress = ((currentIndex + 1) / cards.length) * 100;
 
   return (
-    <SafeAreaView style={globalStyles.safeArea}>
+    <SafeAreaView style={globalStyles.safeArea} edges={['top', 'bottom']}>
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>

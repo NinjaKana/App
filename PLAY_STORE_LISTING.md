@@ -115,6 +115,7 @@ Tous les pays (ou sélection personnalisée)
 
 ## Checklist Play Console
 
+### Configuration initiale ✅
 - [x] Build AAB uploadé (v1.0.0)
 - [x] Icône 512x512 uploadée
 - [x] Feature Graphic 1024x500 uploadée
@@ -128,11 +129,16 @@ Tous les pays (ou sélection personnalisée)
 - [x] Sécurité des données remplie
 - [x] Déclaration identifiant publicitaire remplie
 - [x] Pays de distribution sélectionnés (176 pays)
-- [x] Test fermé configuré (1 testeur)
-- [ ] Validation identité Google (en attente)
-- [ ] Validation numéro de téléphone (bloqué)
-- [ ] Ajouter 11 testeurs supplémentaires
-- [ ] Attendre 14 jours de test fermé
+- [x] Test fermé configuré (liste "Testeurs NinjaKana")
+
+### Validation compte ✅
+- [x] Validation identité Google (9 janvier 2026)
+- [x] Validation numéro de téléphone (9 janvier 2026)
+
+### Test fermé (en cours)
+- [ ] Envoyer les 14 modifications pour examen
+- [ ] Recruter 12 testeurs minimum
+- [ ] Attendre 14 jours de test fermé actif
 - [ ] Demander accès production
 
 ---
