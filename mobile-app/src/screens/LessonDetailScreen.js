@@ -14,8 +14,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getLessonById } from '../data/lessonsData';
 import audioService from '../services/audioService';
-import { COLORS, FONTS, SIZES } from '../styles/theme';
-import globalStyles from '../styles/globalStyles';
+import { useTheme } from '../contexts/ThemeContext';
+import { FONTS, SIZES } from '../styles/theme';
 import KanjiCard from '../components/KanjiCard';
 import GrammarTips from '../components/GrammarTips';
 import FirstTimeLessonTip, { shouldShowFirstTimeTip, markFirstTimeTipAsShown } from '../components/FirstTimeLessonTip';
@@ -27,6 +27,9 @@ export default function LessonDetailScreen({ route, navigation }) {
   const [currentKanjiIndex, setCurrentKanjiIndex] = useState(0);
   const [showGrammar, setShowGrammar] = useState(false);
   const [showFirstTimeTip, setShowFirstTimeTip] = useState(false);
+
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
 
   // Vérifier si on doit afficher le conseil première fois
   useEffect(() => {
@@ -68,7 +71,7 @@ export default function LessonDetailScreen({ route, navigation }) {
 
   if (!lesson) {
     return (
-      <SafeAreaView style={globalStyles.safeArea} edges={['top', 'bottom']}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top', 'bottom']}>
         <View style={styles.errorContainer}>
           <Text style={styles.errorIcon}>📚</Text>
           <Text style={styles.errorText}>Leçon introuvable</Text>
@@ -84,7 +87,7 @@ export default function LessonDetailScreen({ route, navigation }) {
   }
 
   return (
-    <SafeAreaView style={globalStyles.safeArea} edges={['top']}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
@@ -238,10 +241,10 @@ export default function LessonDetailScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   scrollContent: {
     paddingBottom: 120,
@@ -258,14 +261,14 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: SIZES.radiusSmall,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: SIZES.margin,
   },
   backArrowText: {
     fontSize: 24,
-    color: COLORS.text,
+    color: colors.text,
   },
   headerContent: {
     flex: 1,
@@ -273,11 +276,11 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: FONTS.xxLarge,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
   },
   headerSubtitle: {
     fontSize: FONTS.medium,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 2,
   },
 
@@ -285,13 +288,13 @@ const styles = StyleSheet.create({
   tipsButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     marginHorizontal: SIZES.screenPadding,
     marginBottom: SIZES.margin,
     padding: SIZES.padding,
     borderRadius: SIZES.radius,
     borderWidth: 1,
-    borderColor: COLORS.accent + '40',
+    borderColor: colors.accent + '40',
   },
   tipsIcon: {
     fontSize: 20,
@@ -301,11 +304,11 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: FONTS.medium,
     fontWeight: '600',
-    color: COLORS.accent,
+    color: colors.accent,
   },
   tipsArrow: {
     fontSize: 24,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
 
   // Content Section
@@ -315,7 +318,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: FONTS.large,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: SIZES.margin,
   },
 
@@ -323,7 +326,7 @@ const styles = StyleSheet.create({
   characterCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: SIZES.radius,
     padding: SIZES.padding,
     marginBottom: SIZES.marginSmall,
@@ -332,14 +335,14 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: SIZES.radiusSmall,
-    backgroundColor: COLORS.backgroundDark,
+    backgroundColor: colors.backgroundDark,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: SIZES.margin,
   },
   characterMain: {
     fontSize: 36,
-    color: COLORS.text,
+    color: colors.text,
     fontWeight: '300',
   },
   characterInfo: {
@@ -348,7 +351,7 @@ const styles = StyleSheet.create({
   characterRomaji: {
     fontSize: FONTS.xLarge,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   characterTip: {
@@ -363,7 +366,7 @@ const styles = StyleSheet.create({
   tipText: {
     flex: 1,
     fontSize: FONTS.small,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     lineHeight: 18,
   },
 
@@ -372,12 +375,12 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: SIZES.radius,
-    backgroundColor: COLORS.primary + '20',
+    backgroundColor: colors.primary + '20',
     justifyContent: 'center',
     alignItems: 'center',
   },
   audioButtonPlaying: {
-    backgroundColor: COLORS.primary + '40',
+    backgroundColor: colors.primary + '40',
   },
   audioIcon: {
     fontSize: 24,
@@ -393,12 +396,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: SIZES.screenPadding,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
   },
   startButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: SIZES.radius,
     padding: SIZES.padding * 1.2,
     alignItems: 'center',
@@ -406,11 +409,11 @@ const styles = StyleSheet.create({
   startButtonText: {
     fontSize: FONTS.large,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
   },
   startButtonCount: {
     fontSize: FONTS.small,
-    color: COLORS.text + 'CC',
+    color: colors.text + 'CC',
     marginTop: 2,
   },
 
@@ -419,11 +422,11 @@ const styles = StyleSheet.create({
     marginTop: SIZES.margin,
     paddingTop: SIZES.margin,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: colors.border,
   },
   kanjiGridTitle: {
     fontSize: FONTS.medium,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: SIZES.marginSmall,
     textAlign: 'center',
   },
@@ -437,19 +440,19 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: SIZES.radiusSmall,
-    backgroundColor: COLORS.backgroundDark,
+    backgroundColor: colors.backgroundDark,
     justifyContent: 'center',
     alignItems: 'center',
   },
   kanjiGridItemActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   kanjiGridChar: {
     fontSize: 28,
-    color: COLORS.text,
+    color: colors.text,
   },
   kanjiGridCharActive: {
-    color: COLORS.text,
+    color: colors.text,
     fontWeight: 'bold',
   },
 
@@ -466,18 +469,18 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: FONTS.large,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: SIZES.margin,
   },
   backButton: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     paddingHorizontal: SIZES.padding * 1.5,
     paddingVertical: SIZES.padding,
     borderRadius: SIZES.radius,
   },
   backButtonText: {
     fontSize: FONTS.medium,
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
   },
 });

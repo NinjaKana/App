@@ -128,31 +128,34 @@ export default function PaywallModal({ visible, onClose, onPurchaseSuccess }) {
     }
   };
 
-  const plans = [
-    {
+  // Only show plans if offerings are properly loaded from RevenueCat
+  const hasValidOfferings = offerings && (offerings.monthly || offerings.yearly || offerings.lifetime);
+
+  const plans = hasValidOfferings ? [
+    offerings.monthly && {
       id: 'monthly',
       name: 'Mensuel',
-      price: offerings?.monthly?.product?.priceString || DISPLAY_PRICES.MONTHLY,
+      price: offerings.monthly.product?.priceString,
       period: '/mois',
-      package: offerings?.monthly,
+      package: offerings.monthly,
     },
-    {
+    offerings.yearly && {
       id: 'yearly',
       name: 'Annuel',
-      price: offerings?.yearly?.product?.priceString || DISPLAY_PRICES.YEARLY,
+      price: offerings.yearly.product?.priceString,
       period: '/an',
-      package: offerings?.yearly,
+      package: offerings.yearly,
       savings: '-58%',
       popular: true,
     },
-    {
+    offerings.lifetime && {
       id: 'lifetime',
       name: 'À vie',
-      price: offerings?.lifetime?.product?.priceString || DISPLAY_PRICES.LIFETIME,
+      price: offerings.lifetime.product?.priceString,
       period: 'une fois',
-      package: offerings?.lifetime,
+      package: offerings.lifetime,
     },
-  ];
+  ].filter(Boolean) : [];
 
   return (
     <Modal
@@ -210,6 +213,15 @@ export default function PaywallModal({ visible, onClose, onPurchaseSuccess }) {
 
             {loading ? (
               <ActivityIndicator size="large" color={COLORS.primary} />
+            ) : !hasValidOfferings ? (
+              <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>
+                  Impossible de charger les offres. Vérifiez votre connexion et réessayez.
+                </Text>
+                <TouchableOpacity style={styles.retryButton} onPress={loadOfferings}>
+                  <Text style={styles.retryText}>Réessayer</Text>
+                </TouchableOpacity>
+              </View>
             ) : (
               <View style={styles.plansContainer}>
                 {plans.map((plan) => (
@@ -252,12 +264,12 @@ export default function PaywallModal({ visible, onClose, onPurchaseSuccess }) {
         {/* Bottom Actions - Design Figma */}
         <View style={styles.bottomActions}>
           <TouchableOpacity
-            style={[styles.purchaseButton, purchasing && styles.buttonDisabled]}
+            style={[styles.purchaseButton, (purchasing || !hasValidOfferings) && styles.buttonDisabled]}
             onPress={() => {
               const plan = plans.find(p => p.id === selectedPlan);
               handlePurchase(plan?.package);
             }}
-            disabled={purchasing || loading}
+            disabled={purchasing || loading || !hasValidOfferings}
           >
             {purchasing ? (
               <ActivityIndicator color={COLORS.text} />
@@ -407,6 +419,27 @@ const styles = StyleSheet.create({
   // Plans
   plansSection: {
     marginBottom: SIZES.margin,
+  },
+  errorContainer: {
+    alignItems: 'center',
+    padding: SIZES.padding,
+  },
+  errorText: {
+    fontSize: FONTS.medium,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    marginBottom: SIZES.margin,
+  },
+  retryButton: {
+    backgroundColor: COLORS.surface,
+    paddingHorizontal: SIZES.padding * 1.5,
+    paddingVertical: SIZES.paddingSmall,
+    borderRadius: SIZES.radius,
+  },
+  retryText: {
+    fontSize: FONTS.medium,
+    color: COLORS.primary,
+    fontWeight: '600',
   },
   plansContainer: {
     flexDirection: 'row',

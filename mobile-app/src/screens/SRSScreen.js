@@ -13,14 +13,17 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getSRSStats, getDueCards } from '../services/srsSystem';
-import { COLORS, FONTS, SIZES } from '../styles/theme';
-import globalStyles from '../styles/globalStyles';
+import { useTheme } from '../contexts/ThemeContext';
+import { FONTS, SIZES } from '../styles/theme';
 import AdBanner from '../components/AdBanner';
 
 export default function SRSScreen({ navigation }) {
+  const { colors } = useTheme();
   const [stats, setStats] = useState(null);
   const [dueCards, setDueCards] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const styles = createStyles(colors);
 
   useEffect(() => {
     loadStats();
@@ -48,9 +51,9 @@ export default function SRSScreen({ navigation }) {
 
   if (loading) {
     return (
-      <SafeAreaView style={globalStyles.safeArea} edges={['top']}>
-        <View style={globalStyles.centerContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+      <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top']}>
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
         </View>
       </SafeAreaView>
     );
@@ -60,7 +63,7 @@ export default function SRSScreen({ navigation }) {
   const hasCards = stats && stats.total > 0;
 
   return (
-    <SafeAreaView style={globalStyles.safeArea} edges={['top']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
@@ -72,7 +75,7 @@ export default function SRSScreen({ navigation }) {
 
         {/* Due Cards Card */}
         {hasCards && (
-          <View style={[globalStyles.card, styles.dueCard]}>
+          <View style={styles.dueCard}>
             <Text style={styles.dueCount}>{`${dueCards.length}`}</Text>
             <Text style={styles.dueLabel}>
               {dueCards.length === 0
@@ -97,7 +100,7 @@ export default function SRSScreen({ navigation }) {
 
         {/* Stats Grid */}
         {hasCards && stats && (
-          <View style={globalStyles.card}>
+          <View style={styles.card}>
             <Text style={styles.sectionTitle}>📊 Statistiques</Text>
 
             <View style={styles.statsRow}>
@@ -107,21 +110,21 @@ export default function SRSScreen({ navigation }) {
               </View>
 
               <View style={styles.statItem}>
-                <Text style={[styles.statValue, { color: COLORS.primary }]}>
+                <Text style={[styles.statValue, { color: colors.primary }]}>
                   {`${stats.newCards}`}
                 </Text>
                 <Text style={styles.statLabel}>Nouvelles</Text>
               </View>
 
               <View style={styles.statItem}>
-                <Text style={[styles.statValue, { color: COLORS.warning }]}>
+                <Text style={[styles.statValue, { color: colors.warning }]}>
                   {`${stats.learning}`}
                 </Text>
                 <Text style={styles.statLabel}>En cours</Text>
               </View>
 
               <View style={styles.statItem}>
-                <Text style={[styles.statValue, { color: COLORS.success }]}>
+                <Text style={[styles.statValue, { color: colors.success }]}>
                   {`${stats.mature}`}
                 </Text>
                 <Text style={styles.statLabel}>Matures</Text>
@@ -146,7 +149,7 @@ export default function SRSScreen({ navigation }) {
 
         {/* Empty State */}
         {!hasCards && (
-          <View style={globalStyles.card}>
+          <View style={styles.card}>
             <View style={styles.emptyState}>
               <Text style={styles.emptyEmoji}>📚</Text>
               <Text style={styles.emptyTitle}>Aucune carte SRS</Text>
@@ -168,7 +171,7 @@ export default function SRSScreen({ navigation }) {
         )}
 
         {/* Info Card */}
-        <View style={[globalStyles.card, styles.infoCard]}>
+        <View style={styles.infoCard}>
           <Text style={styles.infoTitle}>💡 Comment ça marche ?</Text>
           <Text style={styles.infoText}>
             1. Fais des exercices et apprends de nouvelles choses{'\n'}
@@ -180,15 +183,27 @@ export default function SRSScreen({ navigation }) {
 
         {/* Ad Banner */}
         <AdBanner style={styles.adBanner} />
+
+        {/* Bottom padding */}
+        <View style={{ height: 100 }} />
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
+// Dynamic styles based on theme
+const createStyles = (colors) => StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     padding: SIZES.screenPadding,
   },
   header: {
@@ -197,14 +212,22 @@ const styles = StyleSheet.create({
   title: {
     fontSize: FONTS.xxxLarge,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: SIZES.marginSmall,
   },
   subtitle: {
     fontSize: FONTS.medium,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
+  },
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: SIZES.radius,
+    padding: SIZES.padding,
+    marginBottom: SIZES.margin,
   },
   dueCard: {
+    backgroundColor: colors.surface,
+    borderRadius: SIZES.radius,
     alignItems: 'center',
     padding: SIZES.padding * 2,
     marginBottom: SIZES.margin,
@@ -212,16 +235,16 @@ const styles = StyleSheet.create({
   dueCount: {
     fontSize: 72,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
     marginBottom: SIZES.marginSmall,
   },
   dueLabel: {
     fontSize: FONTS.large,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: SIZES.margin * 2,
   },
   startButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: SIZES.padding * 3,
     paddingVertical: SIZES.padding * 1.5,
     borderRadius: SIZES.radius,
@@ -229,12 +252,12 @@ const styles = StyleSheet.create({
   startButtonText: {
     fontSize: FONTS.large,
     fontWeight: 'bold',
-    color: COLORS.background,
+    color: colors.textOnPrimary,
   },
   sectionTitle: {
     fontSize: FONTS.large,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: SIZES.margin,
   },
   statsRow: {
@@ -248,17 +271,17 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: FONTS.xxLarge,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   statLabel: {
     fontSize: FONTS.small,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   divider: {
     height: 1,
-    backgroundColor: COLORS.border,
+    backgroundColor: colors.border,
     marginVertical: SIZES.margin,
   },
   emptyState: {
@@ -272,18 +295,18 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: FONTS.xLarge,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: SIZES.marginSmall,
   },
   emptyText: {
     fontSize: FONTS.medium,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: SIZES.margin * 2,
   },
   goToLessonsButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: SIZES.padding * 2,
     paddingVertical: SIZES.padding,
     borderRadius: SIZES.radius,
@@ -291,22 +314,24 @@ const styles = StyleSheet.create({
   goToLessonsText: {
     fontSize: FONTS.medium,
     fontWeight: '600',
-    color: COLORS.background,
+    color: colors.textOnPrimary,
   },
   infoCard: {
-    backgroundColor: COLORS.primary + '10',
+    backgroundColor: colors.primary + '10',
+    borderRadius: SIZES.radius,
+    padding: SIZES.padding,
     marginTop: SIZES.margin,
     marginBottom: SIZES.margin * 2,
   },
   infoTitle: {
     fontSize: FONTS.large,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: SIZES.marginSmall,
   },
   infoText: {
     fontSize: FONTS.medium,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     lineHeight: 22,
   },
   adBanner: {

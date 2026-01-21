@@ -24,11 +24,12 @@ import {
 import { getCurrentStreak, getHighestStreak } from '../services/streakSystem';
 import { BadgeGrid } from '../components/BadgeCard';
 import { getLives } from '../services/livesSystem';
-import { COLORS, FONTS, SIZES } from '../styles/theme';
-import globalStyles from '../styles/globalStyles';
+import { useTheme } from '../contexts/ThemeContext';
+import { FONTS, SIZES } from '../styles/theme';
 import { usePremium } from '../contexts/PremiumContext';
 
 export default function ProfileScreen({ navigation }) {
+  const { colors } = useTheme();
   const { isPremium, openPaywall } = usePremium();
   const [progress, setProgress] = useState(null);
   const [badges, setBadges] = useState([]);
@@ -38,6 +39,8 @@ export default function ProfileScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState(null);
+
+  const styles = createStyles(colors);
 
   useFocusEffect(
     useCallback(() => {
@@ -126,14 +129,14 @@ export default function ProfileScreen({ navigation }) {
 
   if (loading) {
     return (
-      <View style={globalStyles.loadingContainer}>
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
         <Text style={styles.loadingText}>Chargement...</Text>
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={globalStyles.safeArea} edges={['top']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
@@ -241,7 +244,7 @@ export default function ProfileScreen({ navigation }) {
                   <View
                     style={[
                       styles.achievementIcon,
-                      { borderColor: RARITY_COLORS[badge.rarity] || COLORS.primary },
+                      { borderColor: RARITY_COLORS[badge.rarity] || colors.primary },
                     ]}
                   >
                     <Text style={styles.achievementEmoji}>{badge.icon}</Text>
@@ -333,7 +336,7 @@ export default function ProfileScreen({ navigation }) {
                 <View
                   style={[
                     styles.modalIcon,
-                    { borderColor: RARITY_COLORS[selectedBadge.rarity] || COLORS.primary },
+                    { borderColor: RARITY_COLORS[selectedBadge.rarity] || colors.primary },
                   ]}
                 >
                   <Text style={styles.modalEmoji}>{selectedBadge.icon}</Text>
@@ -370,16 +373,25 @@ const getRankEmoji = (level) => {
   return emojis[Math.min(level - 1, emojis.length - 1)];
 };
 
-const styles = StyleSheet.create({
+// Dynamic styles based on theme
+const createStyles = (colors) => StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   scrollContent: {
     paddingBottom: 100,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   loadingText: {
-    color: COLORS.text,
+    color: colors.text,
     fontSize: FONTS.medium,
   },
 
@@ -394,13 +406,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: FONTS.xxLarge,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
   },
   settingsButton: {
     width: 44,
     height: 44,
     borderRadius: SIZES.radiusSmall,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -415,7 +427,7 @@ const styles = StyleSheet.create({
   premiumButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: SIZES.padding,
     paddingVertical: SIZES.paddingSmall,
     borderRadius: SIZES.radius,
@@ -427,7 +439,7 @@ const styles = StyleSheet.create({
   premiumText: {
     fontSize: FONTS.small,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.textOnPrimary,
   },
 
   // Profile Section
@@ -443,11 +455,11 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
   },
   avatarEmoji: {
     fontSize: 48,
@@ -456,7 +468,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: -8,
     alignSelf: 'center',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
@@ -464,17 +476,17 @@ const styles = StyleSheet.create({
   rankText: {
     fontSize: FONTS.small,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.textOnPrimary,
   },
   profileName: {
     fontSize: FONTS.xLarge,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginTop: SIZES.marginSmall,
   },
   profileSubtitle: {
     fontSize: FONTS.medium,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 2,
   },
 
@@ -487,7 +499,7 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: SIZES.radius,
     padding: SIZES.padding,
     alignItems: 'center',
@@ -499,11 +511,11 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: FONTS.xxLarge,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
   },
   statLabel: {
     fontSize: FONTS.small,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 2,
   },
 
@@ -519,28 +531,28 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     fontSize: FONTS.small,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   progressValue: {
     fontSize: FONTS.small,
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
   },
   progressBar: {
     height: 8,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: 4,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 4,
   },
 
   // Section
   section: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     marginHorizontal: SIZES.screenPadding,
     marginBottom: SIZES.margin,
     borderRadius: SIZES.radius,
@@ -555,12 +567,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: FONTS.large,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: SIZES.marginSmall,
   },
   seeAllText: {
     fontSize: FONTS.medium,
-    color: COLORS.primary,
+    color: colors.primary,
   },
 
   // Achievements Grid
@@ -577,7 +589,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: COLORS.backgroundDark,
+    backgroundColor: colors.backgroundDark,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
@@ -588,7 +600,7 @@ const styles = StyleSheet.create({
   },
   achievementName: {
     fontSize: FONTS.tiny,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   emptyAchievements: {
@@ -601,11 +613,11 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: FONTS.medium,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   emptySubtext: {
     fontSize: FONTS.small,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     marginTop: 4,
   },
 
@@ -619,14 +631,14 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: SIZES.radiusSmall,
-    backgroundColor: COLORS.backgroundDark,
+    backgroundColor: colors.backgroundDark,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: SIZES.margin,
   },
   techniqueChar: {
     fontSize: 22,
-    color: COLORS.text,
+    color: colors.text,
   },
   techniqueInfo: {
     flex: 1,
@@ -634,23 +646,23 @@ const styles = StyleSheet.create({
   techniqueName: {
     fontSize: FONTS.medium,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   techniqueProgressBar: {
     height: 6,
-    backgroundColor: COLORS.backgroundDark,
+    backgroundColor: colors.backgroundDark,
     borderRadius: 3,
     overflow: 'hidden',
   },
   techniqueProgressFill: {
     height: '100%',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 3,
   },
   techniqueCount: {
     fontSize: FONTS.small,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginLeft: SIZES.marginSmall,
   },
 
@@ -671,11 +683,11 @@ const styles = StyleSheet.create({
   detailValue: {
     fontSize: FONTS.large,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
   },
   detailLabel: {
     fontSize: FONTS.tiny,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 2,
   },
 
@@ -688,7 +700,7 @@ const styles = StyleSheet.create({
     padding: SIZES.screenPadding,
   },
   modalContent: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: SIZES.radiusLarge,
     padding: SIZES.paddingLarge,
     alignItems: 'center',
@@ -699,7 +711,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: COLORS.backgroundDark,
+    backgroundColor: colors.backgroundDark,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
@@ -711,18 +723,18 @@ const styles = StyleSheet.create({
   modalName: {
     fontSize: FONTS.xLarge,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
     textAlign: 'center',
   },
   modalDescription: {
     fontSize: FONTS.regular,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: SIZES.margin,
   },
   modalReward: {
-    backgroundColor: COLORS.primary + '20',
+    backgroundColor: colors.primary + '20',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: SIZES.radius,
@@ -731,10 +743,10 @@ const styles = StyleSheet.create({
   modalRewardText: {
     fontSize: FONTS.medium,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   modalCloseButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 32,
     paddingVertical: 12,
     borderRadius: SIZES.radius,
@@ -742,6 +754,6 @@ const styles = StyleSheet.create({
   modalCloseText: {
     fontSize: FONTS.regular,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.textOnPrimary,
   },
 });

@@ -9,6 +9,9 @@
       "android": {
         "buildType": "apk",
         "gradleCommand": ":app:assembleRelease"
+      },
+      "ios": {
+        "simulator": true
       }
     },
     "development": {
@@ -16,6 +19,9 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "ios": {
+        "simulator": true
       }
     },
     "production": {
@@ -23,10 +29,19 @@
       "channel": "production",
       "android": {
         "buildType": "app-bundle"
+      },
+      "ios": {
+        "autoIncrement": true
       }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "appleId": "votre@email.com",
+        "ascAppId": "6757958764",
+        "appleTeamId": "7ZYX32T9V9"
+      }
+    }
   }
 }

@@ -14,7 +14,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
-import { COLORS, FONTS, SIZES } from '../styles/theme';
+import { useTheme } from '../contexts/ThemeContext';
+import { FONTS, SIZES } from '../styles/theme';
 import { getLives, gainLife } from '../services/livesSystem';
 import { getAllCards, getCardsForReview } from '../services/srsSystem';
 import { getDailyQuests } from '../services/questsSystem';
@@ -24,6 +25,7 @@ import LivesRecoveryModal from '../components/LivesRecoveryModal';
 import AdBanner from '../components/AdBanner';
 
 export default function HomeScreen({ navigation }) {
+  const { colors } = useTheme();
   const [loading, setLoading] = useState(true);
   const [lives, setLives] = useState(7);
   const [reviewCount, setReviewCount] = useState(0);
@@ -32,6 +34,8 @@ export default function HomeScreen({ navigation }) {
   const [showRecoveryModal, setShowRecoveryModal] = useState(false);
   const [currentStreak, setCurrentStreak] = useState(0);
   const [totalKi, setTotalKi] = useState(0);
+
+  const styles = createStyles(colors);
 
   // Jours de la semaine pour le calendrier
   const weekDays = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
@@ -92,9 +96,9 @@ export default function HomeScreen({ navigation }) {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container} edges={['top']}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+          <ActivityIndicator size="large" color={colors.primary} />
           <Text style={styles.loadingText}>Chargement...</Text>
         </View>
       </SafeAreaView>
@@ -102,7 +106,7 @@ export default function HomeScreen({ navigation }) {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header avec Rank et Ki */}
         <View style={styles.header}>
@@ -196,7 +200,7 @@ export default function HomeScreen({ navigation }) {
               <Text style={styles.questDescription}>Garde ta Flamme vivante aujourd'hui</Text>
               <View style={styles.questProgressContainer}>
                 <View style={styles.questProgressBar}>
-                  <View style={[styles.questProgressFill, { width: '0%', backgroundColor: COLORS.textMuted }]} />
+                  <View style={[styles.questProgressFill, { width: '0%', backgroundColor: colors.textMuted }]} />
                 </View>
                 <Text style={styles.questProgressText}>0/1</Text>
               </View>
@@ -312,10 +316,10 @@ export default function HomeScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+// Dynamic styles based on theme
+const createStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
   loadingContainer: {
     flex: 1,
@@ -325,7 +329,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: SIZES.margin,
     fontSize: FONTS.regular,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   scrollView: {
     flex: 1,
@@ -345,11 +349,11 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: FONTS.xxLarge,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
   },
   subtitle: {
     fontSize: FONTS.medium,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 4,
   },
   headerRight: {
@@ -357,7 +361,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   rankBadge: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: SIZES.radius,
     padding: 8,
     alignItems: 'center',
@@ -367,16 +371,16 @@ const styles = StyleSheet.create({
   },
   rankLabel: {
     fontSize: FONTS.tiny,
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
   },
   rankValue: {
     fontSize: FONTS.small,
-    color: COLORS.text,
+    color: colors.text,
     fontWeight: 'bold',
   },
   kiBadge: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: SIZES.radius,
     padding: 8,
     alignItems: 'center',
@@ -388,7 +392,7 @@ const styles = StyleSheet.create({
   },
   kiValue: {
     fontSize: FONTS.small,
-    color: COLORS.text,
+    color: colors.text,
     fontWeight: 'bold',
   },
 
@@ -396,7 +400,7 @@ const styles = StyleSheet.create({
   streakCalendar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: SIZES.radius,
     padding: SIZES.padding,
     marginBottom: SIZES.margin,
@@ -446,124 +450,16 @@ const styles = StyleSheet.create({
   },
   dayLabel: {
     fontSize: FONTS.tiny,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     fontWeight: '600',
   },
   dayLabelActive: {
-    color: COLORS.text,
-  },
-
-  // Search
-  searchContainer: {
-    backgroundColor: COLORS.surface,
-    borderRadius: SIZES.radius,
-    padding: SIZES.padding,
-    marginBottom: SIZES.margin,
-  },
-  searchLabel: {
-    fontSize: FONTS.medium,
-    color: COLORS.text,
-    marginBottom: 8,
-  },
-  searchInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  searchInput: {
-    flex: 1,
-    backgroundColor: COLORS.surfaceLight,
-    borderRadius: SIZES.radiusSmall,
-    padding: SIZES.padding,
-    color: COLORS.text,
-    fontSize: FONTS.medium,
-  },
-  searchButton: {
-    backgroundColor: COLORS.primary,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 8,
-  },
-  searchButtonIcon: {
-    fontSize: FONTS.large,
-    color: COLORS.text,
-    fontWeight: 'bold',
-  },
-
-  // Challenge Card
-  challengeCard: {
-    backgroundColor: COLORS.surface,
-    borderRadius: SIZES.radius,
-    padding: SIZES.padding,
-    marginBottom: SIZES.margin,
-    borderLeftWidth: 4,
-    borderLeftColor: '#f1c40f',
-  },
-  challengeHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: SIZES.marginSmall,
-  },
-  challengeEmoji: {
-    fontSize: 20,
-    marginRight: 8,
-  },
-  challengeTitle: {
-    fontSize: FONTS.large,
-    fontWeight: 'bold',
-    color: COLORS.text,
-    flex: 1,
-  },
-  challengeBadge: {
-    backgroundColor: '#2ecc7120',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: SIZES.radiusSmall,
-  },
-  challengeBadgeText: {
-    fontSize: FONTS.small,
-    color: '#2ecc71',
-    fontWeight: '600',
-  },
-  challengeProverb: {
-    fontSize: FONTS.xLarge,
-    color: COLORS.text,
-    textAlign: 'center',
-    marginVertical: SIZES.margin,
-  },
-  challengeRomaji: {
-    fontSize: FONTS.medium,
-    color: COLORS.textSecondary,
-    textAlign: 'center',
-    fontStyle: 'italic',
-    marginBottom: SIZES.margin,
-  },
-  challengeFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  kiReward: {
-    backgroundColor: '#f1c40f20',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: SIZES.radiusSmall,
-  },
-  kiRewardText: {
-    fontSize: FONTS.small,
-    color: '#f1c40f',
-    fontWeight: '600',
-  },
-  challengeLink: {
-    fontSize: FONTS.medium,
-    color: COLORS.primary,
+    color: colors.text,
   },
 
   // Quests Section
   questsSection: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: SIZES.radius,
     padding: SIZES.padding,
     marginBottom: SIZES.margin,
@@ -580,18 +476,18 @@ const styles = StyleSheet.create({
   questsTitle: {
     fontSize: FONTS.large,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     flex: 1,
   },
   questsCount: {
-    backgroundColor: COLORS.primary + '20',
+    backgroundColor: colors.primary + '20',
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: SIZES.radiusSmall,
   },
   questsCountText: {
     fontSize: FONTS.small,
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
   },
 
@@ -599,7 +495,7 @@ const styles = StyleSheet.create({
   questItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surfaceLight,
+    backgroundColor: colors.surfaceLight,
     borderRadius: SIZES.radius,
     padding: SIZES.padding,
     marginBottom: SIZES.marginSmall,
@@ -622,11 +518,11 @@ const styles = StyleSheet.create({
   questName: {
     fontSize: FONTS.medium,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
   },
   questDescription: {
     fontSize: FONTS.small,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 2,
   },
   questProgressContainer: {
@@ -637,19 +533,19 @@ const styles = StyleSheet.create({
   questProgressBar: {
     flex: 1,
     height: 6,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     borderRadius: 3,
     marginRight: 8,
     overflow: 'hidden',
   },
   questProgressFill: {
     height: '100%',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 3,
   },
   questProgressText: {
     fontSize: FONTS.small,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   questReward: {
     alignItems: 'flex-end',
@@ -661,13 +557,13 @@ const styles = StyleSheet.create({
   },
   questRewardHeart: {
     fontSize: FONTS.small,
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
   },
 
   // Card
   card: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: SIZES.radius,
     padding: SIZES.padding * 1.5,
     marginBottom: SIZES.margin,
@@ -675,7 +571,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: FONTS.large,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: SIZES.margin,
   },
   statsRow: {
@@ -688,11 +584,11 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: FONTS.xxxLarge,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   statLabel: {
     fontSize: FONTS.small,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 4,
   },
 
@@ -700,7 +596,7 @@ const styles = StyleSheet.create({
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surfaceLight,
+    backgroundColor: colors.surfaceLight,
     borderRadius: SIZES.radius,
     padding: SIZES.padding,
     marginBottom: SIZES.marginSmall,
@@ -715,19 +611,19 @@ const styles = StyleSheet.create({
   actionTitle: {
     fontSize: FONTS.regular,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   actionSubtitle: {
     fontSize: FONTS.small,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 2,
   },
   actionArrow: {
     fontSize: 32,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   badge: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: 12,
     minWidth: 24,
     height: 24,

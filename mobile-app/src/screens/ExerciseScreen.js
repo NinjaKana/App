@@ -1,6 +1,6 @@
 /**
- * Exercise Screen - Écran principal des exercices
- * Gère le flux des exercices, le scoring, les vies, et les résultats
+ * Exercise Screen - Ecran principal des exercices
+ * Gere le flux des exercices, le scoring, les vies, et les resultats
  */
 
 import React, { useState, useEffect } from 'react';
@@ -33,8 +33,8 @@ import { incrementQuestProgress } from '../services/questsSystem';
 import audioService from '../services/audioService';
 import haptic from '../services/hapticService';
 import { scheduleStreakDangerNotification, scheduleInactivityNotification } from '../services/notificationService';
-import { COLORS, FONTS, SIZES } from '../styles/theme';
-import globalStyles from '../styles/globalStyles';
+import { useTheme } from '../contexts/ThemeContext';
+import { FONTS, SIZES } from '../styles/theme';
 import { usePremium } from '../contexts/PremiumContext';
 
 export default function ExerciseScreen({ route, navigation }) {
@@ -54,6 +54,9 @@ export default function ExerciseScreen({ route, navigation }) {
   const [showOutOfLivesModal, setShowOutOfLivesModal] = useState(false);
   const [timeUntilRecharge, setTimeUntilRecharge] = useState(0);
 
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+
   // Animations
   const feedbackAnim = useState(new Animated.Value(0))[0];
 
@@ -70,7 +73,7 @@ export default function ExerciseScreen({ route, navigation }) {
         const newTime = await getTimeUntilNextRecharge();
         setTimeUntilRecharge(newTime);
 
-        // Si rechargé, fermer le modal et recharger les vies
+        // Si recharge, fermer le modal et recharger les vies
         if (newTime === 0) {
           await loadLives();
           setShowOutOfLivesModal(false);
@@ -90,7 +93,7 @@ export default function ExerciseScreen({ route, navigation }) {
 
 
   useEffect(() => {
-    // Jouer l'audio du caractère au début de chaque exercice (Feature Audio Intégré)
+    // Jouer l'audio du caractere au debut de chaque exercice (Feature Audio Integre)
     if (exercises.length > 0 && currentIndex < exercises.length) {
       const currentExercise = exercises[currentIndex];
 
@@ -124,7 +127,7 @@ export default function ExerciseScreen({ route, navigation }) {
   };
 
   const loadLives = async () => {
-    // Vérifier recharge automatique puis récupérer les vies
+    // Verifier recharge automatique puis recuperer les vies
     const currentLives = await checkAutoRecharge();
     setLives(currentLives);
   };
@@ -136,11 +139,11 @@ export default function ExerciseScreen({ route, navigation }) {
     // Calculer points
     const points = calculatePoints(currentExercise.type, isCorrect, streak);
 
-    // Mettre à jour streak
+    // Mettre a jour streak
     const newStreak = isCorrect ? streak + 1 : 0;
     setStreak(newStreak);
 
-    // Enregistrer le résultat
+    // Enregistrer le resultat
     const result = {
       exercise: currentExercise,
       userAnswer,
@@ -150,18 +153,18 @@ export default function ExerciseScreen({ route, navigation }) {
     const newResults = [...results, result];
     setResults(newResults);
 
-    // Enregistrer exercice complété pour les limites premium
+    // Enregistrer exercice complete pour les limites premium
     await logExerciseCompleted();
 
-    // Incrémenter quête "perfect_exercise" si correct
+    // Incrementer quete "perfect_exercise" si correct
     if (isCorrect) {
       await incrementQuestProgress('perfect_exercise');
     }
 
-    // Préparer le feedback cognitif (Anti-Duolingo: feedback sobre et utile)
+    // Preparer le feedback cognitif (Anti-Duolingo: feedback sobre et utile)
     let cognitiveFeedback = '';
     if (!isCorrect) {
-      // Tracker l'erreur pour le système cognitif
+      // Tracker l'erreur pour le systeme cognitif
       const expected = currentExercise.correct || currentExercise.correctAnswer?.character;
       await trackError(expected, userAnswer, currentExercise.type);
       cognitiveFeedback = await getCognitiveFeedback(expected, userAnswer) || '';
@@ -178,7 +181,7 @@ export default function ExerciseScreen({ route, navigation }) {
 
     // Animations de feedback visuelles + haptic (sans confettis)
     if (isCorrect) {
-      haptic.success(); // Vibration de succès
+      haptic.success(); // Vibration de succes
     } else {
       setShakeError(true);
       haptic.error(); // Vibration d'erreur
@@ -202,7 +205,7 @@ export default function ExerciseScreen({ route, navigation }) {
       setShowFeedback(false);
     });
 
-    // Vérifier perte de vie (5 erreurs pour leçons 1-3, 3 erreurs pour les autres)
+    // Verifier perte de vie (5 erreurs pour lecons 1-3, 3 erreurs pour les autres)
     const maxErrors = (lesson.id <= 3) ? 5 : 3;
     if (shouldLoseLife(newResults, maxErrors) && lives > 0) {
       const newLives = await loseLife();
@@ -210,7 +213,7 @@ export default function ExerciseScreen({ route, navigation }) {
 
       // Haptic feedback pour perte de vie
       if (newLives === 1) {
-        haptic.lastLife(); // Warning intense pour dernière vie
+        haptic.lastLife(); // Warning intense pour derniere vie
       } else if (newLives === 0) {
         // Plus de vies ! Bloquer le quiz
         haptic.error();
@@ -223,7 +226,7 @@ export default function ExerciseScreen({ route, navigation }) {
       }
     }
 
-    // Passer à l'exercice suivant ou afficher résultats
+    // Passer a l'exercice suivant ou afficher resultats
     setTimeout(() => {
       if (currentIndex < exercises.length - 1) {
         setCurrentIndex(currentIndex + 1);
@@ -236,7 +239,7 @@ export default function ExerciseScreen({ route, navigation }) {
   const showFinalResults = async (finalResults) => {
     const stats = calculateSessionStats(finalResults);
 
-    // Haptic feedback pour leçon terminée
+    // Haptic feedback pour lecon terminee
     haptic.lessonCompleted();
 
     // Sauvegarder progression
@@ -250,16 +253,16 @@ export default function ExerciseScreen({ route, navigation }) {
     };
     await saveProgress(updatedProgress);
 
-    // Incrémenter quête "studied_today"
+    // Incrementer quete "studied_today"
     await incrementQuestProgress('studied_today');
 
-    // Si nouvelle leçon complétée, incrémenter quête
+    // Si nouvelle lecon completee, incrementer quete
     const isNewLesson = !progress.lessonsCompleted?.includes(lesson.id);
     if (isNewLesson) {
       await incrementQuestProgress('lesson_completed');
     }
 
-    // Programmer notifications de rétention
+    // Programmer notifications de retention
     const currentStreak = updatedProgress.streak || 0;
     await scheduleStreakDangerNotification(currentStreak);
     await scheduleInactivityNotification();
@@ -272,10 +275,10 @@ export default function ExerciseScreen({ route, navigation }) {
       <Text style={styles.limitEmoji}>{'\u{1F512}'}</Text>
       <Text style={styles.limitTitle}>Limite quotidienne atteinte</Text>
       <Text style={styles.limitText}>
-        Vous avez utilisé vos {limits?.exercises?.limit || 20} exercices gratuits aujourd'hui.
+        Vous avez utilise vos {limits?.exercises?.limit || 20} exercices gratuits aujourd'hui.
       </Text>
       <Text style={styles.limitSubtext}>
-        Revenez demain ou passez Premium pour un accès illimité !
+        Revenez demain ou passez Premium pour un acces illimite !
       </Text>
       <TouchableOpacity style={styles.premiumButton} onPress={openPaywall}>
         <Text style={styles.premiumButtonText}>{'\u{1F451}'} Devenir Premium</Text>
@@ -317,7 +320,7 @@ export default function ExerciseScreen({ route, navigation }) {
         return (
           <View style={styles.unsupportedContainer}>
             <Text style={styles.unsupportedText}>
-              Type d'exercice non supporté: {currentExercise.type}
+              Type d'exercice non supporte: {currentExercise.type}
             </Text>
           </View>
         );
@@ -333,7 +336,7 @@ export default function ExerciseScreen({ route, navigation }) {
             <Text style={styles.outOfLivesEmoji}>💔</Text>
             <Text style={styles.outOfLivesTitle}>Plus de vies !</Text>
             <Text style={styles.outOfLivesSubtitle}>
-              Tu as fait trop d'erreurs. Prends une pause ou récupère des vies.
+              Tu as fait trop d'erreurs. Prends une pause ou recupere des vies.
             </Text>
 
             {/* Lives display */}
@@ -349,7 +352,7 @@ export default function ExerciseScreen({ route, navigation }) {
 
             {/* Options */}
             <View style={styles.optionsContainer}>
-              {/* Option 1: Récupérer via SRS (Feature Anti-Duolingo) */}
+              {/* Option 1: Recuperer via SRS (Feature Anti-Duolingo) */}
               <TouchableOpacity
                 style={[styles.optionButton, styles.optionButtonSRS]}
                 onPress={() => {
@@ -359,14 +362,14 @@ export default function ExerciseScreen({ route, navigation }) {
               >
                 <Text style={styles.optionButtonIcon}>🧠</Text>
                 <View style={styles.optionButtonContent}>
-                  <Text style={styles.optionButtonTitle}>Révisions SRS</Text>
+                  <Text style={styles.optionButtonTitle}>Revisions SRS</Text>
                   <Text style={styles.optionButtonSubtitle}>
-                    Gratuit • 5 révisions = +1 vie
+                    Gratuit • 5 revisions = +1 vie
                   </Text>
                 </View>
               </TouchableOpacity>
 
-              {/* Option 2: Premium (si pas déjà premium) */}
+              {/* Option 2: Premium (si pas deja premium) */}
               {!isPremium && (
                 <TouchableOpacity
                   style={[styles.optionButton, styles.optionButtonPremium]}
@@ -377,7 +380,7 @@ export default function ExerciseScreen({ route, navigation }) {
                 >
                   <Text style={styles.optionButtonIcon}>👑</Text>
                   <View style={styles.optionButtonContent}>
-                    <Text style={styles.optionButtonTitle}>Vies illimitées</Text>
+                    <Text style={styles.optionButtonTitle}>Vies illimitees</Text>
                     <Text style={styles.optionButtonSubtitle}>Devenir Premium</Text>
                   </View>
                 </TouchableOpacity>
@@ -400,9 +403,9 @@ export default function ExerciseScreen({ route, navigation }) {
     );
   };
 
-  // Gère la fin de leçon avec paywall stratégique après leçon 3
+  // Gere la fin de lecon avec paywall strategique apres lecon 3
   const handleFinish = async () => {
-    // Afficher paywall après leçon 3 pour utilisateurs gratuits (conversion +28%)
+    // Afficher paywall apres lecon 3 pour utilisateurs gratuits (conversion +28%)
     if (lesson.id === 3 && !isPremium) {
       const paywallShown = await getData(STORAGE_KEYS.PAYWALL_LESSON3_SHOWN, false);
       if (!paywallShown) {
@@ -419,19 +422,19 @@ export default function ExerciseScreen({ route, navigation }) {
     return (
       <Modal visible={showResults} animationType="slide" transparent={false}>
         <SafeAreaView style={styles.resultsContainer}>
-          <Text style={styles.resultsTitle}>🎉 Leçon Terminée !</Text>
+          <Text style={styles.resultsTitle}>🎉 Lecon Terminee !</Text>
 
           <View style={styles.statsGrid}>
             <View style={styles.statCard}>
               <Text style={styles.statValue}>{`${stats.accuracy}%`}</Text>
-              <Text style={styles.statLabel}>Précision</Text>
+              <Text style={styles.statLabel}>Precision</Text>
             </View>
             <View style={styles.statCard}>
               <Text style={styles.statValue}>{`${stats.correct}/${stats.total}`}</Text>
               <Text style={styles.statLabel}>Correct</Text>
             </View>
             <View style={styles.statCard}>
-              <Text style={[styles.statValue, { color: COLORS.primary }]}>
+              <Text style={[styles.statValue, { color: colors.primary }]}>
                 {`+${stats.totalPoints}`}
               </Text>
               <Text style={styles.statLabel}>XP</Text>
@@ -442,7 +445,7 @@ export default function ExerciseScreen({ route, navigation }) {
             style={styles.doneButton}
             onPress={handleFinish}
           >
-            <Text style={styles.doneButtonText}>Terminé</Text>
+            <Text style={styles.doneButtonText}>Termine</Text>
           </TouchableOpacity>
         </SafeAreaView>
       </Modal>
@@ -470,7 +473,7 @@ export default function ExerciseScreen({ route, navigation }) {
   };
 
   return (
-    <SafeAreaView style={globalStyles.safeArea} edges={['top', 'bottom']}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top', 'bottom']}>
       <View style={styles.container}>
         {/* Header (Anti-Duolingo: texte simple au lieu de barre de progression) */}
         <View style={styles.header}>
@@ -503,8 +506,8 @@ export default function ExerciseScreen({ route, navigation }) {
           </View>
         )}
 
-        {/* Streak Banner retiré - Anti-Duolingo: focus sur la question, pas sur les stats */}
-        {/* Le streak est toujours calculé mais affiché uniquement en fin de session */}
+        {/* Streak Banner retire - Anti-Duolingo: focus sur la question, pas sur les stats */}
+        {/* Le streak est toujours calcule mais affiche uniquement en fin de session */}
 
         {/* Exercise with Shake Animation */}
         <ErrorShake shake={shakeError}>
@@ -528,7 +531,7 @@ export default function ExerciseScreen({ route, navigation }) {
             </View>
             {!feedbackData.isCorrect && feedbackData.correctAnswer && (
               <Text style={styles.feedbackCorrectAnswer}>
-                Réponse : {feedbackData.correctAnswer}
+                Reponse : {feedbackData.correctAnswer}
               </Text>
             )}
             {feedbackData.cognitive ? (
@@ -547,10 +550,10 @@ export default function ExerciseScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -560,12 +563,12 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     fontSize: 28,
-    color: COLORS.text,
+    color: colors.text,
     fontWeight: 'bold',
   },
   audioReplayButton: {
     padding: 8,
-    backgroundColor: COLORS.primary + '20',
+    backgroundColor: colors.primary + '20',
     borderRadius: 20,
   },
   audioReplayIcon: {
@@ -576,11 +579,11 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     fontSize: FONTS.medium,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   livesContainer: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     paddingHorizontal: SIZES.padding,
     paddingVertical: SIZES.paddingSmall,
     borderRadius: SIZES.radiusSmall,
@@ -588,19 +591,19 @@ const styles = StyleSheet.create({
   livesText: {
     fontSize: FONTS.medium,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   remainingBanner: {
-    backgroundColor: COLORS.warning + '20',
+    backgroundColor: colors.warning + '20',
     padding: SIZES.paddingSmall,
     alignItems: 'center',
   },
   remainingText: {
     fontSize: FONTS.small,
-    color: COLORS.warning,
+    color: colors.warning,
     fontWeight: '500',
   },
-  // streakBanner retiré - Anti-Duolingo
+  // streakBanner retire - Anti-Duolingo
   unsupportedContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -609,7 +612,7 @@ const styles = StyleSheet.create({
   },
   unsupportedText: {
     fontSize: FONTS.large,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   // Feedback Toast (Anti-Duolingo: discret, en bas)
@@ -623,10 +626,10 @@ const styles = StyleSheet.create({
     paddingVertical: SIZES.padding * 1.2,
   },
   feedbackToastCorrect: {
-    backgroundColor: COLORS.success + 'E6', // 90% opacité
+    backgroundColor: colors.success + 'E6', // 90% opacite
   },
   feedbackToastIncorrect: {
-    backgroundColor: COLORS.error + 'E6', // 90% opacité
+    backgroundColor: colors.error + 'E6', // 90% opacite
   },
   feedbackToastHeader: {
     flexDirection: 'row',
@@ -636,37 +639,37 @@ const styles = StyleSheet.create({
   feedbackToastIcon: {
     fontSize: FONTS.xLarge,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginRight: SIZES.marginSmall,
   },
   feedbackToastMessage: {
     fontSize: FONTS.large,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
   },
   feedbackCorrectAnswer: {
     fontSize: FONTS.medium,
-    color: COLORS.text,
+    color: colors.text,
     marginTop: 4,
     opacity: 0.9,
   },
   feedbackCognitive: {
     fontSize: FONTS.medium,
-    color: COLORS.text,
+    color: colors.text,
     marginTop: SIZES.marginSmall,
     fontStyle: 'italic',
     opacity: 0.9,
   },
   resultsContainer: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     justifyContent: 'center',
     padding: SIZES.screenPadding,
   },
   resultsTitle: {
     fontSize: FONTS.xxxLarge,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     textAlign: 'center',
     marginBottom: SIZES.margin * 3,
   },
@@ -677,7 +680,7 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: SIZES.radius,
     padding: SIZES.padding * 2,
     alignItems: 'center',
@@ -685,15 +688,15 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: FONTS.xxxLarge,
     fontWeight: 'bold',
-    color: COLORS.success,
+    color: colors.success,
     marginBottom: SIZES.marginSmall,
   },
   statLabel: {
     fontSize: FONTS.medium,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   doneButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: SIZES.radius,
     padding: SIZES.padding * 1.5,
     alignItems: 'center',
@@ -701,7 +704,7 @@ const styles = StyleSheet.create({
   doneButtonText: {
     fontSize: FONTS.large,
     fontWeight: 'bold',
-    color: COLORS.background,
+    color: colors.background,
   },
   // Styles limite atteinte
   limitContainer: {
@@ -717,24 +720,24 @@ const styles = StyleSheet.create({
   limitTitle: {
     fontSize: FONTS.xxLarge,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     textAlign: 'center',
     marginBottom: SIZES.margin,
   },
   limitText: {
     fontSize: FONTS.medium,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: SIZES.marginSmall,
   },
   limitSubtext: {
     fontSize: FONTS.small,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     textAlign: 'center',
     marginBottom: SIZES.margin * 2,
   },
   premiumButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     borderRadius: SIZES.radius,
     padding: SIZES.padding * 1.5,
     paddingHorizontal: SIZES.padding * 3,
@@ -743,14 +746,14 @@ const styles = StyleSheet.create({
   premiumButtonText: {
     fontSize: FONTS.large,
     fontWeight: 'bold',
-    color: COLORS.background,
+    color: colors.background,
   },
   backButton: {
     padding: SIZES.padding,
   },
   backButtonText: {
     fontSize: FONTS.medium,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   // Out of Lives Modal (Duolingo-inspired)
   modalOverlay: {
@@ -761,7 +764,7 @@ const styles = StyleSheet.create({
     padding: SIZES.screenPadding,
   },
   outOfLivesContainer: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: SIZES.radius * 2,
     padding: SIZES.padding * 2,
     width: '100%',
@@ -775,33 +778,33 @@ const styles = StyleSheet.create({
   outOfLivesTitle: {
     fontSize: FONTS.xxLarge,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: SIZES.marginSmall,
     textAlign: 'center',
   },
   outOfLivesSubtitle: {
     fontSize: FONTS.regular,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: SIZES.margin * 2,
     lineHeight: 22,
   },
   livesDisplay: {
-    backgroundColor: COLORS.error + '20',
+    backgroundColor: colors.error + '20',
     borderRadius: SIZES.radius,
     paddingVertical: SIZES.paddingSmall,
     paddingHorizontal: SIZES.padding * 2,
     marginBottom: SIZES.margin,
     borderWidth: 2,
-    borderColor: COLORS.error,
+    borderColor: colors.error,
   },
   livesDisplayText: {
     fontSize: FONTS.large,
     fontWeight: 'bold',
-    color: COLORS.error,
+    color: colors.error,
   },
   timerCard: {
-    backgroundColor: COLORS.surfaceLight,
+    backgroundColor: colors.surfaceLight,
     borderRadius: SIZES.radius,
     padding: SIZES.padding,
     marginBottom: SIZES.margin * 2,
@@ -810,13 +813,13 @@ const styles = StyleSheet.create({
   },
   timerLabel: {
     fontSize: FONTS.small,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: SIZES.marginSmall,
   },
   timerValue: {
     fontSize: FONTS.xLarge,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   optionsContainer: {
     width: '100%',
@@ -831,14 +834,14 @@ const styles = StyleSheet.create({
     gap: SIZES.margin,
   },
   optionButtonSRS: {
-    backgroundColor: COLORS.primary + '20',
+    backgroundColor: colors.primary + '20',
     borderWidth: 2,
-    borderColor: COLORS.primary,
+    borderColor: colors.primary,
   },
   optionButtonPremium: {
-    backgroundColor: COLORS.warning + '20',
+    backgroundColor: colors.warning + '20',
     borderWidth: 2,
-    borderColor: COLORS.warning,
+    borderColor: colors.warning,
   },
   optionButtonIcon: {
     fontSize: 32,
@@ -849,19 +852,19 @@ const styles = StyleSheet.create({
   optionButtonTitle: {
     fontSize: FONTS.large,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 2,
   },
   optionButtonSubtitle: {
     fontSize: FONTS.small,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   quitButton: {
     padding: SIZES.padding,
   },
   quitButtonText: {
     fontSize: FONTS.medium,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     fontWeight: '600',
   },
 });

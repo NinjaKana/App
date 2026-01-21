@@ -22,13 +22,16 @@ import {
   kanjiLessons,
   LESSON_CATEGORIES
 } from '../data/lessonsData';
-import { COLORS, FONTS, SIZES } from '../styles/theme';
-import globalStyles from '../styles/globalStyles';
+import { useTheme } from '../contexts/ThemeContext';
+import { FONTS, SIZES } from '../styles/theme';
 import AdBanner from '../components/AdBanner';
 
 export default function LessonsScreen({ navigation }) {
+  const { colors } = useTheme();
   const [selectedCategory, setSelectedCategory] = useState(LESSON_CATEGORIES.HIRAGANA);
   const [completedLessons, setCompletedLessons] = useState([]);
+
+  const styles = createStyles(colors);
 
   // Charger la progression à chaque focus de l'écran
   useFocusEffect(
@@ -97,7 +100,7 @@ export default function LessonsScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={globalStyles.safeArea} edges={['top']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top']}>
       <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={styles.header}>
@@ -228,10 +231,14 @@ export default function LessonsScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+// Dynamic styles based on theme
+const createStyles = (colors) => StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   scrollContent: {
     paddingBottom: 100,
@@ -244,11 +251,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: FONTS.xxLarge,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
   },
   subtitle: {
     fontSize: FONTS.medium,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 4,
   },
 
@@ -261,7 +268,7 @@ const styles = StyleSheet.create({
     gap: SIZES.marginSmall,
   },
   categoryTab: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: SIZES.radius,
     padding: SIZES.padding,
     marginRight: SIZES.marginSmall,
@@ -271,28 +278,28 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   categoryTabActive: {
-    backgroundColor: COLORS.primary + '20',
-    borderColor: COLORS.primary,
+    backgroundColor: colors.primary + '20',
+    borderColor: colors.primary,
   },
   categoryChar: {
     fontSize: 32,
     marginBottom: 4,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   categoryCharActive: {
-    color: COLORS.text,
+    color: colors.text,
   },
   categoryName: {
     fontSize: FONTS.small,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   categoryNameActive: {
-    color: COLORS.primary,
+    color: colors.primary,
   },
   categoryCount: {
     fontSize: FONTS.tiny,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     marginTop: 2,
   },
 
@@ -303,7 +310,7 @@ const styles = StyleSheet.create({
   lessonCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: SIZES.radius,
     padding: SIZES.padding,
     marginBottom: SIZES.marginSmall,
@@ -325,19 +332,19 @@ const styles = StyleSheet.create({
   },
   lessonNumber: {
     fontSize: FONTS.small,
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: '600',
     marginBottom: 2,
   },
   lessonTitle: {
     fontSize: FONTS.large,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: 4,
   },
   lessonChars: {
     fontSize: FONTS.small,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginBottom: 8,
   },
   lessonTags: {
@@ -345,36 +352,36 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   tag: {
-    backgroundColor: COLORS.surfaceLight,
+    backgroundColor: colors.surfaceLight,
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: SIZES.radiusSmall,
   },
   tagText: {
     fontSize: FONTS.tiny,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   lessonArrow: {
     fontSize: 28,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     marginLeft: SIZES.marginSmall,
   },
 
   // Empty state
   emptyCard: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: SIZES.radius,
     padding: SIZES.padding * 2,
     alignItems: 'center',
   },
   emptyText: {
     fontSize: FONTS.medium,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   emptySubtext: {
     fontSize: FONTS.small,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     marginTop: 8,
   },
 
@@ -387,21 +394,21 @@ const styles = StyleSheet.create({
   // Styles pour les leçons verrouillées
   lessonCardLocked: {
     opacity: 0.6,
-    backgroundColor: COLORS.surfaceDark,
+    backgroundColor: colors.surfaceDark,
   },
   lessonIconCompleted: {
-    backgroundColor: COLORS.success,
+    backgroundColor: colors.success,
   },
   lessonIconLocked: {
-    backgroundColor: COLORS.surfaceLight,
+    backgroundColor: colors.surfaceLight,
   },
   lessonContentLocked: {
     opacity: 0.7,
   },
   textLocked: {
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   tagLocked: {
-    backgroundColor: COLORS.surfaceDark,
+    backgroundColor: colors.surfaceDark,
   },
 });

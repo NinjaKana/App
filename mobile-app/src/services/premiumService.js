@@ -20,7 +20,7 @@ if (REVENUECAT_ENABLED) {
 }
 
 // Configuration RevenueCat
-const REVENUECAT_API_KEY_IOS = 'appl_VOTRE_CLE_IOS'; // TODO: Ajouter clé iOS
+const REVENUECAT_API_KEY_IOS = 'appl_ksAVJyOAUYNwXmLducQRXtjvQLD';
 const REVENUECAT_API_KEY_ANDROID = 'goog_vGuVjmSrhhHiwYRrbJQUQVXoHIO';
 
 // Identifiants des produits

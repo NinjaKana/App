@@ -16,7 +16,8 @@ import {
   Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, FONTS, SIZES } from '../styles/theme';
+import { useTheme } from '../contexts/ThemeContext';
+import { FONTS, SIZES } from '../styles/theme';
 import {
   ONBOARDING_SLIDES,
   DAILY_GOALS,
@@ -27,6 +28,9 @@ import {
 const { width, height } = Dimensions.get('window');
 
 export default function OnboardingScreen({ onComplete }) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedGoal, setSelectedGoal] = useState('regular');
   const flatListRef = useRef(null);
@@ -215,10 +219,10 @@ export default function OnboardingScreen({ onComplete }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   skipButton: {
     position: 'absolute',
@@ -229,7 +233,7 @@ const styles = StyleSheet.create({
   },
   skipText: {
     fontSize: FONTS.regular,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   slide: {
     width,
@@ -246,26 +250,26 @@ const styles = StyleSheet.create({
   title: {
     fontSize: FONTS.xxxLarge,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     textAlign: 'center',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: FONTS.large,
-    color: COLORS.primary,
+    color: colors.primary,
     textAlign: 'center',
     marginBottom: 16,
     fontWeight: '600',
   },
   description: {
     fontSize: FONTS.regular,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 24,
   },
   highlightBox: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: SIZES.radius,
@@ -286,7 +290,7 @@ const styles = StyleSheet.create({
   goalOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: SIZES.radius,
     padding: 16,
     marginBottom: 12,
@@ -294,11 +298,11 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   goalOptionSelected: {
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.primaryLight,
+    borderColor: colors.primary,
+    backgroundColor: colors.primaryLight,
   },
   goalOptionRecommended: {
-    borderColor: COLORS.border,
+    borderColor: colors.border,
   },
   goalEmoji: {
     fontSize: 28,
@@ -310,30 +314,30 @@ const styles = StyleSheet.create({
   goalLabel: {
     fontSize: FONTS.regular,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   goalLabelSelected: {
-    color: COLORS.primary,
+    color: colors.primary,
   },
   goalDescription: {
     fontSize: FONTS.small,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 2,
   },
   checkmark: {
     fontSize: 20,
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: 'bold',
   },
   recommendedBadge: {
-    backgroundColor: COLORS.success,
+    backgroundColor: colors.success,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
   },
   recommendedText: {
     fontSize: FONTS.tiny,
-    color: COLORS.textOnPrimary,
+    color: colors.textOnPrimary,
     fontWeight: '600',
   },
 
@@ -347,7 +351,7 @@ const styles = StyleSheet.create({
   dot: {
     height: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     marginHorizontal: 4,
   },
 
@@ -357,17 +361,17 @@ const styles = StyleSheet.create({
     paddingBottom: SIZES.paddingLarge,
   },
   nextButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingVertical: 16,
     borderRadius: SIZES.radius,
     alignItems: 'center',
   },
   nextButtonFinal: {
-    backgroundColor: COLORS.success,
+    backgroundColor: colors.success,
   },
   nextButtonText: {
     fontSize: FONTS.large,
     fontWeight: 'bold',
-    color: COLORS.textOnPrimary,
+    color: colors.textOnPrimary,
   },
 });

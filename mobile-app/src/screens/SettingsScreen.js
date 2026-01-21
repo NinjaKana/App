@@ -15,8 +15,8 @@ import {
   Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, FONTS, SIZES } from '../styles/theme';
-import globalStyles from '../styles/globalStyles';
+import { useTheme } from '../contexts/ThemeContext';
+import { FONTS, SIZES } from '../styles/theme';
 import {
   getNotificationSettings,
   saveNotificationSettings,
@@ -31,10 +31,13 @@ import { getVacationStats, activateVacationMode } from '../services/streakSystem
 import { clearAll } from '../services/storage';
 
 export default function SettingsScreen({ navigation }) {
+  const { colors, isDarkMode, toggleTheme } = useTheme();
   const [notifSettings, setNotifSettings] = useState(DEFAULT_SETTINGS);
   const [notifPermission, setNotifPermission] = useState('unknown');
   const [vacationStats, setVacationStats] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const styles = createStyles(colors);
 
   useEffect(() => {
     loadSettings();
@@ -152,6 +155,44 @@ export default function SettingsScreen({ navigation }) {
     );
   };
 
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Supprimer mon compte',
+      'Cette action supprimera définitivement toutes tes données :\n\n• Progression et statistiques\n• Badges et récompenses\n• Préférences et paramètres\n\nNote : NinjaKana ne stocke aucune donnée personnelle sur nos serveurs. Toutes tes données sont stockées localement sur ton appareil.',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Supprimer',
+          style: 'destructive',
+          onPress: confirmDeleteAccount,
+        },
+      ]
+    );
+  };
+
+  const confirmDeleteAccount = () => {
+    Alert.alert(
+      'Confirmer la suppression',
+      'Es-tu vraiment sûr(e) ? Cette action est irréversible.',
+      [
+        { text: 'Non', style: 'cancel' },
+        {
+          text: 'Oui, supprimer mon compte',
+          style: 'destructive',
+          onPress: async () => {
+            await clearAll();
+            await cancelAllNotifications();
+            Alert.alert(
+              'Compte supprimé',
+              'Toutes tes données ont été supprimées de cet appareil.',
+              [{ text: 'OK' }]
+            );
+          },
+        },
+      ]
+    );
+  };
+
   const handleContact = () => {
     const email = 'contact.ninjakana@gmail.com';
     const subject = 'Support - NinjaKana';
@@ -164,14 +205,14 @@ export default function SettingsScreen({ navigation }) {
 
   if (loading) {
     return (
-      <View style={globalStyles.loadingContainer}>
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
         <Text style={styles.loadingText}>Chargement...</Text>
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={globalStyles.safeArea} edges={['top', 'bottom']}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
       <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
         {/* Header - Design Figma */}
         <View style={styles.header}>
@@ -183,6 +224,21 @@ export default function SettingsScreen({ navigation }) {
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Paramètres</Text>
           <View style={styles.headerSpacer} />
+        </View>
+
+        {/* Appearance Section - NEW */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>🎨 Apparence</Text>
+
+          <SettingToggle
+            colors={colors}
+            icon={isDarkMode ? "🌙" : "☀️"}
+            title="Mode sombre"
+            subtitle={isDarkMode ? "Activé" : "Désactivé"}
+            value={isDarkMode}
+            onToggle={toggleTheme}
+            isLast
+          />
         </View>
 
         {/* Notifications Section */}
@@ -201,6 +257,7 @@ export default function SettingsScreen({ navigation }) {
           ) : null}
 
           <SettingToggle
+            colors={colors}
             icon="📱"
             title="Notifications"
             subtitle="Activer toutes les notifications"
@@ -210,6 +267,7 @@ export default function SettingsScreen({ navigation }) {
           />
 
           <SettingToggle
+            colors={colors}
             icon="🔥"
             title="Rappel de streak"
             subtitle="Alerte avant la fin du streak"
@@ -219,6 +277,7 @@ export default function SettingsScreen({ navigation }) {
           />
 
           <SettingToggle
+            colors={colors}
             icon="⏰"
             title="Rappel quotidien"
             subtitle={`Tous les jours à ${notifSettings.dailyReminderTime.hour}h${notifSettings.dailyReminderTime.minute.toString().padStart(2, '0')}`}
@@ -228,6 +287,7 @@ export default function SettingsScreen({ navigation }) {
           />
 
           <SettingToggle
+            colors={colors}
             icon="🔊"
             title="Son"
             subtitle="Son des notifications"
@@ -243,6 +303,7 @@ export default function SettingsScreen({ navigation }) {
           <Text style={styles.sectionTitle}>🔥 Streak</Text>
 
           <SettingLink
+            colors={colors}
             icon="🏖️"
             title="Mode Vacances"
             subtitle={vacationStats?.isActive
@@ -273,6 +334,7 @@ export default function SettingsScreen({ navigation }) {
           <Text style={styles.sectionTitle}>📱 Application</Text>
 
           <SettingLink
+            colors={colors}
             icon="✉️"
             title="Nous contacter"
             subtitle="Signaler un bug ou suggérer une amélioration"
@@ -280,6 +342,7 @@ export default function SettingsScreen({ navigation }) {
           />
 
           <SettingLink
+            colors={colors}
             icon="🔒"
             title="Politique de confidentialité"
             onPress={() => Linking.openURL('https://ninjakana.github.io/App/privacy-policy.html')}
@@ -289,18 +352,31 @@ export default function SettingsScreen({ navigation }) {
 
         {/* Danger Zone */}
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, styles.dangerTitle]}>⚠️ Zone de danger</Text>
+          <Text style={[styles.sectionTitle, { color: colors.error }]}>⚠️ Zone de danger</Text>
 
           <TouchableOpacity
             style={styles.dangerButton}
             onPress={handleResetProgress}
           >
-            <View style={styles.dangerIcon}>
+            <View style={[styles.dangerIcon, { backgroundColor: colors.error + '20' }]}>
+              <Text style={styles.dangerEmoji}>🔄</Text>
+            </View>
+            <View style={styles.dangerContent}>
+              <Text style={[styles.dangerText, { color: colors.error }]}>Réinitialiser la progression</Text>
+              <Text style={styles.dangerSubtext}>Recommencer à zéro</Text>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.dangerButton}
+            onPress={handleDeleteAccount}
+          >
+            <View style={[styles.dangerIcon, { backgroundColor: colors.error + '20' }]}>
               <Text style={styles.dangerEmoji}>🗑️</Text>
             </View>
             <View style={styles.dangerContent}>
-              <Text style={styles.dangerText}>Réinitialiser la progression</Text>
-              <Text style={styles.dangerSubtext}>Supprimer toutes les données</Text>
+              <Text style={[styles.dangerText, { color: colors.error }]}>Supprimer mon compte</Text>
+              <Text style={styles.dangerSubtext}>Effacer toutes mes données</Text>
             </View>
           </TouchableOpacity>
         </View>
@@ -316,7 +392,9 @@ export default function SettingsScreen({ navigation }) {
 }
 
 // Setting Toggle Component
-function SettingToggle({ icon, title, subtitle, value, onToggle, disabled, isLast }) {
+function SettingToggle({ colors, icon, title, subtitle, value, onToggle, disabled, isLast }) {
+  const styles = createStyles(colors);
+
   return (
     <View style={[styles.settingRow, isLast && styles.settingRowLast, disabled && styles.settingDisabled]}>
       <View style={styles.settingIcon}>
@@ -332,15 +410,17 @@ function SettingToggle({ icon, title, subtitle, value, onToggle, disabled, isLas
         value={value}
         onValueChange={onToggle}
         disabled={disabled}
-        trackColor={{ false: COLORS.border, true: COLORS.primary + '80' }}
-        thumbColor={value ? COLORS.primary : COLORS.textSecondary}
+        trackColor={{ false: colors.border, true: colors.primary + '80' }}
+        thumbColor={value ? colors.primary : colors.textSecondary}
       />
     </View>
   );
 }
 
 // Setting Link Component
-function SettingLink({ icon, title, subtitle, onPress, isLast }) {
+function SettingLink({ colors, icon, title, subtitle, onPress, isLast }) {
+  const styles = createStyles(colors);
+
   return (
     <TouchableOpacity
       style={[styles.settingRow, isLast && styles.settingRowLast]}
@@ -358,16 +438,25 @@ function SettingLink({ icon, title, subtitle, onPress, isLast }) {
   );
 }
 
-const styles = StyleSheet.create({
+// Dynamic styles based on theme
+const createStyles = (colors) => StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   scrollContent: {
     paddingBottom: 100,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   loadingText: {
-    color: COLORS.text,
+    color: colors.text,
     fontSize: FONTS.medium,
   },
 
@@ -382,18 +471,18 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: SIZES.radiusSmall,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
   },
   backArrow: {
     fontSize: 24,
-    color: COLORS.text,
+    color: colors.text,
   },
   headerTitle: {
     fontSize: FONTS.xxLarge,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
   },
   headerSpacer: {
     width: 40,
@@ -401,7 +490,7 @@ const styles = StyleSheet.create({
 
   // Section
   section: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     marginHorizontal: SIZES.screenPadding,
     marginBottom: SIZES.margin,
     borderRadius: SIZES.radius,
@@ -410,7 +499,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: FONTS.large,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: SIZES.margin,
   },
 
@@ -418,7 +507,7 @@ const styles = StyleSheet.create({
   permissionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.primary + '20',
+    backgroundColor: colors.primary + '20',
     padding: SIZES.padding,
     borderRadius: SIZES.radius,
     marginBottom: SIZES.margin,
@@ -431,11 +520,11 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: FONTS.medium,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   permissionArrow: {
     fontSize: 24,
-    color: COLORS.primary,
+    color: colors.primary,
   },
 
   // Setting Row
@@ -444,7 +533,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: SIZES.padding,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   settingRowLast: {
     borderBottomWidth: 0,
@@ -456,7 +545,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: SIZES.radiusSmall,
-    backgroundColor: COLORS.backgroundDark,
+    backgroundColor: colors.backgroundDark,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: SIZES.margin,
@@ -470,19 +559,19 @@ const styles = StyleSheet.create({
   settingTitle: {
     fontSize: FONTS.medium,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   settingSubtitle: {
     fontSize: FONTS.small,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 2,
   },
   settingArrow: {
     fontSize: 24,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
   textDisabled: {
-    color: COLORS.textMuted,
+    color: colors.textMuted,
   },
 
   // Info Row
@@ -495,7 +584,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: SIZES.radiusSmall,
-    backgroundColor: COLORS.backgroundDark,
+    backgroundColor: colors.backgroundDark,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: SIZES.margin,
@@ -509,17 +598,14 @@ const styles = StyleSheet.create({
   infoTitle: {
     fontSize: FONTS.medium,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
   },
   infoSubtitle: {
     fontSize: FONTS.small,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
 
   // Danger Zone
-  dangerTitle: {
-    color: COLORS.error,
-  },
   dangerButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -529,7 +615,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: SIZES.radiusSmall,
-    backgroundColor: COLORS.error + '20',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: SIZES.margin,
@@ -543,11 +628,10 @@ const styles = StyleSheet.create({
   dangerText: {
     fontSize: FONTS.medium,
     fontWeight: '600',
-    color: COLORS.error,
   },
   dangerSubtext: {
     fontSize: FONTS.small,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
 
   // Footer
@@ -557,11 +641,11 @@ const styles = StyleSheet.create({
   },
   version: {
     fontSize: FONTS.small,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   copyright: {
     fontSize: FONTS.tiny,
-    color: COLORS.textMuted,
+    color: colors.textMuted,
     marginTop: 4,
   },
 });

@@ -21,10 +21,13 @@ import {
 } from '../services/srsSystem';
 import { incrementQuestProgress } from '../services/questsSystem';
 import { incrementSRSRecoveryProgress } from '../services/livesSystem';
-import { COLORS, FONTS, SIZES } from '../styles/theme';
-import globalStyles from '../styles/globalStyles';
+import { useTheme } from '../contexts/ThemeContext';
+import { FONTS, SIZES } from '../styles/theme';
 
 export default function SRSReviewScreen({ route, navigation }) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+
   const [cards, setCards] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -80,10 +83,10 @@ export default function SRSReviewScreen({ route, navigation }) {
   };
 
   const renderNoCards = () => (
-    <View style={globalStyles.centerContainer}>
+    <View style={styles.centerContainer}>
       <Text style={styles.emoji}>🎉</Text>
-      <Text style={globalStyles.title}>Aucune carte à réviser !</Text>
-      <Text style={[globalStyles.textSecondary, { textAlign: 'center' }]}>
+      <Text style={styles.title}>Aucune carte à réviser !</Text>
+      <Text style={styles.textSecondary}>
         Toutes tes cartes SRS sont à jour.{'\n'}
         Reviens plus tard pour de nouvelles révisions !
       </Text>
@@ -101,7 +104,7 @@ export default function SRSReviewScreen({ route, navigation }) {
 
     return (
       <Modal visible={showResults} animationType="fade" transparent={false}>
-        <SafeAreaView style={globalStyles.safeArea} edges={['top', 'bottom']}>
+        <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
           <View style={styles.resultsContainer}>
             <Text style={styles.resultsTitle}>🎉 Révisions Terminées !</Text>
 
@@ -112,14 +115,14 @@ export default function SRSReviewScreen({ route, navigation }) {
               </View>
 
               <View style={styles.statCard}>
-                <Text style={[styles.statValue, { color: COLORS.success }]}>
+                <Text style={[styles.statValue, { color: colors.success }]}>
                   {`${correctCount}`}
                 </Text>
                 <Text style={styles.statLabel}>Correctes</Text>
               </View>
 
               <View style={styles.statCard}>
-                <Text style={[styles.statValue, { color: COLORS.primary }]}>
+                <Text style={[styles.statValue, { color: colors.primary }]}>
                   {`${accuracy}%`}
                 </Text>
                 <Text style={styles.statLabel}>Précision</Text>
@@ -174,10 +177,10 @@ export default function SRSReviewScreen({ route, navigation }) {
 
   if (loading) {
     return (
-      <SafeAreaView style={globalStyles.safeArea} edges={['top', 'bottom']}>
-        <View style={globalStyles.centerContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={[globalStyles.text, { marginTop: SIZES.margin }]}>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={[styles.text, { marginTop: SIZES.margin }]}>
             Chargement des cartes...
           </Text>
         </View>
@@ -187,7 +190,7 @@ export default function SRSReviewScreen({ route, navigation }) {
 
   if (cards.length === 0) {
     return (
-      <SafeAreaView style={globalStyles.safeArea} edges={['top', 'bottom']}>{renderNoCards()}</SafeAreaView>
+      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>{renderNoCards()}</SafeAreaView>
     );
   }
 
@@ -195,7 +198,7 @@ export default function SRSReviewScreen({ route, navigation }) {
   const progress = ((currentIndex + 1) / cards.length) * 100;
 
   return (
-    <SafeAreaView style={globalStyles.safeArea} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
@@ -232,10 +235,35 @@ export default function SRSReviewScreen({ route, navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SIZES.screenPadding,
+  },
+  text: {
+    fontSize: FONTS.regular,
+    color: colors.text,
+  },
+  title: {
+    fontSize: FONTS.xxLarge,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: SIZES.margin,
+  },
+  textSecondary: {
+    fontSize: FONTS.regular,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   header: {
     flexDirection: 'row',
@@ -245,7 +273,7 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     fontSize: 28,
-    color: COLORS.text,
+    color: colors.text,
     fontWeight: 'bold',
   },
   progressContainer: {
@@ -253,22 +281,22 @@ const styles = StyleSheet.create({
   },
   progressBarBackground: {
     height: 12,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: SIZES.radiusSmall,
     overflow: 'hidden',
     marginBottom: 4,
   },
   progressBar: {
     height: '100%',
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
   },
   progressText: {
     fontSize: FONTS.small,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   correctContainer: {
-    backgroundColor: COLORS.success + '20',
+    backgroundColor: colors.success + '20',
     paddingHorizontal: SIZES.padding,
     paddingVertical: SIZES.paddingSmall,
     borderRadius: SIZES.radiusSmall,
@@ -276,14 +304,14 @@ const styles = StyleSheet.create({
   correctText: {
     fontSize: FONTS.medium,
     fontWeight: '600',
-    color: COLORS.success,
+    color: colors.success,
   },
   emoji: {
     fontSize: 80,
     marginBottom: SIZES.margin * 2,
   },
   button: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: SIZES.padding * 2,
     paddingVertical: SIZES.padding * 1.5,
     borderRadius: SIZES.radius,
@@ -292,19 +320,19 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: FONTS.large,
     fontWeight: 'bold',
-    color: COLORS.background,
+    color: colors.background,
     textAlign: 'center',
   },
   resultsContainer: {
     flex: 1,
     justifyContent: 'center',
     padding: SIZES.screenPadding,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
   resultsTitle: {
     fontSize: FONTS.xxxLarge,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     textAlign: 'center',
     marginBottom: SIZES.margin * 3,
   },
@@ -315,7 +343,7 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: SIZES.radius,
     padding: SIZES.padding * 2,
     alignItems: 'center',
@@ -323,18 +351,18 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: FONTS.xxxLarge,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
     marginBottom: SIZES.marginSmall,
   },
   statLabel: {
     fontSize: FONTS.medium,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   bonusContainer: {
-    backgroundColor: COLORS.success + '10',
+    backgroundColor: colors.success + '10',
     borderWidth: 2,
-    borderColor: COLORS.success,
+    borderColor: colors.success,
     borderRadius: SIZES.radius,
     padding: SIZES.padding * 2,
     marginBottom: SIZES.margin * 2,
@@ -342,13 +370,13 @@ const styles = StyleSheet.create({
   bonusTitle: {
     fontSize: FONTS.xLarge,
     fontWeight: 'bold',
-    color: COLORS.success,
+    color: colors.success,
     textAlign: 'center',
     marginBottom: SIZES.marginSmall,
   },
   bonusText: {
     fontSize: FONTS.medium,
-    color: COLORS.text,
+    color: colors.text,
     textAlign: 'center',
     lineHeight: 22,
   },
@@ -360,7 +388,7 @@ const styles = StyleSheet.create({
     padding: SIZES.screenPadding,
   },
   modalContent: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     borderRadius: SIZES.radiusLarge,
     padding: SIZES.padding * 3,
     alignItems: 'center',
@@ -374,19 +402,19 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: FONTS.xxLarge,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     textAlign: 'center',
     marginBottom: SIZES.margin,
   },
   modalText: {
     fontSize: FONTS.medium,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: SIZES.margin * 2,
   },
   modalButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: colors.primary,
     paddingHorizontal: SIZES.padding * 3,
     paddingVertical: SIZES.padding * 1.5,
     borderRadius: SIZES.radius,
@@ -394,6 +422,6 @@ const styles = StyleSheet.create({
   modalButtonText: {
     fontSize: FONTS.large,
     fontWeight: 'bold',
-    color: COLORS.background,
+    color: colors.background,
   },
 });

@@ -11,6 +11,7 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigator from './src/navigation/AppNavigator';
 import { PremiumProvider, usePremium } from './src/contexts/PremiumContext';
+import { ThemeProvider, useTheme } from './src/contexts/ThemeContext';
 import PaywallModal from './src/components/PaywallModal';
 import OnboardingScreen from './src/screens/OnboardingScreen';
 import { isOnboardingCompleted } from './src/services/onboardingService';
@@ -21,11 +22,11 @@ import {
   scheduleAllNotifications,
   isNotificationAvailable
 } from './src/services/notificationService';
-import { COLORS } from './src/styles/theme';
 
 // Composant wrapper pour le Paywall global
 function AppWithPaywall() {
   const { showPaywall, closePaywall, handlePurchaseSuccess } = usePremium();
+  const { colors, isDarkMode, isLoading: themeLoading } = useTheme();
   const [showOnboarding, setShowOnboarding] = useState(null);
 
   useEffect(() => {
@@ -67,11 +68,11 @@ function AppWithPaywall() {
   };
 
   // Loading state
-  if (showOnboarding === null) {
+  if (showOnboarding === null || themeLoading) {
     return (
-      <View style={styles.loadingContainer}>
-        <StatusBar style="light" />
-        <ActivityIndicator size="large" color={COLORS.primary} />
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <StatusBar style={isDarkMode ? 'light' : 'dark'} />
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
@@ -80,7 +81,7 @@ function AppWithPaywall() {
   if (showOnboarding) {
     return (
       <>
-        <StatusBar style="light" />
+        <StatusBar style={isDarkMode ? 'light' : 'dark'} />
         <OnboardingScreen onComplete={handleOnboardingComplete} />
       </>
     );
@@ -88,7 +89,7 @@ function AppWithPaywall() {
 
   return (
     <>
-      <StatusBar style="light" />
+      <StatusBar style={isDarkMode ? 'light' : 'dark'} />
       <AppNavigator />
       <PaywallModal
         visible={showPaywall}
@@ -104,16 +105,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
   },
 });
 
 export default function App() {
   return (
     <SafeAreaProvider>
-      <PremiumProvider>
-        <AppWithPaywall />
-      </PremiumProvider>
+      <ThemeProvider>
+        <PremiumProvider>
+          <AppWithPaywall />
+        </PremiumProvider>
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }

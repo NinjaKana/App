@@ -20,8 +20,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
-import { COLORS, FONTS, SIZES } from '../styles/theme';
-import globalStyles from '../styles/globalStyles';
+import { useTheme } from '../contexts/ThemeContext';
+import { FONTS, SIZES } from '../styles/theme';
 import {
   getRanking,
   getLeaderboardStats,
@@ -30,6 +30,9 @@ import {
 } from '../services/leaderboardService';
 
 export default function LeaderboardScreen({ navigation }) {
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
+
   const [ranking, setRanking] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -64,14 +67,14 @@ export default function LeaderboardScreen({ navigation }) {
 
   if (loading) {
     return (
-      <View style={globalStyles.loadingContainer}>
-        <Text style={globalStyles.text}>Chargement...</Text>
+      <View style={styles.loadingContainer}>
+        <Text style={styles.text}>Chargement...</Text>
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={globalStyles.safeArea} edges={['bottom']}>
+    <SafeAreaView style={styles.safeArea} edges={['bottom']}>
       <ScrollView
         style={styles.container}
         refreshControl={
@@ -119,11 +122,11 @@ export default function LeaderboardScreen({ navigation }) {
         {/* Legend */}
         <View style={styles.legend}>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: COLORS.success }]} />
+            <View style={[styles.legendDot, { backgroundColor: colors.success }]} />
             <Text style={styles.legendText}>Promotion (Top 3)</Text>
           </View>
           <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: COLORS.error }]} />
+            <View style={[styles.legendDot, { backgroundColor: colors.error }]} />
             <Text style={styles.legendText}>Rélégation (18-20)</Text>
           </View>
         </View>
@@ -247,17 +250,31 @@ export default function LeaderboardScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.background,
+  },
+  text: {
+    fontSize: FONTS.regular,
+    color: colors.text,
+  },
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
   },
 
   // League Header
   leagueHeader: {
     alignItems: 'center',
     padding: SIZES.paddingLarge,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     marginBottom: SIZES.margin,
   },
   leagueBadge: {
@@ -274,31 +291,31 @@ const styles = StyleSheet.create({
   leagueName: {
     fontSize: FONTS.xxLarge,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
   },
   leaguePosition: {
     fontSize: FONTS.regular,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginTop: 4,
   },
   timerBox: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: SIZES.margin,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.background,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: SIZES.radius,
   },
   timerLabel: {
     fontSize: FONTS.small,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
     marginRight: 8,
   },
   timerValue: {
     fontSize: FONTS.regular,
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   statusBadge: {
     marginTop: SIZES.margin,
@@ -307,10 +324,10 @@ const styles = StyleSheet.create({
     borderRadius: SIZES.radius,
   },
   promotionBadge: {
-    backgroundColor: COLORS.successLight,
+    backgroundColor: colors.successLight,
   },
   relegationBadge: {
-    backgroundColor: COLORS.errorLight,
+    backgroundColor: colors.errorLight,
   },
   statusText: {
     fontSize: FONTS.small,
@@ -322,7 +339,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     padding: SIZES.padding,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     marginBottom: SIZES.margin,
   },
   legendItem: {
@@ -338,12 +355,12 @@ const styles = StyleSheet.create({
   },
   legendText: {
     fontSize: FONTS.small,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
 
   // Ranking
   rankingContainer: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     marginHorizontal: SIZES.screenPadding,
     borderRadius: SIZES.radius,
     overflow: 'hidden',
@@ -354,18 +371,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: SIZES.padding,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: colors.border,
   },
   playerRowUser: {
-    backgroundColor: COLORS.primaryLight,
+    backgroundColor: colors.primaryLight,
   },
   playerRowPromotion: {
     borderLeftWidth: 3,
-    borderLeftColor: COLORS.success,
+    borderLeftColor: colors.success,
   },
   playerRowRelegation: {
     borderLeftWidth: 3,
-    borderLeftColor: COLORS.error,
+    borderLeftColor: colors.error,
   },
   positionContainer: {
     width: 36,
@@ -377,10 +394,10 @@ const styles = StyleSheet.create({
   positionNumber: {
     fontSize: FONTS.regular,
     fontWeight: 'bold',
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   positionNumberUser: {
-    color: COLORS.primary,
+    color: colors.primary,
   },
   playerInfo: {
     flex: 1,
@@ -394,11 +411,11 @@ const styles = StyleSheet.create({
   },
   playerName: {
     fontSize: FONTS.regular,
-    color: COLORS.text,
+    color: colors.text,
   },
   playerNameUser: {
     fontWeight: 'bold',
-    color: COLORS.primary,
+    color: colors.primary,
   },
   xpContainer: {
     alignItems: 'flex-end',
@@ -406,19 +423,19 @@ const styles = StyleSheet.create({
   xpValue: {
     fontSize: FONTS.large,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
   },
   xpValueUser: {
-    color: COLORS.primary,
+    color: colors.primary,
   },
   xpLabel: {
     fontSize: FONTS.tiny,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
 
   // Rewards
   rewardsSection: {
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     marginHorizontal: SIZES.screenPadding,
     borderRadius: SIZES.radius,
     padding: SIZES.padding,
@@ -427,7 +444,7 @@ const styles = StyleSheet.create({
   rewardsTitle: {
     fontSize: FONTS.regular,
     fontWeight: 'bold',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: SIZES.margin,
   },
   rewardRow: {
@@ -441,7 +458,7 @@ const styles = StyleSheet.create({
   },
   rewardText: {
     fontSize: FONTS.small,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
 
   // All Leagues
@@ -452,7 +469,7 @@ const styles = StyleSheet.create({
   allLeaguesTitle: {
     fontSize: FONTS.regular,
     fontWeight: '600',
-    color: COLORS.text,
+    color: colors.text,
     marginBottom: SIZES.margin,
   },
   leagueItem: {
@@ -460,13 +477,13 @@ const styles = StyleSheet.create({
     marginRight: SIZES.padding,
     padding: SIZES.paddingSmall,
     borderRadius: SIZES.radius,
-    backgroundColor: COLORS.surface,
+    backgroundColor: colors.surface,
     minWidth: 70,
   },
   leagueItemCurrent: {
     borderWidth: 2,
-    borderColor: COLORS.primary,
-    backgroundColor: COLORS.primaryLight,
+    borderColor: colors.primary,
+    backgroundColor: colors.primaryLight,
   },
   leagueItemEmoji: {
     fontSize: 28,
@@ -474,10 +491,10 @@ const styles = StyleSheet.create({
   },
   leagueItemName: {
     fontSize: FONTS.tiny,
-    color: COLORS.textSecondary,
+    color: colors.textSecondary,
   },
   leagueItemNameCurrent: {
-    color: COLORS.primary,
+    color: colors.primary,
     fontWeight: 'bold',
   },
 });

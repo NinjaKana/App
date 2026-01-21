@@ -13,8 +13,12 @@
       "backgroundColor": "#1a1a2e"
     },
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.apprendre.japonais"
+      "supportsTablet": false,
+      "bundleIdentifier": "com.apprendre.japonais",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "buildNumber": "3"
     },
     "android": {
       "adaptiveIcon": {
@@ -43,7 +47,8 @@
       [
         "react-native-google-mobile-ads",
         {
-          "androidAppId": "ca-app-pub-3554291855047296~5296417418"
+          "androidAppId": "ca-app-pub-3554291855047296~5296417418",
+          "iosAppId": "ca-app-pub-3554291855047296~5296417418"
         }
       ],
       [
