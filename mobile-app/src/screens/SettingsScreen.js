@@ -344,8 +344,15 @@ export default function SettingsScreen({ navigation }) {
           <SettingLink
             colors={colors}
             icon="🔒"
-            title="Politique de confidentialité"
+            title="Politique de confidentialite"
             onPress={() => Linking.openURL('https://ninjakana.github.io/App/privacy-policy.html')}
+          />
+
+          <SettingLink
+            colors={colors}
+            icon="📜"
+            title="Conditions d'utilisation"
+            onPress={() => Linking.openURL('https://ninjakana.github.io/App/terms-of-use.html')}
             isLast
           />
         </View>

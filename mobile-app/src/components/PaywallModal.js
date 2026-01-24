@@ -13,14 +13,17 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   getOfferings,
   purchasePackage,
+  purchaseProduct,
   restorePurchases,
   FREE_LIMITS,
   DISPLAY_PRICES,
+  PRODUCT_IDS,
 } from '../services/premiumService';
 import { COLORS, FONTS, SIZES } from '../styles/theme';
 
@@ -63,6 +66,7 @@ export default function PaywallModal({ visible, onClose, onPurchaseSuccess }) {
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('yearly');
+  const [useFallback, setUseFallback] = useState(false);
 
   useEffect(() => {
     if (visible) {
@@ -74,17 +78,31 @@ export default function PaywallModal({ visible, onClose, onPurchaseSuccess }) {
     setLoading(true);
     const offers = await getOfferings();
     setOfferings(offers);
+    setUseFallback(offers?.useFallback || false);
     setLoading(false);
   };
 
-  const handlePurchase = async (packageToPurchase) => {
-    if (!packageToPurchase) {
+  const handlePurchase = async (plan) => {
+    if (!plan) {
       Alert.alert('Erreur', 'Offre non disponible');
       return;
     }
 
     setPurchasing(true);
-    const result = await purchasePackage(packageToPurchase);
+
+    let result;
+    if (plan.package) {
+      // Mode normal: utiliser le package RevenueCat
+      result = await purchasePackage(plan.package);
+    } else if (plan.productId) {
+      // Mode fallback: utiliser l'ID produit directement
+      result = await purchaseProduct(plan.productId);
+    } else {
+      setPurchasing(false);
+      Alert.alert('Erreur', 'Configuration d\'achat invalide');
+      return;
+    }
+
     setPurchasing(false);
 
     if (result.success) {
@@ -128,34 +146,64 @@ export default function PaywallModal({ visible, onClose, onPurchaseSuccess }) {
     }
   };
 
-  // Only show plans if offerings are properly loaded from RevenueCat
-  const hasValidOfferings = offerings && (offerings.monthly || offerings.yearly || offerings.lifetime);
+  // Plans fallback avec prix hardcodés (utilisés si RevenueCat ne charge pas)
+  const fallbackPlans = [
+    {
+      id: 'monthly',
+      name: 'Mensuel',
+      price: DISPLAY_PRICES.MONTHLY,
+      period: DISPLAY_PRICES.MONTHLY_PERIOD,
+      productId: PRODUCT_IDS.MONTHLY,
+    },
+    {
+      id: 'yearly',
+      name: 'Annuel',
+      price: DISPLAY_PRICES.YEARLY,
+      period: DISPLAY_PRICES.YEARLY_PERIOD,
+      productId: PRODUCT_IDS.YEARLY,
+      savings: `-${DISPLAY_PRICES.YEARLY_SAVINGS}`,
+      popular: true,
+    },
+    {
+      id: 'lifetime',
+      name: 'À vie',
+      price: DISPLAY_PRICES.LIFETIME,
+      period: DISPLAY_PRICES.LIFETIME_PERIOD,
+      productId: PRODUCT_IDS.LIFETIME,
+    },
+  ];
+
+  // Construire les plans depuis RevenueCat ou utiliser le fallback
+  const hasValidOfferings = offerings && !useFallback && (offerings.monthly || offerings.yearly || offerings.lifetime);
 
   const plans = hasValidOfferings ? [
     offerings.monthly && {
       id: 'monthly',
       name: 'Mensuel',
-      price: offerings.monthly.product?.priceString,
+      price: offerings.monthly.product?.priceString || DISPLAY_PRICES.MONTHLY,
       period: '/mois',
       package: offerings.monthly,
+      productId: PRODUCT_IDS.MONTHLY,
     },
     offerings.yearly && {
       id: 'yearly',
       name: 'Annuel',
-      price: offerings.yearly.product?.priceString,
+      price: offerings.yearly.product?.priceString || DISPLAY_PRICES.YEARLY,
       period: '/an',
       package: offerings.yearly,
+      productId: PRODUCT_IDS.YEARLY,
       savings: '-58%',
       popular: true,
     },
     offerings.lifetime && {
       id: 'lifetime',
       name: 'À vie',
-      price: offerings.lifetime.product?.priceString,
+      price: offerings.lifetime.product?.priceString || DISPLAY_PRICES.LIFETIME,
       period: 'une fois',
       package: offerings.lifetime,
+      productId: PRODUCT_IDS.LIFETIME,
     },
-  ].filter(Boolean) : [];
+  ].filter(Boolean) : fallbackPlans;
 
   return (
     <Modal
@@ -213,15 +261,6 @@ export default function PaywallModal({ visible, onClose, onPurchaseSuccess }) {
 
             {loading ? (
               <ActivityIndicator size="large" color={COLORS.primary} />
-            ) : !hasValidOfferings ? (
-              <View style={styles.errorContainer}>
-                <Text style={styles.errorText}>
-                  Impossible de charger les offres. Vérifiez votre connexion et réessayez.
-                </Text>
-                <TouchableOpacity style={styles.retryButton} onPress={loadOfferings}>
-                  <Text style={styles.retryText}>Réessayer</Text>
-                </TouchableOpacity>
-              </View>
             ) : (
               <View style={styles.plansContainer}>
                 {plans.map((plan) => (
@@ -264,12 +303,12 @@ export default function PaywallModal({ visible, onClose, onPurchaseSuccess }) {
         {/* Bottom Actions - Design Figma */}
         <View style={styles.bottomActions}>
           <TouchableOpacity
-            style={[styles.purchaseButton, (purchasing || !hasValidOfferings) && styles.buttonDisabled]}
+            style={[styles.purchaseButton, purchasing && styles.buttonDisabled]}
             onPress={() => {
               const plan = plans.find(p => p.id === selectedPlan);
-              handlePurchase(plan?.package);
+              handlePurchase(plan);
             }}
-            disabled={purchasing || loading || !hasValidOfferings}
+            disabled={purchasing || loading}
           >
             {purchasing ? (
               <ActivityIndicator color={COLORS.text} />
@@ -289,8 +328,19 @@ export default function PaywallModal({ visible, onClose, onPurchaseSuccess }) {
           </TouchableOpacity>
 
           <Text style={styles.termsText}>
-            L'abonnement se renouvelle automatiquement. Annulation possible à tout moment.
+            L'abonnement se renouvelle automatiquement sauf annulation au moins 24h avant la fin de la periode.{' '}
+            Gerez votre abonnement dans les reglages de votre compte App Store.
           </Text>
+
+          <View style={styles.legalLinks}>
+            <TouchableOpacity onPress={() => Linking.openURL('https://ninjakana.github.io/App/terms-of-use.html')}>
+              <Text style={styles.legalLink}>Conditions d'utilisation</Text>
+            </TouchableOpacity>
+            <Text style={styles.legalSeparator}>|</Text>
+            <TouchableOpacity onPress={() => Linking.openURL('https://ninjakana.github.io/App/privacy-policy.html')}>
+              <Text style={styles.legalLink}>Confidentialite</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </SafeAreaView>
     </Modal>
@@ -420,27 +470,6 @@ const styles = StyleSheet.create({
   plansSection: {
     marginBottom: SIZES.margin,
   },
-  errorContainer: {
-    alignItems: 'center',
-    padding: SIZES.padding,
-  },
-  errorText: {
-    fontSize: FONTS.medium,
-    color: COLORS.textSecondary,
-    textAlign: 'center',
-    marginBottom: SIZES.margin,
-  },
-  retryButton: {
-    backgroundColor: COLORS.surface,
-    paddingHorizontal: SIZES.padding * 1.5,
-    paddingVertical: SIZES.paddingSmall,
-    borderRadius: SIZES.radius,
-  },
-  retryText: {
-    fontSize: FONTS.medium,
-    color: COLORS.primary,
-    fontWeight: '600',
-  },
   plansContainer: {
     flexDirection: 'row',
     gap: SIZES.marginSmall,
@@ -555,5 +584,21 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted,
     textAlign: 'center',
     lineHeight: 16,
+  },
+  legalLinks: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: SIZES.marginSmall,
+  },
+  legalLink: {
+    fontSize: FONTS.tiny,
+    color: COLORS.primary,
+    textDecorationLine: 'underline',
+  },
+  legalSeparator: {
+    fontSize: FONTS.tiny,
+    color: COLORS.textMuted,
+    marginHorizontal: 8,
   },
 });
