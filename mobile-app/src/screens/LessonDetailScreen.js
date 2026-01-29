@@ -12,17 +12,20 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { getLessonById } from '../data/lessonsData';
+import { getLessonById, hiraganaLessons, katakanaLessons, vocabularyLessons, kanjiLessons, LESSON_CATEGORIES } from '../data/lessonsData';
 import audioService from '../services/audioService';
 import { useTheme } from '../contexts/ThemeContext';
 import { FONTS, SIZES } from '../styles/theme';
 import KanjiCard from '../components/KanjiCard';
 import GrammarTips from '../components/GrammarTips';
 import FirstTimeLessonTip, { shouldShowFirstTimeTip, markFirstTimeTipAsShown } from '../components/FirstTimeLessonTip';
+import { usePremium } from '../contexts/PremiumContext';
+import { FREE_LIMITS } from '../services/premiumService';
 
 export default function LessonDetailScreen({ route, navigation }) {
   const { lessonId, lessonTitle, category } = route.params;
   const lesson = getLessonById(lessonId);
+  const { isPremium, openPaywall } = usePremium();
   const [playingRomaji, setPlayingRomaji] = useState(null);
   const [currentKanjiIndex, setCurrentKanjiIndex] = useState(0);
   const [showGrammar, setShowGrammar] = useState(false);
@@ -30,6 +33,20 @@ export default function LessonDetailScreen({ route, navigation }) {
 
   const { colors } = useTheme();
   const styles = createStyles(colors);
+
+  // Vérifier si la leçon est gratuite
+  const getLessonIndex = () => {
+    const lessonsMap = {
+      [LESSON_CATEGORIES.HIRAGANA]: hiraganaLessons,
+      [LESSON_CATEGORIES.KATAKANA]: katakanaLessons,
+      [LESSON_CATEGORIES.VOCABULARY]: vocabularyLessons,
+      [LESSON_CATEGORIES.KANJI]: kanjiLessons,
+    };
+    const categoryLessons = lessonsMap[category] || [];
+    return categoryLessons.findIndex(l => l.id === lessonId);
+  };
+  const lessonIndex = getLessonIndex();
+  const isFree = isPremium || lessonIndex < FREE_LIMITS.FREE_LESSONS_PER_CATEGORY;
 
   // Vérifier si on doit afficher le conseil première fois
   useEffect(() => {
@@ -208,17 +225,31 @@ export default function LessonDetailScreen({ route, navigation }) {
       {/* Bouton Commencer - Fixe en bas - Design Figma */}
       {lesson.exercises && lesson.exercises.length > 0 && (
         <View style={styles.bottomButtonContainer}>
-          <TouchableOpacity
-            style={styles.startButton}
-            onPress={() => navigation.navigate('Exercise', { lesson })}
-          >
-            <Text style={styles.startButtonText}>
-              Commencer le quiz
-            </Text>
-            <Text style={styles.startButtonCount}>
-              {lesson.exercises.length} exercices • {lesson.id <= 3 ? '5' : '3'} erreurs = -1 vie
-            </Text>
-          </TouchableOpacity>
+          {isFree ? (
+            <TouchableOpacity
+              style={styles.startButton}
+              onPress={() => navigation.navigate('Exercise', { lesson })}
+            >
+              <Text style={styles.startButtonText}>
+                Commencer le quiz
+              </Text>
+              <Text style={styles.startButtonCount}>
+                {lesson.exercises.length} exercices • {lesson.id <= 3 ? '5' : '3'} erreurs = -1 vie
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={[styles.startButton, styles.premiumButton]}
+              onPress={openPaywall}
+            >
+              <Text style={styles.startButtonText}>
+                👑 Débloquer avec Premium
+              </Text>
+              <Text style={styles.startButtonCount}>
+                Accède à toutes les leçons
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
 
@@ -405,6 +436,9 @@ const createStyles = (colors) => StyleSheet.create({
     borderRadius: SIZES.radius,
     padding: SIZES.padding * 1.2,
     alignItems: 'center',
+  },
+  premiumButton: {
+    backgroundColor: colors.warning,
   },
   startButtonText: {
     fontSize: FONTS.large,

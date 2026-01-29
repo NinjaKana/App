@@ -80,14 +80,14 @@ export default function ProfileScreen({ navigation }) {
 
   // Calculer le rang basé sur Ki (XP) - Rangs Naruto
   const calculateRank = (xp) => {
-    if (xp < 500) return { level: 1, title: 'Genin', subtitle: '下忍', nextXP: 500 };
-    if (xp < 1000) return { level: 2, title: 'Chūnin', subtitle: '中忍', nextXP: 1000 };
-    if (xp < 2000) return { level: 3, title: 'Tokubetsu Jōnin', subtitle: '特別上忍', nextXP: 2000 };
-    if (xp < 4000) return { level: 4, title: 'Jōnin', subtitle: '上忍', nextXP: 4000 };
-    if (xp < 8000) return { level: 5, title: 'Anbu', subtitle: '暗部', nextXP: 8000 };
-    if (xp < 15000) return { level: 6, title: 'Sannin', subtitle: '伝説の三忍', nextXP: 15000 };
-    if (xp < 30000) return { level: 7, title: 'Kage', subtitle: '影', nextXP: 30000 };
-    return { level: 8, title: 'Hokage', subtitle: '火影', nextXP: null };
+    if (xp < 500) return { level: 0, title: 'Genin', subtitle: '下忍', nextXP: 500 };
+    if (xp < 1000) return { level: 1, title: 'Chūnin', subtitle: '中忍', nextXP: 1000 };
+    if (xp < 2000) return { level: 2, title: 'Tokubetsu Jōnin', subtitle: '特別上忍', nextXP: 2000 };
+    if (xp < 4000) return { level: 3, title: 'Jōnin', subtitle: '上忍', nextXP: 4000 };
+    if (xp < 8000) return { level: 4, title: 'Anbu', subtitle: '暗部', nextXP: 8000 };
+    if (xp < 15000) return { level: 5, title: 'Sannin', subtitle: '伝説の三忍', nextXP: 15000 };
+    if (xp < 30000) return { level: 6, title: 'Kage', subtitle: '影', nextXP: 30000 };
+    return { level: 7, title: 'Hokage', subtitle: '火影', nextXP: null };
   };
 
   const rankInfo = calculateRank(progress?.totalPoints || 0);

@@ -24,10 +24,13 @@ import {
 } from '../data/lessonsData';
 import { useTheme } from '../contexts/ThemeContext';
 import { FONTS, SIZES } from '../styles/theme';
+import { usePremium } from '../contexts/PremiumContext';
+import { FREE_LIMITS } from '../services/premiumService';
 import AdBanner from '../components/AdBanner';
 
 export default function LessonsScreen({ navigation }) {
   const { colors } = useTheme();
+  const { isPremium, openPaywall } = usePremium();
   const [selectedCategory, setSelectedCategory] = useState(LESSON_CATEGORIES.HIRAGANA);
   const [completedLessons, setCompletedLessons] = useState([]);
 
@@ -67,7 +70,12 @@ export default function LessonsScreen({ navigation }) {
     }
   };
 
-  // Vérifie si une leçon est débloquée
+  // Vérifie si une leçon est gratuite (dans la limite des 5 premières par catégorie)
+  const isLessonFreeCheck = (index) => {
+    return isPremium || index < FREE_LIMITS.FREE_LESSONS_PER_CATEGORY;
+  };
+
+  // Vérifie si une leçon est débloquée (progression séquentielle)
   const isLessonUnlocked = (lessons, index) => {
     // La première leçon de chaque catégorie est toujours débloquée
     if (index === 0) return true;
@@ -83,6 +91,20 @@ export default function LessonsScreen({ navigation }) {
   };
 
   const handleLessonPress = (lesson, index, lessons) => {
+    // Vérifier d'abord si la leçon est premium
+    if (!isLessonFreeCheck(index)) {
+      Alert.alert(
+        '👑 Contenu Premium',
+        'Cette leçon est réservée aux membres Premium.\n\nLes 5 premières leçons de chaque catégorie sont gratuites.',
+        [
+          { text: 'Retour', style: 'cancel' },
+          { text: 'Devenir Premium', onPress: openPaywall },
+        ]
+      );
+      return;
+    }
+
+    // Puis vérifier la progression séquentielle
     if (!isLessonUnlocked(lessons, index)) {
       Alert.alert(
         '🔒 Leçon verrouillée',
@@ -148,15 +170,18 @@ export default function LessonsScreen({ navigation }) {
           {getLessons().length > 0 ? (
             getLessons().map((lesson, index) => {
               const lessons = getLessons();
-              const unlocked = isLessonUnlocked(lessons, index);
+              const isFree = isLessonFreeCheck(index);
+              const unlocked = isFree && isLessonUnlocked(lessons, index);
               const completed = isLessonCompleted(lesson.id);
+              const locked = !isFree || !unlocked;
 
               return (
                 <TouchableOpacity
                   key={lesson.id}
                   style={[
                     styles.lessonCard,
-                    !unlocked && styles.lessonCardLocked,
+                    locked && styles.lessonCardLocked,
+                    !isFree && styles.lessonCardPremium,
                   ]}
                   onPress={() => handleLessonPress(lesson, index, lessons)}
                   activeOpacity={unlocked ? 0.7 : 0.5}
@@ -165,22 +190,23 @@ export default function LessonsScreen({ navigation }) {
                   <View style={[
                     styles.lessonIcon,
                     completed && styles.lessonIconCompleted,
-                    !unlocked && styles.lessonIconLocked,
+                    locked && styles.lessonIconLocked,
+                    !isFree && styles.lessonIconPremium,
                   ]}>
                     <Text style={styles.lessonIconText}>
-                      {!unlocked ? '🔒' : completed ? '✅' : '📗'}
+                      {!isFree ? '👑' : !unlocked ? '🔒' : completed ? '✅' : '📗'}
                     </Text>
                   </View>
 
                   {/* Contenu */}
-                  <View style={[styles.lessonContent, !unlocked && styles.lessonContentLocked]}>
-                    <Text style={[styles.lessonNumber, !unlocked && styles.textLocked]}>
-                      Leçon {index + 1}
+                  <View style={[styles.lessonContent, locked && styles.lessonContentLocked]}>
+                    <Text style={[styles.lessonNumber, locked && styles.textLocked]}>
+                      Leçon {index + 1}{!isFree ? ' • Premium' : ''}
                     </Text>
-                    <Text style={[styles.lessonTitle, !unlocked && styles.textLocked]}>
+                    <Text style={[styles.lessonTitle, locked && styles.textLocked]}>
                       {lesson.title}
                     </Text>
-                    <Text style={[styles.lessonChars, !unlocked && styles.textLocked]} numberOfLines={1}>
+                    <Text style={[styles.lessonChars, locked && styles.textLocked]} numberOfLines={1}>
                       {lesson.kanji
                         ? lesson.kanji.map(k => k.kanji).join(', ')
                         : lesson.characters?.map(c => c.hiragana || c.katakana || c.romaji).join(', ')
@@ -189,16 +215,16 @@ export default function LessonsScreen({ navigation }) {
 
                     {/* Tags */}
                     <View style={styles.lessonTags}>
-                      <View style={[styles.tag, !unlocked && styles.tagLocked]}>
-                        <Text style={[styles.tagText, !unlocked && styles.textLocked]}>
+                      <View style={[styles.tag, locked && styles.tagLocked]}>
+                        <Text style={[styles.tagText, locked && styles.textLocked]}>
                           {lesson.kanji
                             ? `${lesson.kanji.length} kanji`
                             : `${lesson.characters?.length || 0} caractères`
                           }
                         </Text>
                       </View>
-                      <View style={[styles.tag, !unlocked && styles.tagLocked]}>
-                        <Text style={[styles.tagText, !unlocked && styles.textLocked]}>
+                      <View style={[styles.tag, locked && styles.tagLocked]}>
+                        <Text style={[styles.tagText, locked && styles.textLocked]}>
                           {lesson.difficulty || 'Débutant'}
                         </Text>
                       </View>
@@ -206,8 +232,8 @@ export default function LessonsScreen({ navigation }) {
                   </View>
 
                   {/* Flèche ou cadenas */}
-                  <Text style={[styles.lessonArrow, !unlocked && styles.textLocked]}>
-                    {unlocked ? '›' : '🔒'}
+                  <Text style={[styles.lessonArrow, locked && styles.textLocked]}>
+                    {!isFree ? '👑' : unlocked ? '›' : '🔒'}
                   </Text>
                 </TouchableOpacity>
               );
@@ -396,11 +422,19 @@ const createStyles = (colors) => StyleSheet.create({
     opacity: 0.6,
     backgroundColor: colors.surfaceDark,
   },
+  lessonCardPremium: {
+    opacity: 0.7,
+    borderWidth: 1,
+    borderColor: colors.warning + '40',
+  },
   lessonIconCompleted: {
     backgroundColor: colors.success,
   },
   lessonIconLocked: {
     backgroundColor: colors.surfaceLight,
+  },
+  lessonIconPremium: {
+    backgroundColor: colors.warning + '30',
   },
   lessonContentLocked: {
     opacity: 0.7,

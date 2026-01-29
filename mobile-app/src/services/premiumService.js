@@ -49,11 +49,16 @@ export const ENTITLEMENTS = {
 
 // Limites pour utilisateurs gratuits
 export const FREE_LIMITS = {
-  EXERCISES_PER_DAY: 15,
+  EXERCISES_PER_DAY: 25,
   SRS_REVIEWS_PER_DAY: 10,
   LIVES_MAX: 5,
   KANJI_UNLOCKED: 20,
   AI_QUESTIONS_PER_DAY: 3,
+  FREE_LESSONS_PER_CATEGORY: 5,  // 5 premières leçons gratuites par catégorie
+  // Bonus exercices
+  AD_BONUS_EXERCISES: 10,       // +10 exercices par pub regardée
+  AD_BONUS_MAX_PER_DAY: 3,     // Max 3 pubs/jour pour exercices
+  SRS_BONUS_EXERCISES: 5,      // +5 exercices par session SRS
 };
 
 // Limites pour utilisateurs premium
@@ -70,6 +75,7 @@ const STORAGE_KEYS = {
   PREMIUM_STATUS: '@premium_status',
   DAILY_USAGE: '@daily_usage',
   LAST_RESET_DATE: '@last_reset_date',
+  BONUS_EXERCISES: '@bonus_exercises',
 };
 
 /**
@@ -151,25 +157,72 @@ export async function checkPremiumStatus() {
  */
 export async function getOfferings() {
   if (!REVENUECAT_ENABLED || !Purchases) {
-    return null;
+    console.log('[Premium] RevenueCat not enabled, using fallback');
+    return { useFallback: true };
   }
 
   try {
     const offerings = await Purchases.getOfferings();
+    console.log('[Premium] Offerings received:', JSON.stringify(offerings, null, 2));
 
-    if (offerings.current !== null) {
+    if (offerings.current !== null && offerings.current.availablePackages.length > 0) {
+      const monthly = offerings.current.availablePackages.find(p =>
+        p.identifier === '$rc_monthly' || p.packageType === 'MONTHLY'
+      );
+      const yearly = offerings.current.availablePackages.find(p =>
+        p.identifier === '$rc_annual' || p.packageType === 'ANNUAL'
+      );
+      const lifetime = offerings.current.availablePackages.find(p =>
+        p.identifier === '$rc_lifetime' || p.packageType === 'LIFETIME'
+      );
+
       return {
-        monthly: offerings.current.availablePackages.find(p => p.identifier === '$rc_monthly'),
-        yearly: offerings.current.availablePackages.find(p => p.identifier === '$rc_annual'),
-        lifetime: offerings.current.availablePackages.find(p => p.identifier === '$rc_lifetime'),
+        monthly,
+        yearly,
+        lifetime,
         all: offerings.current.availablePackages,
+        useFallback: false,
       };
     }
 
-    return null;
+    console.log('[Premium] No offerings available, using fallback');
+    return { useFallback: true };
   } catch (error) {
-    console.error('Error getting offerings:', error);
-    return null;
+    console.error('[Premium] Error getting offerings:', error);
+    return { useFallback: true };
+  }
+}
+
+/**
+ * Acheter un produit par son ID (fallback mode)
+ */
+export async function purchaseProduct(productId) {
+  if (!REVENUECAT_ENABLED || !Purchases) {
+    return { success: false, error: 'Purchases not available' };
+  }
+
+  try {
+    const products = await Purchases.getProducts([productId]);
+
+    if (products.length === 0) {
+      return { success: false, error: 'Produit non trouvé' };
+    }
+
+    const { customerInfo } = await Purchases.purchaseStoreProduct(products[0]);
+    const isPremium = customerInfo.entitlements.active[ENTITLEMENTS.PREMIUM] !== undefined;
+
+    await AsyncStorage.setItem(STORAGE_KEYS.PREMIUM_STATUS, JSON.stringify({
+      isPremium,
+      lastChecked: Date.now(),
+    }));
+
+    return { success: true, isPremium };
+  } catch (error) {
+    if (error.userCancelled) {
+      return { success: false, cancelled: true };
+    }
+    console.error('[Premium] Error purchasing product:', error);
+    return { success: false, error: error.message };
   }
 }
 
@@ -262,12 +315,18 @@ export async function canDoExercise() {
   if (isPremium) return { allowed: true, remaining: Infinity };
 
   const usage = await getDailyUsage();
-  const remaining = FREE_LIMITS.EXERCISES_PER_DAY - usage.exercisesCompleted;
+  const bonus = await getBonusExercises();
+  const totalAllowed = FREE_LIMITS.EXERCISES_PER_DAY + bonus.totalBonus;
+  const remaining = totalAllowed - usage.exercisesCompleted;
 
   return {
     allowed: remaining > 0,
     remaining: Math.max(0, remaining),
-    limit: FREE_LIMITS.EXERCISES_PER_DAY,
+    limit: totalAllowed,
+    baseLimit: FREE_LIMITS.EXERCISES_PER_DAY,
+    bonus: bonus.totalBonus,
+    adBonusUsed: bonus.adBonusCount,
+    adBonusMax: FREE_LIMITS.AD_BONUS_MAX_PER_DAY,
   };
 }
 
@@ -306,6 +365,18 @@ export async function isKanjiUnlocked(kanjiIndex) {
   return kanjiIndex < FREE_LIMITS.KANJI_UNLOCKED;
 }
 
+/**
+ * Vérifie si une leçon est accessible gratuitement
+ * @param {number} lessonIndex - Index de la leçon dans sa catégorie (0-based)
+ * @returns {boolean} true si la leçon est gratuite
+ */
+export async function isLessonFree(lessonIndex) {
+  const isPremium = await checkPremiumStatus();
+  if (isPremium) return true;
+
+  return lessonIndex < FREE_LIMITS.FREE_LESSONS_PER_CATEGORY;
+}
+
 export async function getMaxLives() {
   const isPremium = await checkPremiumStatus();
   return isPremium ? PREMIUM_LIMITS.LIVES_MAX : FREE_LIMITS.LIVES_MAX;
@@ -326,12 +397,19 @@ export async function getUserLimits() {
     };
   }
 
+  const bonus = await getBonusExercises();
+  const totalLimit = FREE_LIMITS.EXERCISES_PER_DAY + bonus.totalBonus;
+
   return {
     isPremium: false,
     exercises: {
       used: usage.exercisesCompleted,
-      limit: FREE_LIMITS.EXERCISES_PER_DAY,
-      remaining: Math.max(0, FREE_LIMITS.EXERCISES_PER_DAY - usage.exercisesCompleted),
+      limit: totalLimit,
+      baseLimit: FREE_LIMITS.EXERCISES_PER_DAY,
+      bonus: bonus.totalBonus,
+      remaining: Math.max(0, totalLimit - usage.exercisesCompleted),
+      adBonusUsed: bonus.adBonusCount,
+      adBonusMax: FREE_LIMITS.AD_BONUS_MAX_PER_DAY,
     },
     srsReviews: {
       used: usage.srsReviews,
@@ -345,6 +423,91 @@ export async function getUserLimits() {
       limit: FREE_LIMITS.AI_QUESTIONS_PER_DAY,
       remaining: Math.max(0, FREE_LIMITS.AI_QUESTIONS_PER_DAY - usage.aiQuestions),
     },
+  };
+}
+
+// ============================================
+// BONUS EXERCICES (PUB + SRS)
+// ============================================
+
+async function getBonusExercises() {
+  const today = new Date().toDateString();
+  const data = await AsyncStorage.getItem(STORAGE_KEYS.BONUS_EXERCISES);
+
+  if (!data) {
+    return { totalBonus: 0, adBonusCount: 0, srsBonusCount: 0, date: today };
+  }
+
+  const parsed = JSON.parse(data);
+  // Reset si jour différent
+  if (parsed.date !== today) {
+    return { totalBonus: 0, adBonusCount: 0, srsBonusCount: 0, date: today };
+  }
+
+  return parsed;
+}
+
+async function saveBonusExercises(bonus) {
+  await AsyncStorage.setItem(STORAGE_KEYS.BONUS_EXERCISES, JSON.stringify(bonus));
+}
+
+/**
+ * Ajouter des exercices bonus via pub (reward ad)
+ * Retourne le résultat avec le nombre d'exercices gagnés
+ */
+export async function addAdBonusExercises() {
+  const bonus = await getBonusExercises();
+
+  if (bonus.adBonusCount >= FREE_LIMITS.AD_BONUS_MAX_PER_DAY) {
+    return {
+      success: false,
+      reason: 'ad_limit_reached',
+      message: `Limite atteinte (${FREE_LIMITS.AD_BONUS_MAX_PER_DAY} pubs/jour)`,
+    };
+  }
+
+  bonus.adBonusCount += 1;
+  bonus.totalBonus += FREE_LIMITS.AD_BONUS_EXERCISES;
+  bonus.date = new Date().toDateString();
+  await saveBonusExercises(bonus);
+
+  return {
+    success: true,
+    exercisesAdded: FREE_LIMITS.AD_BONUS_EXERCISES,
+    adBonusUsed: bonus.adBonusCount,
+    adBonusMax: FREE_LIMITS.AD_BONUS_MAX_PER_DAY,
+    totalBonus: bonus.totalBonus,
+  };
+}
+
+/**
+ * Ajouter des exercices bonus via révisions SRS
+ */
+export async function addSRSBonusExercises() {
+  const bonus = await getBonusExercises();
+
+  bonus.srsBonusCount += 1;
+  bonus.totalBonus += FREE_LIMITS.SRS_BONUS_EXERCISES;
+  bonus.date = new Date().toDateString();
+  await saveBonusExercises(bonus);
+
+  return {
+    success: true,
+    exercisesAdded: FREE_LIMITS.SRS_BONUS_EXERCISES,
+    srsBonusCount: bonus.srsBonusCount,
+    totalBonus: bonus.totalBonus,
+  };
+}
+
+/**
+ * Vérifier si l'utilisateur peut encore regarder une pub pour des exercices
+ */
+export async function canWatchAdForExercises() {
+  const bonus = await getBonusExercises();
+  return {
+    canWatch: bonus.adBonusCount < FREE_LIMITS.AD_BONUS_MAX_PER_DAY,
+    remaining: FREE_LIMITS.AD_BONUS_MAX_PER_DAY - bonus.adBonusCount,
+    exercisesPerAd: FREE_LIMITS.AD_BONUS_EXERCISES,
   };
 }
 
@@ -376,16 +539,22 @@ export default {
   checkPremiumStatus,
   getOfferings,
   purchasePackage,
+  purchaseProduct,
   restorePurchases,
   canDoExercise,
   recordExerciseCompleted,
   canDoSRSReview,
   recordSRSReview,
   isKanjiUnlocked,
+  isLessonFree,
   getMaxLives,
   getUserLimits,
+  addAdBonusExercises,
+  addSRSBonusExercises,
+  canWatchAdForExercises,
   setDevPremiumStatus,
   resetDailyUsage,
   FREE_LIMITS,
   PREMIUM_LIMITS,
+  PRODUCT_IDS,
 };

@@ -4,7 +4,7 @@
 
 | Champ | Valeur |
 |-------|--------|
-| **Nom de l'app** | NinjaKana |
+| **Nom de l'app** | NinjaKana - Japonais débutant |
 | **Développeur** | NinjaKana |
 | **Catégorie** | Éducation |
 | **Email contact** | contact.ninjakana@gmail.com |
@@ -16,48 +16,75 @@
 ## Description courte (80 caractères max)
 
 ```
-Apprends le japonais comme un ninja : Hiragana, Katakana et Kanji N5
+Apprends le japonais gratuitement : Hiragana, Katakana, Kanji - JLPT N5
 ```
-(70 caractères)
+(73 caractères) ✅ Optimise 27 jan
 
 ---
 
-## Description complète
+## Description complète ✅ Optimise 27 jan
 
 ```
-NinjaKana - La voie du ninja pour maîtriser le japonais !
+Apprends le japonais gratuitement avec NinjaKana !
 
-Apprends les bases du japonais de manière ludique et efficace. De débutant complet à ninja des kana, progresse à ton rythme avec notre méthode éprouvée.
+La méthode ninja pour maîtriser les bases du japonais. Idéal pour débutants, prépare-toi au JLPT N5 avec notre système scientifique de mémorisation.
 
-CONTENU COMPLET
-- Hiragana : Les 46 caractères de base + combinaisons
-- Katakana : L'alphabet pour les mots étrangers
-- 100 Kanji essentiels du JLPT N5
-- 22 leçons progressives et structurées
+🎯 POURQUOI NINJAKANA ?
 
-MÉMORISATION OPTIMALE
-- Système de répétition espacée (SRS) basé sur l'algorithme SM-2
-- Révise au bon moment pour ancrer les connaissances
-- Exercices variés : QCM, transcription, reconnaissance
+✓ Méthode SRS scientifique (comme Anki)
+✓ Gamification addictive (comme Duolingo)
+✓ Thème ninja unique et motivant
+✓ 100% gratuit pour commencer
 
-GAMIFICATION MOTIVANTE
-- Système de vies pour rester concentré
-- Streak quotidien avec protection gratuite
-- Badges et rangs ninja à débloquer
-- Quêtes quotidiennes avec récompenses
+📚 CONTENU COMPLET POUR DÉBUTANTS
 
-AUDIO JAPONAIS
-- Prononciation par synthèse vocale japonaise (VOICEVOX)
-- Entraîne ton oreille dès le début
+• 47 leçons progressives
+• 11 leçons Hiragana (alphabet de base)
+• 10 leçons Katakana (mots étrangers)
+• 16 leçons Kanji N5 (100 caractères essentiels)
+• 6 leçons Vocabulaire
+• 4 leçons Grammaire
+• 450+ exercices variés
 
-VERSION PREMIUM
-- Exercices et révisions illimités
-- Vies illimitées
-- Tous les kanji débloqués
-- Sans publicité
-- Soutiens le développement de l'app
+🧠 MÉMORISATION QUI FONCTIONNE
 
-Commence ton voyage ninja dès maintenant !
+• Algorithme SM-2 (répétition espacée)
+• Tes erreurs deviennent des cartes de révision
+• Tu n'oublies plus ce que tu apprends
+• Révise au bon moment, pas trop tôt, pas trop tard
+
+🎮 GAMIFICATION MOTIVANTE
+
+• Progresse de Genin (下忍) à Kage (影)
+• Streak quotidien avec protection
+• 7 vies (plus indulgent que les autres apps)
+• Quêtes quotidiennes et récompenses Ki
+• Badges à débloquer
+
+🔊 AUDIO JAPONAIS
+
+• Prononciation japonaise de qualité
+• Synthèse vocale VOICEVOX
+• Entraîne ton oreille dès le début
+
+💎 VERSION PREMIUM (OPTIONNELLE)
+
+• Vies illimitées
+• Sans publicité
+• Tous les contenus débloqués
+• Soutiens le développement
+
+⭐ CE QU'ILS EN DISENT
+
+"Effet addictif comme les streaks Snapchat" - Sidney
+"Le système SRS est un vrai pense-bête" - Testeur alpha
+"Excellent !" - Giorno
+
+Télécharge NinjaKana et commence ton aventure ninja !
+
+---
+Conditions d'utilisation : https://ninjakana.github.io/App/terms-of-use.html
+Politique de confidentialité : https://ninjakana.github.io/App/privacy-policy.html
 ```
 
 ---

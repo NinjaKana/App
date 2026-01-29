@@ -107,7 +107,7 @@ export const getAllKeys = async () => {
  */
 export const getProgress = async () => {
   return await getData(STORAGE_KEYS.PROGRESS, {
-    level: 1,
+    level: 0,
     totalPoints: 0,
     streak: 0,
     lastStudyDate: null,

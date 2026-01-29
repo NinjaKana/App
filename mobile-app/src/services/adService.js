@@ -63,6 +63,7 @@ export const REWARDED_CONFIG = {
   MAX_PER_DAY: 10, // Maximum 10 pubs par jour
   REWARDS: {
     LIFE: { type: 'life', amount: 1, description: '+1 vie' },
+    EXERCISES: { type: 'exercises', amount: 10, description: '+10 exercices' },
     XP_BOOST: { type: 'xp', amount: 50, description: '+50 XP' },
   },
 };

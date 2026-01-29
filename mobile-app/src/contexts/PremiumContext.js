@@ -14,6 +14,9 @@ import {
   recordSRSReview,
   isKanjiUnlocked,
   getMaxLives,
+  addAdBonusExercises,
+  addSRSBonusExercises,
+  canWatchAdForExercises,
   setDevPremiumStatus,
   resetDailyUsage,
 } from '../services/premiumService';
@@ -105,6 +108,31 @@ export function PremiumProvider({ children, userId = null }) {
     return await getMaxLives();
   }, []);
 
+  // Bonus exercices via pub
+  const addExercisesViaAd = useCallback(async () => {
+    const result = await addAdBonusExercises();
+    if (result.success) {
+      const userLimits = await getUserLimits();
+      setLimits(userLimits);
+    }
+    return result;
+  }, []);
+
+  // Bonus exercices via SRS
+  const addExercisesViaSRS = useCallback(async () => {
+    const result = await addSRSBonusExercises();
+    if (result.success) {
+      const userLimits = await getUserLimits();
+      setLimits(userLimits);
+    }
+    return result;
+  }, []);
+
+  // Vérifier si pub pour exercices dispo
+  const checkCanWatchAdForExercises = useCallback(async () => {
+    return await canWatchAdForExercises();
+  }, []);
+
   // Ouvrir/fermer paywall
   const openPaywall = useCallback(() => {
     setShowPaywall(true);
@@ -149,6 +177,9 @@ export function PremiumProvider({ children, userId = null }) {
     openPaywall,
     closePaywall,
     handlePurchaseSuccess,
+    addExercisesViaAd,
+    addExercisesViaSRS,
+    checkCanWatchAdForExercises,
 
     // DEV
     devSetPremium,

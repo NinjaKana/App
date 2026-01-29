@@ -19,7 +19,7 @@ import { FONTS, SIZES } from '../styles/theme';
 import { getLives, gainLife } from '../services/livesSystem';
 import { getAllCards, getCardsForReview } from '../services/srsSystem';
 import { getDailyQuests } from '../services/questsSystem';
-import { getCurrentStreak, updateStreak } from '../services/streakSystem';
+import { getCurrentStreak } from '../services/streakSystem';
 import { getProgress } from '../services/storage';
 import LivesRecoveryModal from '../components/LivesRecoveryModal';
 import AdBanner from '../components/AdBanner';
@@ -61,8 +61,7 @@ export default function HomeScreen({ navigation }) {
       setDailyQuests(quests);
       setTotalKi(progress?.totalPoints || 0);
 
-      // Mettre à jour le streak
-      await updateStreak();
+      // Lire le streak actuel (sans le mettre à jour - updateStreak est appelé après une vraie activité)
       const streak = await getCurrentStreak();
       setCurrentStreak(streak);
     } catch (error) {
@@ -134,27 +133,32 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.flameCount}>{currentStreak}</Text>
           </View>
           <View style={styles.weekDays}>
-            {weekDays.map((day, index) => (
-              <View key={index} style={styles.dayContainer}>
-                <View style={[
-                  styles.dayCircle,
-                  index <= todayIndex && styles.dayCircleActive,
-                  index === todayIndex && styles.dayCircleToday,
-                ]}>
-                  {index < todayIndex ? (
-                    <Text style={styles.heartIcon}>❤️</Text>
-                  ) : index === todayIndex ? (
-                    <Text style={styles.heartIcon}>❤️</Text>
-                  ) : (
-                    <Text style={styles.heartIconEmpty}>🤍</Text>
-                  )}
+            {weekDays.map((day, index) => {
+              // Afficher un coeur rouge seulement si le streak couvre ce jour
+              const daysFromToday = todayIndex - index;
+              const isActiveDay = daysFromToday >= 0 && daysFromToday < currentStreak;
+              const isToday = index === todayIndex;
+
+              return (
+                <View key={index} style={styles.dayContainer}>
+                  <View style={[
+                    styles.dayCircle,
+                    isActiveDay && styles.dayCircleActive,
+                    isToday && styles.dayCircleToday,
+                  ]}>
+                    {isActiveDay ? (
+                      <Text style={styles.heartIcon}>❤️</Text>
+                    ) : (
+                      <Text style={styles.heartIconEmpty}>🤍</Text>
+                    )}
+                  </View>
+                  <Text style={[
+                    styles.dayLabel,
+                    isToday && styles.dayLabelActive,
+                  ]}>{day}</Text>
                 </View>
-                <Text style={[
-                  styles.dayLabel,
-                  index === todayIndex && styles.dayLabelActive,
-                ]}>{day}</Text>
-              </View>
-            ))}
+              );
+            })}
           </View>
         </View>
 
@@ -170,64 +174,40 @@ export default function HomeScreen({ navigation }) {
             </View>
           </View>
 
-          {/* Quest Items */}
-          <View style={styles.questItem}>
-            <View style={styles.questIconContainer}>
-              <Text style={styles.questIcon}>👑</Text>
-            </View>
-            <View style={styles.questContent}>
-              <Text style={styles.questName}>Maîtrise parfaite</Text>
-              <Text style={styles.questDescription}>Fais 5 exercices sans erreur</Text>
-              <View style={styles.questProgressContainer}>
-                <View style={styles.questProgressBar}>
-                  <View style={[styles.questProgressFill, { width: '40%' }]} />
+          {/* Quest Items - Dynamiques */}
+          {dailyQuests.map((quest, index) => {
+            const progressPercent = quest.target > 0 ? Math.min(100, (quest.progress / quest.target) * 100) : 0;
+            return (
+              <View key={quest.id || index} style={styles.questItem}>
+                <View style={styles.questIconContainer}>
+                  <Text style={styles.questIcon}>{quest.icon || '🎯'}</Text>
                 </View>
-                <Text style={styles.questProgressText}>2/5</Text>
-              </View>
-            </View>
-            <View style={styles.questReward}>
-              <Text style={styles.questRewardKi}>+100 Ki</Text>
-              <Text style={styles.questRewardHeart}>+2 ❤️</Text>
-            </View>
-          </View>
-
-          <View style={styles.questItem}>
-            <View style={[styles.questIconContainer, { backgroundColor: '#3498db20' }]}>
-              <Text style={styles.questIcon}>🎯</Text>
-            </View>
-            <View style={styles.questContent}>
-              <Text style={styles.questName}>Régularité</Text>
-              <Text style={styles.questDescription}>Garde ta Flamme vivante aujourd'hui</Text>
-              <View style={styles.questProgressContainer}>
-                <View style={styles.questProgressBar}>
-                  <View style={[styles.questProgressFill, { width: '0%', backgroundColor: colors.textMuted }]} />
+                <View style={styles.questContent}>
+                  <Text style={styles.questName}>{quest.title}</Text>
+                  <Text style={styles.questDescription}>
+                    {quest.description?.replace('{target}', quest.target)}
+                  </Text>
+                  <View style={styles.questProgressContainer}>
+                    <View style={styles.questProgressBar}>
+                      <View style={[
+                        styles.questProgressFill,
+                        { width: `${progressPercent}%` },
+                        progressPercent === 0 && { backgroundColor: colors.textMuted },
+                        quest.completed && { backgroundColor: colors.success },
+                      ]} />
+                    </View>
+                    <Text style={styles.questProgressText}>{quest.progress}/{quest.target}</Text>
+                  </View>
                 </View>
-                <Text style={styles.questProgressText}>0/1</Text>
-              </View>
-            </View>
-            <View style={styles.questReward}>
-              <Text style={styles.questRewardKi}>+25 Ki</Text>
-            </View>
-          </View>
-
-          <View style={styles.questItem}>
-            <View style={[styles.questIconContainer, { backgroundColor: '#9b59b620' }]}>
-              <Text style={styles.questIcon}>📚</Text>
-            </View>
-            <View style={styles.questContent}>
-              <Text style={styles.questName}>Réviser et mémoriser</Text>
-              <Text style={styles.questDescription}>Complète 10 révisions SRS</Text>
-              <View style={styles.questProgressContainer}>
-                <View style={styles.questProgressBar}>
-                  <View style={[styles.questProgressFill, { width: '30%' }]} />
+                <View style={styles.questReward}>
+                  <Text style={styles.questRewardKi}>+{quest.reward?.xp || 0} Ki</Text>
+                  {quest.reward?.lives > 0 && (
+                    <Text style={styles.questRewardHeart}>+{quest.reward.lives} ❤️</Text>
+                  )}
                 </View>
-                <Text style={styles.questProgressText}>3/10</Text>
               </View>
-            </View>
-            <View style={styles.questReward}>
-              <Text style={styles.questRewardKi}>+30 Ki</Text>
-            </View>
-          </View>
+            );
+          })}
         </View>
 
         {/* Ta Progression */}

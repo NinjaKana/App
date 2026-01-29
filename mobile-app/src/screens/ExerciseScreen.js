@@ -11,6 +11,8 @@ import {
   TouchableOpacity,
   Animated,
   Modal,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ExerciseMCQ from '../components/ExerciseMCQ';
@@ -33,13 +35,15 @@ import { incrementQuestProgress } from '../services/questsSystem';
 import audioService from '../services/audioService';
 import haptic from '../services/hapticService';
 import { scheduleStreakDangerNotification, scheduleInactivityNotification } from '../services/notificationService';
+import { updateStreak } from '../services/streakSystem';
 import { useTheme } from '../contexts/ThemeContext';
 import { FONTS, SIZES } from '../styles/theme';
 import { usePremium } from '../contexts/PremiumContext';
+import { canWatchRewardedAd, logRewardedAdWatched } from '../services/adService';
 
 export default function ExerciseScreen({ route, navigation }) {
   const { lesson } = route.params;
-  const { checkCanDoExercise, logExerciseCompleted, limits, openPaywall, isPremium } = usePremium();
+  const { checkCanDoExercise, logExerciseCompleted, limits, openPaywall, isPremium, addExercisesViaAd, addExercisesViaSRS, refreshPremiumStatus } = usePremium();
 
   const [exercises, setExercises] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -53,6 +57,8 @@ export default function ExerciseScreen({ route, navigation }) {
   const [limitReached, setLimitReached] = useState(false);
   const [showOutOfLivesModal, setShowOutOfLivesModal] = useState(false);
   const [timeUntilRecharge, setTimeUntilRecharge] = useState(0);
+  const [timeUntilReset, setTimeUntilReset] = useState('');
+  const [adLoading, setAdLoading] = useState(false);
 
   const { colors } = useTheme();
   const styles = createStyles(colors);
@@ -83,6 +89,30 @@ export default function ExerciseScreen({ route, navigation }) {
       return () => clearInterval(interval);
     }
   }, [showOutOfLivesModal, timeUntilRecharge]);
+
+  // Timer pour le countdown jusqu'à minuit (reset exercices)
+  useEffect(() => {
+    if (!limitReached) return;
+
+    const updateResetTimer = () => {
+      const now = new Date();
+      const midnight = new Date(now);
+      midnight.setHours(24, 0, 0, 0);
+      const diff = midnight - now;
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      if (hours > 0) {
+        setTimeUntilReset(`${hours}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`);
+      } else {
+        setTimeUntilReset(`${minutes}m ${String(seconds).padStart(2, '0')}s`);
+      }
+    };
+
+    updateResetTimer();
+    const interval = setInterval(updateResetTimer, 1000);
+    return () => clearInterval(interval);
+  }, [limitReached]);
 
   const checkExerciseLimit = async () => {
     const result = await checkCanDoExercise();
@@ -253,6 +283,9 @@ export default function ExerciseScreen({ route, navigation }) {
     };
     await saveProgress(updatedProgress);
 
+    // Mettre à jour le streak (activité réelle)
+    await updateStreak();
+
     // Incrementer quete "studied_today"
     await incrementQuestProgress('studied_today');
 
@@ -270,24 +303,123 @@ export default function ExerciseScreen({ route, navigation }) {
     setShowResults(true);
   };
 
-  const renderLimitReached = () => (
-    <View style={styles.limitContainer}>
-      <Text style={styles.limitEmoji}>{'\u{1F512}'}</Text>
-      <Text style={styles.limitTitle}>Limite quotidienne atteinte</Text>
-      <Text style={styles.limitText}>
-        Vous avez utilise vos {limits?.exercises?.limit || 20} exercices gratuits aujourd'hui.
-      </Text>
-      <Text style={styles.limitSubtext}>
-        Revenez demain ou passez Premium pour un acces illimite !
-      </Text>
-      <TouchableOpacity style={styles.premiumButton} onPress={openPaywall}>
-        <Text style={styles.premiumButtonText}>{'\u{1F451}'} Devenir Premium</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.backButtonText}>Retour</Text>
-      </TouchableOpacity>
-    </View>
-  );
+  const handleWatchAdForExercises = async () => {
+    setAdLoading(true);
+    try {
+      const availability = await canWatchRewardedAd();
+      if (!availability.canWatch) {
+        Alert.alert('Impossible', availability.message);
+        setAdLoading(false);
+        return;
+      }
+
+      // Simuler la pub (en dev/Expo Go)
+      // En production, utiliser le vrai rewarded ad ici
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await logRewardedAdWatched('exercises');
+
+      const result = await addExercisesViaAd();
+      if (result.success) {
+        Alert.alert(
+          '🎉 Bonus débloqué !',
+          `+${result.exercisesAdded} exercices ajoutés !`,
+          [{ text: 'Continuer', onPress: () => setLimitReached(false) }]
+        );
+      } else {
+        Alert.alert('Limite atteinte', result.message);
+      }
+    } catch (error) {
+      Alert.alert('Erreur', 'Impossible de charger la publicité');
+    } finally {
+      setAdLoading(false);
+    }
+  };
+
+  const handleSRSForExercises = async () => {
+    const result = await addExercisesViaSRS();
+    if (result.success) {
+      navigation.replace('SRSReview', { bonusMode: true });
+    }
+  };
+
+  const renderLimitReached = () => {
+    const adBonusAvailable = (limits?.exercises?.adBonusUsed || 0) < (limits?.exercises?.adBonusMax || 3);
+
+    return (
+      <View style={styles.limitContainer}>
+        <Text style={styles.limitEmoji}>{'\u{1F512}'}</Text>
+        <Text style={styles.limitTitle}>Limite quotidienne atteinte</Text>
+        <Text style={styles.limitText}>
+          Vous avez utilisé vos {limits?.exercises?.baseLimit || 25} exercices gratuits aujourd'hui.
+        </Text>
+        {timeUntilReset ? (
+          <Text style={styles.limitTimer}>
+            {'\u{23F0}'} Nouveaux exercices dans {timeUntilReset}
+          </Text>
+        ) : null}
+
+        {/* Options pour débloquer plus d'exercices */}
+        <View style={styles.limitOptionsContainer}>
+          <Text style={styles.limitOptionsTitle}>Débloquer plus d'exercices</Text>
+
+          {/* Option 1: Pub */}
+          {adBonusAvailable && (
+            <TouchableOpacity
+              style={[styles.optionButton, styles.optionButtonAd]}
+              onPress={handleWatchAdForExercises}
+              disabled={adLoading}
+            >
+              {adLoading ? (
+                <ActivityIndicator color={colors.text} size="small" />
+              ) : (
+                <>
+                  <Text style={styles.optionButtonIcon}>📺</Text>
+                  <View style={styles.optionButtonContent}>
+                    <Text style={styles.optionButtonTitle}>Regarder une pub</Text>
+                    <Text style={styles.optionButtonSubtitle}>
+                      +10 exercices • {(limits?.exercises?.adBonusMax || 3) - (limits?.exercises?.adBonusUsed || 0)} restante(s)
+                    </Text>
+                  </View>
+                </>
+              )}
+            </TouchableOpacity>
+          )}
+
+          {/* Option 2: SRS */}
+          <TouchableOpacity
+            style={[styles.optionButton, styles.optionButtonSRS]}
+            onPress={handleSRSForExercises}
+          >
+            <Text style={styles.optionButtonIcon}>🧠</Text>
+            <View style={styles.optionButtonContent}>
+              <Text style={styles.optionButtonTitle}>Révisions SRS</Text>
+              <Text style={styles.optionButtonSubtitle}>
+                +5 exercices par session • Illimité
+              </Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* Option 3: Premium */}
+          <TouchableOpacity
+            style={[styles.optionButton, styles.optionButtonPremium]}
+            onPress={openPaywall}
+          >
+            <Text style={styles.optionButtonIcon}>👑</Text>
+            <View style={styles.optionButtonContent}>
+              <Text style={styles.optionButtonTitle}>Devenir Premium</Text>
+              <Text style={styles.optionButtonSubtitle}>
+                Exercices illimités pour toujours
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Text style={styles.backButtonText}>Retour</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   const renderExercise = () => {
     if (limitReached) {
@@ -336,7 +468,7 @@ export default function ExerciseScreen({ route, navigation }) {
             <Text style={styles.outOfLivesEmoji}>💔</Text>
             <Text style={styles.outOfLivesTitle}>Plus de vies !</Text>
             <Text style={styles.outOfLivesSubtitle}>
-              Tu as fait trop d'erreurs. Prends une pause ou recupere des vies.
+              Tu as fait trop d'erreurs. Prends une pause ou récupère des vies.
             </Text>
 
             {/* Lives display */}
@@ -362,9 +494,9 @@ export default function ExerciseScreen({ route, navigation }) {
               >
                 <Text style={styles.optionButtonIcon}>🧠</Text>
                 <View style={styles.optionButtonContent}>
-                  <Text style={styles.optionButtonTitle}>Revisions SRS</Text>
+                  <Text style={styles.optionButtonTitle}>Révisions SRS</Text>
                   <Text style={styles.optionButtonSubtitle}>
-                    Gratuit • 5 revisions = +1 vie
+                    Gratuit • 5 révisions = +1 vie
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -380,7 +512,7 @@ export default function ExerciseScreen({ route, navigation }) {
                 >
                   <Text style={styles.optionButtonIcon}>👑</Text>
                   <View style={styles.optionButtonContent}>
-                    <Text style={styles.optionButtonTitle}>Vies illimitees</Text>
+                    <Text style={styles.optionButtonTitle}>Vies illimitées</Text>
                     <Text style={styles.optionButtonSubtitle}>Devenir Premium</Text>
                   </View>
                 </TouchableOpacity>
@@ -422,12 +554,12 @@ export default function ExerciseScreen({ route, navigation }) {
     return (
       <Modal visible={showResults} animationType="slide" transparent={false}>
         <SafeAreaView style={styles.resultsContainer}>
-          <Text style={styles.resultsTitle}>🎉 Lecon Terminee !</Text>
+          <Text style={styles.resultsTitle}>🎉 Leçon Terminée !</Text>
 
           <View style={styles.statsGrid}>
             <View style={styles.statCard}>
               <Text style={styles.statValue}>{`${stats.accuracy}%`}</Text>
-              <Text style={styles.statLabel}>Precision</Text>
+              <Text style={styles.statLabel}>Précision</Text>
             </View>
             <View style={styles.statCard}>
               <Text style={styles.statValue}>{`${stats.correct}/${stats.total}`}</Text>
@@ -445,7 +577,7 @@ export default function ExerciseScreen({ route, navigation }) {
             style={styles.doneButton}
             onPress={handleFinish}
           >
-            <Text style={styles.doneButtonText}>Termine</Text>
+            <Text style={styles.doneButtonText}>Terminé</Text>
           </TouchableOpacity>
         </SafeAreaView>
       </Modal>
@@ -531,7 +663,7 @@ export default function ExerciseScreen({ route, navigation }) {
             </View>
             {!feedbackData.isCorrect && feedbackData.correctAnswer && (
               <Text style={styles.feedbackCorrectAnswer}>
-                Reponse : {feedbackData.correctAnswer}
+                Réponse : {feedbackData.correctAnswer}
               </Text>
             )}
             {feedbackData.cognitive ? (
@@ -686,7 +818,7 @@ const createStyles = (colors) => StyleSheet.create({
     alignItems: 'center',
   },
   statValue: {
-    fontSize: FONTS.xxxLarge,
+    fontSize: FONTS.xxLarge,
     fontWeight: 'bold',
     color: colors.success,
     marginBottom: SIZES.marginSmall,
@@ -730,11 +862,32 @@ const createStyles = (colors) => StyleSheet.create({
     textAlign: 'center',
     marginBottom: SIZES.marginSmall,
   },
+  limitTimer: {
+    fontSize: FONTS.medium,
+    fontWeight: '600',
+    color: colors.primary,
+    textAlign: 'center',
+    marginTop: SIZES.margin,
+    marginBottom: SIZES.marginSmall,
+  },
   limitSubtext: {
     fontSize: FONTS.small,
     color: colors.textMuted,
     textAlign: 'center',
     marginBottom: SIZES.margin * 2,
+  },
+  limitOptionsContainer: {
+    width: '100%',
+    marginTop: SIZES.margin,
+    marginBottom: SIZES.margin,
+    gap: SIZES.margin,
+  },
+  limitOptionsTitle: {
+    fontSize: FONTS.medium,
+    fontWeight: '600',
+    color: colors.text,
+    textAlign: 'center',
+    marginBottom: SIZES.margin,
   },
   premiumButton: {
     backgroundColor: colors.primary,
@@ -832,6 +985,11 @@ const createStyles = (colors) => StyleSheet.create({
     borderRadius: SIZES.radius,
     padding: SIZES.padding * 1.5,
     gap: SIZES.margin,
+  },
+  optionButtonAd: {
+    backgroundColor: colors.success + '20',
+    borderWidth: 2,
+    borderColor: colors.success,
   },
   optionButtonSRS: {
     backgroundColor: colors.primary + '20',

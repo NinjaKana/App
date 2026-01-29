@@ -30,6 +30,11 @@ import { COLORS, FONTS, SIZES } from '../styles/theme';
 // Features Premium - Fonctionnalités réelles
 const PREMIUM_FEATURES = [
   {
+    icon: '🔓',
+    title: 'Toutes les leçons',
+    description: 'Accède à toutes les leçons de chaque catégorie',
+  },
+  {
     icon: '📚',
     title: 'Apprentissage illimité',
     description: 'Exercices et révisions sans limite quotidienne',
@@ -53,11 +58,6 @@ const PREMIUM_FEATURES = [
     icon: '🚫',
     title: 'Sans publicité',
     description: 'Concentration maximale',
-  },
-  {
-    icon: '⭐',
-    title: 'Soutenir le projet',
-    description: 'Aidez-nous à ajouter plus de contenu',
   },
 ];
 
@@ -328,8 +328,8 @@ export default function PaywallModal({ visible, onClose, onPurchaseSuccess }) {
           </TouchableOpacity>
 
           <Text style={styles.termsText}>
-            L'abonnement se renouvelle automatiquement sauf annulation au moins 24h avant la fin de la periode.{' '}
-            Gerez votre abonnement dans les reglages de votre compte App Store.
+            L'abonnement se renouvelle automatiquement sauf annulation au moins 24h avant la fin de la période.{' '}
+            Gérez votre abonnement dans les réglages de votre compte App Store.
           </Text>
 
           <View style={styles.legalLinks}>
@@ -338,7 +338,7 @@ export default function PaywallModal({ visible, onClose, onPurchaseSuccess }) {
             </TouchableOpacity>
             <Text style={styles.legalSeparator}>|</Text>
             <TouchableOpacity onPress={() => Linking.openURL('https://ninjakana.github.io/App/privacy-policy.html')}>
-              <Text style={styles.legalLink}>Confidentialite</Text>
+              <Text style={styles.legalLink}>Confidentialité</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -358,7 +358,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: SIZES.screenPadding,
+    paddingHorizontal: SIZES.screenPadding,
+    paddingVertical: SIZES.screenPadding,
+    paddingTop: SIZES.screenPadding + 10,
   },
   headerSpacer: {
     width: 40,
