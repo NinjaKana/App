@@ -27,15 +27,15 @@ const TEST_IDS = {
 // IDs de production NinjaKana
 const PRODUCTION_IDS = {
   BANNER: Platform.select({
-    ios: 'ca-app-pub-XXXX/YYYY', // TODO: Ajouter iOS
+    ios: null, // TODO: Creer bloc Banner iOS
     android: 'ca-app-pub-3554291855047296/3651151498',
   }),
   INTERSTITIAL: Platform.select({
-    ios: 'ca-app-pub-XXXX/YYYY', // TODO: Ajouter iOS
+    ios: null, // TODO: Creer bloc Interstitial iOS
     android: 'ca-app-pub-3554291855047296/2809854877',
   }),
   REWARDED: Platform.select({
-    ios: 'ca-app-pub-XXXX/YYYY', // TODO: Ajouter iOS
+    ios: 'ca-app-pub-3554291855047296/3730486000',
     android: 'ca-app-pub-3554291855047296/8559013183',
   }),
 };
@@ -88,6 +88,15 @@ export const initializeAds = async () => {
  */
 export const canWatchRewardedAd = async () => {
   try {
+    // Vérifier si les IDs AdMob sont configurés (sauf en dev)
+    if (!IS_DEVELOPMENT && !AdUnitIds.rewarded) {
+      return {
+        canWatch: false,
+        reason: 'not_configured',
+        message: 'Les publicités ne sont pas disponibles pour le moment',
+      };
+    }
+
     // Vérifier le cooldown
     const lastWatched = await AsyncStorage.getItem(STORAGE_KEYS.LAST_REWARDED_AD);
     if (lastWatched) {

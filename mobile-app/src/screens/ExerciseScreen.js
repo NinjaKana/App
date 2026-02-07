@@ -39,11 +39,14 @@ import { updateStreak } from '../services/streakSystem';
 import { useTheme } from '../contexts/ThemeContext';
 import { FONTS, SIZES } from '../styles/theme';
 import { usePremium } from '../contexts/PremiumContext';
-import { canWatchRewardedAd, logRewardedAdWatched } from '../services/adService';
+import { canWatchRewardedAd, logRewardedAdWatched, AdUnitIds } from '../services/adService';
+import { RewardedAd, RewardedAdEventType, AdEventType } from 'react-native-google-mobile-ads';
+import { useTranslation } from 'react-i18next';
 
 export default function ExerciseScreen({ route, navigation }) {
   const { lesson } = route.params;
   const { checkCanDoExercise, logExerciseCompleted, limits, openPaywall, isPremium, addExercisesViaAd, addExercisesViaSRS, refreshPremiumStatus } = usePremium();
+  const { t } = useTranslation();
 
   const [exercises, setExercises] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -308,29 +311,83 @@ export default function ExerciseScreen({ route, navigation }) {
     try {
       const availability = await canWatchRewardedAd();
       if (!availability.canWatch) {
-        Alert.alert('Impossible', availability.message);
+        Alert.alert(t('impossible'), availability.message);
         setAdLoading(false);
         return;
       }
 
-      // Simuler la pub (en dev/Expo Go)
-      // En production, utiliser le vrai rewarded ad ici
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      await logRewardedAdWatched('exercises');
-
-      const result = await addExercisesViaAd();
-      if (result.success) {
-        Alert.alert(
-          '🎉 Bonus débloqué !',
-          `+${result.exercisesAdded} exercices ajoutés !`,
-          [{ text: 'Continuer', onPress: () => setLimitReached(false) }]
-        );
-      } else {
-        Alert.alert('Limite atteinte', result.message);
+      // En dev, simuler la pub
+      if (__DEV__) {
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        await logRewardedAdWatched('exercises');
+        const result = await addExercisesViaAd();
+        if (result.success) {
+          Alert.alert(
+            t('exercise.bonusUnlocked'),
+            `+${result.exercisesAdded} ${t('lessons.exercises')} !`,
+            [{ text: t('next'), onPress: () => setLimitReached(false) }]
+          );
+        } else {
+          Alert.alert(t('exercise.limitReached'), result.message);
+        }
+        setAdLoading(false);
+        return;
       }
+
+      // En production, utiliser le vrai SDK AdMob
+      const rewardedAd = RewardedAd.createForAdRequest(AdUnitIds.rewarded);
+      let rewardEarned = false;
+
+      const cleanup = () => {
+        unsubscribeLoaded();
+        unsubscribeEarned();
+        unsubscribeClosed();
+        unsubscribeError();
+      };
+
+      const unsubscribeLoaded = rewardedAd.addAdEventListener(RewardedAdEventType.LOADED, () => {
+        rewardedAd.show();
+      });
+
+      const unsubscribeEarned = rewardedAd.addAdEventListener(
+        RewardedAdEventType.EARNED_REWARD,
+        () => {
+          rewardEarned = true;
+        }
+      );
+
+      const unsubscribeClosed = rewardedAd.addAdEventListener(AdEventType.CLOSED, async () => {
+        cleanup();
+        setAdLoading(false);
+
+        if (rewardEarned) {
+          // Pub regardee jusqu'au bout - accorder le bonus
+          await logRewardedAdWatched('exercises');
+          const result = await addExercisesViaAd();
+
+          if (result.success) {
+            Alert.alert(
+              t('exercise.bonusUnlocked'),
+              `+${result.exercisesAdded} ${t('lessons.exercises')} !`,
+              [{ text: t('next'), onPress: () => setLimitReached(false) }]
+            );
+          } else {
+            Alert.alert(t('exercise.limitReached'), result.message);
+          }
+        }
+        // Si rewardEarned est false, l'utilisateur a ferme la pub sans la regarder - pas de bonus
+      });
+
+      const unsubscribeError = rewardedAd.addAdEventListener(AdEventType.ERROR, () => {
+        cleanup();
+        setAdLoading(false);
+        Alert.alert(t('error'), t('exercise.adError'));
+      });
+
+      rewardedAd.load();
+
     } catch (error) {
-      Alert.alert('Erreur', 'Impossible de charger la publicité');
-    } finally {
+      Alert.alert(t('error'), t('exercise.adError'));
       setAdLoading(false);
     }
   };
@@ -348,19 +405,19 @@ export default function ExerciseScreen({ route, navigation }) {
     return (
       <View style={styles.limitContainer}>
         <Text style={styles.limitEmoji}>{'\u{1F512}'}</Text>
-        <Text style={styles.limitTitle}>Limite quotidienne atteinte</Text>
+        <Text style={styles.limitTitle}>{t('exercise.dailyLimitReached')}</Text>
         <Text style={styles.limitText}>
-          Vous avez utilisé vos {limits?.exercises?.baseLimit || 25} exercices gratuits aujourd'hui.
+          {t('exercise.dailyLimitMessage', { count: limits?.exercises?.baseLimit || 25 })}
         </Text>
         {timeUntilReset ? (
           <Text style={styles.limitTimer}>
-            {'\u{23F0}'} Nouveaux exercices dans {timeUntilReset}
+            {'\u{23F0}'} {t('exercise.newExercisesIn', { time: timeUntilReset })}
           </Text>
         ) : null}
 
         {/* Options pour débloquer plus d'exercices */}
         <View style={styles.limitOptionsContainer}>
-          <Text style={styles.limitOptionsTitle}>Débloquer plus d'exercices</Text>
+          <Text style={styles.limitOptionsTitle}>{t('exercise.unlockMoreExercises')}</Text>
 
           {/* Option 1: Pub */}
           {adBonusAvailable && (
@@ -375,9 +432,9 @@ export default function ExerciseScreen({ route, navigation }) {
                 <>
                   <Text style={styles.optionButtonIcon}>📺</Text>
                   <View style={styles.optionButtonContent}>
-                    <Text style={styles.optionButtonTitle}>Regarder une pub</Text>
+                    <Text style={styles.optionButtonTitle}>{t('exercise.watchAd')}</Text>
                     <Text style={styles.optionButtonSubtitle}>
-                      +10 exercices • {(limits?.exercises?.adBonusMax || 3) - (limits?.exercises?.adBonusUsed || 0)} restante(s)
+                      {t('exercise.watchAdBonus', { count: (limits?.exercises?.adBonusMax || 3) - (limits?.exercises?.adBonusUsed || 0) })}
                     </Text>
                   </View>
                 </>
@@ -392,9 +449,9 @@ export default function ExerciseScreen({ route, navigation }) {
           >
             <Text style={styles.optionButtonIcon}>🧠</Text>
             <View style={styles.optionButtonContent}>
-              <Text style={styles.optionButtonTitle}>Révisions SRS</Text>
+              <Text style={styles.optionButtonTitle}>{t('exercise.srsReviews')}</Text>
               <Text style={styles.optionButtonSubtitle}>
-                +5 exercices par session • Illimité
+                {t('exercise.srsExerciseBonus')}
               </Text>
             </View>
           </TouchableOpacity>
@@ -406,16 +463,16 @@ export default function ExerciseScreen({ route, navigation }) {
           >
             <Text style={styles.optionButtonIcon}>👑</Text>
             <View style={styles.optionButtonContent}>
-              <Text style={styles.optionButtonTitle}>Devenir Premium</Text>
+              <Text style={styles.optionButtonTitle}>{t('exercise.becomePremium')}</Text>
               <Text style={styles.optionButtonSubtitle}>
-                Exercices illimités pour toujours
+                {t('exercise.unlimitedExercises')}
               </Text>
             </View>
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backButtonText}>Retour</Text>
+          <Text style={styles.backButtonText}>{t('back')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -452,7 +509,7 @@ export default function ExerciseScreen({ route, navigation }) {
         return (
           <View style={styles.unsupportedContainer}>
             <Text style={styles.unsupportedText}>
-              Type d'exercice non supporte: {currentExercise.type}
+              {t('exercise.unsupportedType', { type: currentExercise.type })}
             </Text>
           </View>
         );
@@ -466,9 +523,9 @@ export default function ExerciseScreen({ route, navigation }) {
           <View style={styles.outOfLivesContainer}>
             {/* Header */}
             <Text style={styles.outOfLivesEmoji}>💔</Text>
-            <Text style={styles.outOfLivesTitle}>Plus de vies !</Text>
+            <Text style={styles.outOfLivesTitle}>{t('exercise.noMoreLives')}</Text>
             <Text style={styles.outOfLivesSubtitle}>
-              Tu as fait trop d'erreurs. Prends une pause ou récupère des vies.
+              {t('exercise.noMoreLivesMessage')}
             </Text>
 
             {/* Lives display */}
@@ -478,7 +535,7 @@ export default function ExerciseScreen({ route, navigation }) {
 
             {/* Recharge timer */}
             <View style={styles.timerCard}>
-              <Text style={styles.timerLabel}>⏱️ Prochaine recharge dans</Text>
+              <Text style={styles.timerLabel}>{t('exercise.nextRechargeIn')}</Text>
               <Text style={styles.timerValue}>{formatTime(timeUntilRecharge)}</Text>
             </View>
 
@@ -494,9 +551,9 @@ export default function ExerciseScreen({ route, navigation }) {
               >
                 <Text style={styles.optionButtonIcon}>🧠</Text>
                 <View style={styles.optionButtonContent}>
-                  <Text style={styles.optionButtonTitle}>Révisions SRS</Text>
+                  <Text style={styles.optionButtonTitle}>{t('exercise.srsReviews')}</Text>
                   <Text style={styles.optionButtonSubtitle}>
-                    Gratuit • 5 révisions = +1 vie
+                    {t('exercise.srsReviewsFree')}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -512,8 +569,8 @@ export default function ExerciseScreen({ route, navigation }) {
                 >
                   <Text style={styles.optionButtonIcon}>👑</Text>
                   <View style={styles.optionButtonContent}>
-                    <Text style={styles.optionButtonTitle}>Vies illimitées</Text>
-                    <Text style={styles.optionButtonSubtitle}>Devenir Premium</Text>
+                    <Text style={styles.optionButtonTitle}>{t('exercise.unlimitedLives')}</Text>
+                    <Text style={styles.optionButtonSubtitle}>{t('exercise.becomePremium')}</Text>
                   </View>
                 </TouchableOpacity>
               )}
@@ -527,7 +584,7 @@ export default function ExerciseScreen({ route, navigation }) {
                 navigation.goBack();
               }}
             >
-              <Text style={styles.quitButtonText}>← Quitter</Text>
+              <Text style={styles.quitButtonText}>{`\u2190 ${t('exercise.quit')}`}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -554,22 +611,22 @@ export default function ExerciseScreen({ route, navigation }) {
     return (
       <Modal visible={showResults} animationType="slide" transparent={false}>
         <SafeAreaView style={styles.resultsContainer}>
-          <Text style={styles.resultsTitle}>🎉 Leçon Terminée !</Text>
+          <Text style={styles.resultsTitle}>{t('exercise.lessonComplete')}</Text>
 
           <View style={styles.statsGrid}>
             <View style={styles.statCard}>
-              <Text style={styles.statValue}>{`${stats.accuracy}%`}</Text>
-              <Text style={styles.statLabel}>Précision</Text>
+              <Text style={styles.statValue} numberOfLines={1} adjustsFontSizeToFit>{`${stats.accuracy}%`}</Text>
+              <Text style={styles.statLabel} numberOfLines={1}>{t('exercise.accuracy')}</Text>
             </View>
             <View style={styles.statCard}>
-              <Text style={styles.statValue}>{`${stats.correct}/${stats.total}`}</Text>
-              <Text style={styles.statLabel}>Correct</Text>
+              <Text style={styles.statValue} numberOfLines={1} adjustsFontSizeToFit>{`${stats.correct}/${stats.total}`}</Text>
+              <Text style={styles.statLabel} numberOfLines={1}>{t('exercise.correct')}</Text>
             </View>
             <View style={styles.statCard}>
-              <Text style={[styles.statValue, { color: colors.primary }]}>
+              <Text style={[styles.statValue, { color: colors.primary }]} numberOfLines={1} adjustsFontSizeToFit>
                 {`+${stats.totalPoints}`}
               </Text>
-              <Text style={styles.statLabel}>XP</Text>
+              <Text style={styles.statLabel} numberOfLines={1}>XP</Text>
             </View>
           </View>
 
@@ -577,7 +634,7 @@ export default function ExerciseScreen({ route, navigation }) {
             style={styles.doneButton}
             onPress={handleFinish}
           >
-            <Text style={styles.doneButtonText}>Terminé</Text>
+            <Text style={styles.doneButtonText}>{t('done')}</Text>
           </TouchableOpacity>
         </SafeAreaView>
       </Modal>
@@ -629,11 +686,11 @@ export default function ExerciseScreen({ route, navigation }) {
           </View>
         </View>
 
-        {/* Exercices restants (utilisateurs gratuits) */}
-        {!isPremium && limits?.exercises && (
+        {/* Exercices restants (utilisateurs gratuits) - masquer pendant le quiz actif */}
+        {!isPremium && limits?.exercises && limitReached && (
           <View style={styles.remainingBanner}>
             <Text style={styles.remainingText}>
-              {limits.exercises.remaining} exercices restants aujourd'hui
+              {t('exercise.exercisesRemaining', { count: limits.exercises.remaining })}
             </Text>
           </View>
         )}
@@ -663,7 +720,7 @@ export default function ExerciseScreen({ route, navigation }) {
             </View>
             {!feedbackData.isCorrect && feedbackData.correctAnswer && (
               <Text style={styles.feedbackCorrectAnswer}>
-                Réponse : {feedbackData.correctAnswer}
+                {t('exercise.correctAnswer', { answer: feedbackData.correctAnswer })}
               </Text>
             )}
             {feedbackData.cognitive ? (

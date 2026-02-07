@@ -2,7 +2,7 @@
   "expo": {
     "name": "NinjaKana",
     "slug": "apprendre-japonais",
-    "version": "1.0.1",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -13,17 +13,18 @@
       "backgroundColor": "#1a1a2e"
     },
     "locales": {
-      "fr": "./locales/fr.json"
+      "fr": "./locales/fr.json",
+      "en": "./locales/en.json"
     },
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.apprendre.japonais",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "CFBundleDevelopmentRegion": "fr",
+        "CFBundleDevelopmentRegion": "en",
         "NSUserTrackingUsageDescription": "Cette autorisation nous permet d'afficher des publicités pertinentes pour vous."
       },
-      "buildNumber": "13"
+      "buildNumber": "16"
     },
     "android": {
       "adaptiveIcon": {
@@ -31,7 +32,7 @@
         "backgroundColor": "#1a1a2e"
       },
       "package": "com.apprendre.japonais",
-      "versionCode": 7
+      "versionCode": 8
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -53,7 +54,7 @@
         "react-native-google-mobile-ads",
         {
           "androidAppId": "ca-app-pub-3554291855047296~5296417418",
-          "iosAppId": "ca-app-pub-3554291855047296~5296417418"
+          "iosAppId": "ca-app-pub-3554291855047296~5099407994"
         }
       ],
       [
@@ -62,7 +63,8 @@
           "color": "#e94560"
         }
       ],
-      "./plugins/withDisableExtraTranslationLint"
+      "./plugins/withDisableExtraTranslationLint",
+      "expo-localization"
     ]
   }
 }
