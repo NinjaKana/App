@@ -29,6 +29,7 @@ import {
   EXERCISE_TYPES,
 } from '../services/exerciseService';
 import { getCognitiveFeedback, trackError } from '../services/confusionTracker';
+import { addCard } from '../services/srsSystem';
 import { getProgress, saveProgress, getData, saveData, STORAGE_KEYS } from '../services/storage';
 import { getLives, loseLife, checkAutoRecharge, getTimeUntilNextRecharge, formatTime, CONFIG } from '../services/livesSystem';
 import { incrementQuestProgress } from '../services/questsSystem';
@@ -201,6 +202,15 @@ export default function ExerciseScreen({ route, navigation }) {
       const expected = currentExercise.correct || currentExercise.correctAnswer?.character;
       await trackError(expected, userAnswer, currentExercise.type);
       cognitiveFeedback = await getCognitiveFeedback(expected, userAnswer) || '';
+
+      // Creer une carte SRS pour les erreurs
+      const character = currentExercise.correctAnswer?.character || currentExercise.correct;
+      const romaji = currentExercise.correctAnswer?.romaji || currentExercise.question?.romaji || '';
+      const meaning = currentExercise.correctAnswer?.meaning || '';
+      const type = lesson.category || 'hiragana';
+      if (character && romaji) {
+        await addCard(character, romaji, meaning, type);
+      }
     }
 
     // Afficher feedback toast (pas de "Superbe!" excessif)
