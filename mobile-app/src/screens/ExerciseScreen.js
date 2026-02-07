@@ -574,7 +574,8 @@ export default function ExerciseScreen({ route, navigation }) {
                 style={[styles.optionButton, styles.optionButtonSRS]}
                 onPress={() => {
                   setShowOutOfLivesModal(false);
-                  navigation.navigate('SRSReview');
+                  // Remplacer le quiz par SRS pour eviter de revenir au quiz avec 0 vies
+                  navigation.replace('SRSReview');
                 }}
               >
                 <Text style={styles.optionButtonIcon}>🧠</Text>
