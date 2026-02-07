@@ -2,7 +2,7 @@
   "expo": {
     "name": "NinjaKana",
     "slug": "apprendre-japonais",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -24,7 +24,7 @@
         "CFBundleDevelopmentRegion": "en",
         "NSUserTrackingUsageDescription": "Cette autorisation nous permet d'afficher des publicités pertinentes pour vous."
       },
-      "buildNumber": "16"
+      "buildNumber": "17"
     },
     "android": {
       "adaptiveIcon": {

@@ -164,9 +164,24 @@ export default function ExerciseScreen({ route, navigation }) {
     // Verifier recharge automatique puis recuperer les vies
     const currentLives = await checkAutoRecharge();
     setLives(currentLives);
+
+    // Si 0 vies au demarrage (et pas premium), afficher le modal immediatement
+    if (currentLives <= 0 && !isPremium) {
+      const timeLeft = await getTimeUntilNextRecharge();
+      setTimeUntilRecharge(timeLeft);
+      setShowOutOfLivesModal(true);
+    }
   };
 
   const handleAnswer = async (userAnswer) => {
+    // Bloquer si plus de vies (sauf premium)
+    if (lives <= 0 && !isPremium) {
+      const timeLeft = await getTimeUntilNextRecharge();
+      setTimeUntilRecharge(timeLeft);
+      setShowOutOfLivesModal(true);
+      return;
+    }
+
     const currentExercise = exercises[currentIndex];
     const isCorrect = validateAnswer(currentExercise, userAnswer);
 
@@ -204,10 +219,12 @@ export default function ExerciseScreen({ route, navigation }) {
       cognitiveFeedback = await getCognitiveFeedback(expected, userAnswer) || '';
 
       // Creer une carte SRS pour les erreurs
-      const character = currentExercise.correctAnswer?.character || currentExercise.correct;
-      const romaji = currentExercise.correctAnswer?.romaji || currentExercise.question?.romaji || '';
-      const meaning = currentExercise.correctAnswer?.meaning || '';
+      // Structure: exercise.character = caractere japonais, exercise.correct = romaji
+      const character = currentExercise.character || currentExercise.correctAnswer?.character || currentExercise.question?.character;
+      const romaji = currentExercise.correct || currentExercise.correctAnswer?.romaji || currentExercise.question?.romaji || '';
+      const meaning = currentExercise.meaning || currentExercise.correctAnswer?.meaning || '';
       const type = lesson.category || 'hiragana';
+
       if (character && romaji) {
         await addCard(character, romaji, meaning, type);
       }
