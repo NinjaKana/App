@@ -41,6 +41,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { FONTS, SIZES } from '../styles/theme';
 import { usePremium } from '../contexts/PremiumContext';
 import { canWatchRewardedAd, logRewardedAdWatched, AdUnitIds } from '../services/adService';
+import { checkPremiumStatus } from '../services/premiumService';
 import { RewardedAd, RewardedAdEventType, AdEventType } from 'react-native-google-mobile-ads';
 import { useTranslation } from 'react-i18next';
 
@@ -589,9 +590,19 @@ export default function ExerciseScreen({ route, navigation }) {
               {!isPremium && (
                 <TouchableOpacity
                   style={[styles.optionButton, styles.optionButtonPremium]}
-                  onPress={() => {
+                  onPress={async () => {
                     setShowOutOfLivesModal(false);
-                    openPaywall();
+                    await openPaywall();
+                    // Apres fermeture du paywall, verifier si devenu premium
+                    const nowPremium = await checkPremiumStatus();
+                    if (!nowPremium) {
+                      // Toujours pas premium, quitter le quiz
+                      navigation.goBack();
+                    } else {
+                      // Devenu premium, recharger les vies
+                      await refreshPremiumStatus();
+                      await loadLives();
+                    }
                   }}
                 >
                   <Text style={styles.optionButtonIcon}>👑</Text>
