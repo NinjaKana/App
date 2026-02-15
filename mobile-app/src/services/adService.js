@@ -73,12 +73,8 @@ export const REWARDED_CONFIG = {
  */
 export const initializeAds = async () => {
   try {
-    // L'initialisation est automatique avec react-native-google-mobile-ads
-    // Mais on peut configurer des options ici si besoin
-    console.log('Ads initialized (using test IDs:', IS_DEVELOPMENT, ')');
     return true;
   } catch (error) {
-    console.error('Failed to initialize ads:', error);
     return false;
   }
 };
@@ -126,8 +122,7 @@ export const canWatchRewardedAd = async () => {
       remainingToday: REWARDED_CONFIG.MAX_PER_DAY - todayCount,
     };
   } catch (error) {
-    console.error('Error checking rewarded ad availability:', error);
-    return { canWatch: true }; // En cas d'erreur, permettre
+    return { canWatch: true };
   }
 };
 
@@ -153,7 +148,6 @@ export const getRewardedAdsWatchedToday = async () => {
 
     return count;
   } catch (error) {
-    console.error('Error getting rewarded ads count:', error);
     return 0;
   }
 };
@@ -184,7 +178,6 @@ export const logRewardedAdWatched = async (rewardType = 'life') => {
       remainingToday: REWARDED_CONFIG.MAX_PER_DAY - (currentCount + 1),
     };
   } catch (error) {
-    console.error('Error logging rewarded ad:', error);
     return { success: false };
   }
 };
@@ -202,7 +195,6 @@ export const getRewardedAdCooldown = async () => {
 
     return Math.max(0, remaining);
   } catch (error) {
-    console.error('Error getting rewarded ad cooldown:', error);
     return 0;
   }
 };
@@ -247,9 +239,8 @@ export const resetAdStats = async () => {
   try {
     await AsyncStorage.removeItem(STORAGE_KEYS.REWARDED_ADS_WATCHED);
     await AsyncStorage.removeItem(STORAGE_KEYS.LAST_REWARDED_AD);
-    console.log('Ad stats reset');
   } catch (error) {
-    console.error('Error resetting ad stats:', error);
+    // Silent fail
   }
 };
 

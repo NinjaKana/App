@@ -5,6 +5,8 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
+import i18n from '../i18n';
+import { isPromoBonusActive } from './affiliateService';
 
 // Mode production : RevenueCat activé (désactiver pour Expo Go)
 const REVENUECAT_ENABLED = !__DEV__; // Activé en production, désactivé en dev
@@ -15,7 +17,7 @@ if (REVENUECAT_ENABLED) {
   try {
     Purchases = require('react-native-purchases').default;
   } catch (e) {
-    console.log('RevenueCat not available');
+    // RevenueCat not available
   }
 }
 
@@ -51,7 +53,7 @@ export const ENTITLEMENTS = {
 export const FREE_LIMITS = {
   EXERCISES_PER_DAY: 25,
   SRS_REVIEWS_PER_DAY: 10,
-  LIVES_MAX: 5,
+  LIVES_MAX: 7,
   KANJI_UNLOCKED: 20,
   AI_QUESTIONS_PER_DAY: 3,
   FREE_LESSONS_PER_CATEGORY: 5,  // 5 premières leçons gratuites par catégorie
@@ -83,7 +85,6 @@ const STORAGE_KEYS = {
  */
 export async function initializePurchases(userId = null) {
   if (!REVENUECAT_ENABLED || !Purchases) {
-    console.log('[DEV] RevenueCat disabled (Expo Go mode)');
     return true;
   }
 
@@ -98,7 +99,6 @@ export async function initializePurchases(userId = null) {
       await Purchases.logIn(userId);
     }
 
-    console.log('RevenueCat initialized successfully');
     return true;
   } catch (error) {
     console.error('Error initializing RevenueCat:', error);
@@ -108,9 +108,16 @@ export async function initializePurchases(userId = null) {
 
 /**
  * Vérifier si l'utilisateur est premium
+ * Inclut : abonnement RevenueCat OU bonus promo actif
  */
 export async function checkPremiumStatus() {
   try {
+    // Vérifier d'abord si un bonus promo est actif
+    const promoBonusActive = await isPromoBonusActive();
+    if (promoBonusActive) {
+      return true;
+    }
+
     // D'abord vérifier le cache local
     const cachedStatus = await AsyncStorage.getItem(STORAGE_KEYS.PREMIUM_STATUS);
 
@@ -157,13 +164,11 @@ export async function checkPremiumStatus() {
  */
 export async function getOfferings() {
   if (!REVENUECAT_ENABLED || !Purchases) {
-    console.log('[Premium] RevenueCat not enabled, using fallback');
     return { useFallback: true };
   }
 
   try {
     const offerings = await Purchases.getOfferings();
-    console.log('[Premium] Offerings received:', JSON.stringify(offerings, null, 2));
 
     if (offerings.current !== null && offerings.current.availablePackages.length > 0) {
       const monthly = offerings.current.availablePackages.find(p =>
@@ -185,10 +190,8 @@ export async function getOfferings() {
       };
     }
 
-    console.log('[Premium] No offerings available, using fallback');
     return { useFallback: true };
   } catch (error) {
-    console.error('[Premium] Error getting offerings:', error);
     return { useFallback: true };
   }
 }
@@ -205,7 +208,7 @@ export async function purchaseProduct(productId) {
     const products = await Purchases.getProducts([productId]);
 
     if (products.length === 0) {
-      return { success: false, error: 'Produit non trouvé' };
+      return { success: false, error: i18n.t('premium:productNotFound') };
     }
 
     const { customerInfo } = await Purchases.purchaseStoreProduct(products[0]);
@@ -221,7 +224,6 @@ export async function purchaseProduct(productId) {
     if (error.userCancelled) {
       return { success: false, cancelled: true };
     }
-    console.error('[Premium] Error purchasing product:', error);
     return { success: false, error: error.message };
   }
 }
@@ -248,7 +250,6 @@ export async function purchasePackage(packageToPurchase) {
     if (error.userCancelled) {
       return { success: false, cancelled: true };
     }
-    console.error('Error purchasing:', error);
     return { success: false, error: error.message };
   }
 }
@@ -272,7 +273,6 @@ export async function restorePurchases() {
 
     return { success: true, isPremium };
   } catch (error) {
-    console.error('Error restoring purchases:', error);
     return { success: false, error: error.message };
   }
 }
@@ -462,7 +462,7 @@ export async function addAdBonusExercises() {
     return {
       success: false,
       reason: 'ad_limit_reached',
-      message: `Limite atteinte (${FREE_LIMITS.AD_BONUS_MAX_PER_DAY} pubs/jour)`,
+      message: i18n.t('premium:adLimitReached', { max: FREE_LIMITS.AD_BONUS_MAX_PER_DAY }),
     };
   }
 
@@ -522,7 +522,6 @@ export async function setDevPremiumStatus(isPremium) {
       lastChecked: Date.now(),
       devMode: true,
     }));
-    console.log(`[DEV] Premium status set to: ${isPremium}`);
   }
 }
 
@@ -530,7 +529,6 @@ export async function resetDailyUsage() {
   if (__DEV__) {
     await AsyncStorage.removeItem(STORAGE_KEYS.DAILY_USAGE);
     await AsyncStorage.removeItem(STORAGE_KEYS.LAST_RESET_DATE);
-    console.log('[DEV] Daily usage reset');
   }
 }
 

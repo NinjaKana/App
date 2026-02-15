@@ -32,7 +32,7 @@ export const successFeedback = async () => {
   try {
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   } catch (error) {
-    console.log('Haptic not available');
+    // Haptic not available
   }
 };
 
@@ -44,7 +44,7 @@ export const errorFeedback = async () => {
   try {
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
   } catch (error) {
-    console.log('Haptic not available');
+    // Haptic not available
   }
 };
 
@@ -56,7 +56,7 @@ export const warningFeedback = async () => {
   try {
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
   } catch (error) {
-    console.log('Haptic not available');
+    // Haptic not available
   }
 };
 
@@ -68,7 +68,7 @@ export const lightImpact = async () => {
   try {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   } catch (error) {
-    console.log('Haptic not available');
+    // Haptic not available
   }
 };
 
@@ -80,7 +80,7 @@ export const mediumImpact = async () => {
   try {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   } catch (error) {
-    console.log('Haptic not available');
+    // Haptic not available
   }
 };
 
@@ -92,7 +92,7 @@ export const heavyImpact = async () => {
   try {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
   } catch (error) {
-    console.log('Haptic not available');
+    // Haptic not available
   }
 };
 
@@ -104,7 +104,7 @@ export const selectionFeedback = async () => {
   try {
     await Haptics.selectionAsync();
   } catch (error) {
-    console.log('Haptic not available');
+    // Haptic not available
   }
 };
 
@@ -121,7 +121,7 @@ export const levelUpFeedback = async () => {
     await new Promise(resolve => setTimeout(resolve, 100));
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   } catch (error) {
-    console.log('Haptic not available');
+    // Haptic not available
   }
 };
 
@@ -135,7 +135,7 @@ export const badgeUnlockedFeedback = async () => {
     await new Promise(resolve => setTimeout(resolve, 200));
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   } catch (error) {
-    console.log('Haptic not available');
+    // Haptic not available
   }
 };
 
@@ -149,7 +149,7 @@ export const streakFeedback = async () => {
     await new Promise(resolve => setTimeout(resolve, 100));
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   } catch (error) {
-    console.log('Haptic not available');
+    // Haptic not available
   }
 };
 
@@ -163,7 +163,7 @@ export const lifeLostFeedback = async () => {
     await new Promise(resolve => setTimeout(resolve, 200));
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
   } catch (error) {
-    console.log('Haptic not available');
+    // Haptic not available
   }
 };
 
@@ -177,7 +177,7 @@ export const lastLifeFeedback = async () => {
     await new Promise(resolve => setTimeout(resolve, 150));
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
   } catch (error) {
-    console.log('Haptic not available');
+    // Haptic not available
   }
 };
 
@@ -191,7 +191,7 @@ export const questCompletedFeedback = async () => {
     await new Promise(resolve => setTimeout(resolve, 100));
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   } catch (error) {
-    console.log('Haptic not available');
+    // Haptic not available
   }
 };
 
@@ -207,7 +207,7 @@ export const lessonCompletedFeedback = async () => {
     await new Promise(resolve => setTimeout(resolve, 100));
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   } catch (error) {
-    console.log('Haptic not available');
+    // Haptic not available
   }
 };
 

@@ -332,9 +332,8 @@ class AudioService {
         staysActiveInBackground: false,
         shouldDuckAndroid: true,
       });
-      console.log('✅ Audio system ready');
     } catch (error) {
-      console.error('❌ Error setting up audio:', error);
+      // Audio setup failed
     }
   }
 
@@ -344,7 +343,6 @@ class AudioService {
    */
   async play(romaji) {
     if (!this.audioEnabled) {
-      console.log('Audio is disabled.');
       return false;
     }
 
@@ -352,7 +350,6 @@ class AudioService {
     const normalizedRomaji = romaji?.toLowerCase().trim();
 
     if (!normalizedRomaji || !AUDIO_FILES[normalizedRomaji]) {
-      console.warn(`Audio file not found for: ${romaji}`);
       return false;
     }
 
@@ -380,7 +377,6 @@ class AudioService {
 
       return true;
     } catch (error) {
-      console.error('Error playing audio:', error);
       return false;
     }
   }
@@ -397,7 +393,7 @@ class AudioService {
         this.isPlaying = false;
       }
     } catch (error) {
-      console.error('Error stopping audio:', error);
+      // Stop failed
     }
   }
 

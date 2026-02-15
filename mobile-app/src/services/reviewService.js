@@ -21,7 +21,7 @@ let StoreReview = null;
 try {
   StoreReview = require('expo-store-review');
 } catch (e) {
-  console.log('expo-store-review not installed. Run: npx expo install expo-store-review');
+  // expo-store-review not installed
 }
 
 const STORAGE_KEYS = {
@@ -213,9 +213,7 @@ const isOptimalMoment = (trigger, data = {}) => {
  * Retourne true si la review a été demandée
  */
 export const requestReview = async (trigger = null, triggerData = {}) => {
-  // Vérifier si expo-store-review est disponible
   if (!StoreReview) {
-    console.log('StoreReview not available');
     return { requested: false, reason: 'not_available' };
   }
 
