@@ -12,19 +12,22 @@ import {
   ScrollView,
   Animated,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { COLORS, FONTS, SIZES } from '../styles/theme';
 import audioService from '../services/audioService';
-
-const TABS = [
-  { id: 'info', label: 'Info', icon: '📝' },
-  { id: 'examples', label: 'Exemples', icon: '📖' },
-  { id: 'mnemonic', label: 'Mnémo', icon: '💡' },
-];
+import { hiraganaToRomaji } from '../utils/kanaConverter';
 
 export default function KanjiCard({ kanji, showNavigation = false, onNext, onPrevious, currentIndex, totalCount }) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('info');
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [playingExampleIndex, setPlayingExampleIndex] = useState(null);
+
+  const TABS = [
+    { id: 'info', label: t('kanji.info'), icon: '📝' },
+    { id: 'examples', label: t('kanji.examples'), icon: '📖' },
+    { id: 'mnemonic', label: t('kanji.mnemonic'), icon: '💡' },
+  ];
 
   const handlePlayAudio = async () => {
     if (kanji.romaji) {
@@ -36,10 +39,11 @@ export default function KanjiCard({ kanji, showNavigation = false, onNext, onPre
 
   const handlePlayExampleAudio = async (example, index) => {
     setPlayingExampleIndex(index);
-    // On essaie de jouer l'audio de l'exemple si disponible
     if (example.reading) {
-      // Convertir le reading en romaji simple pour l'audio
-      await audioService.play(example.reading);
+      const romaji = hiraganaToRomaji(example.reading);
+      if (romaji) {
+        await audioService.play(romaji);
+      }
     }
     setTimeout(() => setPlayingExampleIndex(null), 800);
   };
@@ -51,7 +55,7 @@ export default function KanjiCard({ kanji, showNavigation = false, onNext, onPre
           <View style={styles.tabContent}>
             {/* Lectures ON */}
             <View style={styles.readingSection}>
-              <Text style={styles.readingLabel}>Lecture ON (音読み)</Text>
+              <Text style={styles.readingLabel}>{t('kanji.onReading')}</Text>
               <Text style={styles.readingValue}>
                 {kanji.onyomi && kanji.onyomi.length > 0
                   ? kanji.onyomi.join('、')
@@ -61,7 +65,7 @@ export default function KanjiCard({ kanji, showNavigation = false, onNext, onPre
 
             {/* Lectures KUN */}
             <View style={styles.readingSection}>
-              <Text style={styles.readingLabel}>Lecture KUN (訓読み)</Text>
+              <Text style={styles.readingLabel}>{t('kanji.kunReading')}</Text>
               <Text style={styles.readingValue}>
                 {kanji.kunyomi && kanji.kunyomi.length > 0
                   ? kanji.kunyomi.join('、')
@@ -71,14 +75,14 @@ export default function KanjiCard({ kanji, showNavigation = false, onNext, onPre
 
             {/* Signification */}
             <View style={styles.readingSection}>
-              <Text style={styles.readingLabel}>Signification</Text>
+              <Text style={styles.readingLabel}>{t('kanji.meaning')}</Text>
               <Text style={styles.meaningValue}>{kanji.meaning}</Text>
             </View>
 
             {/* Nombre de traits */}
             <View style={styles.strokesContainer}>
               <Text style={styles.strokesIcon}>✏️</Text>
-              <Text style={styles.strokesText}>{`${kanji.strokes}`} traits</Text>
+              <Text style={styles.strokesText}>{t('kanji.strokes', { count: kanji.strokes })}</Text>
             </View>
           </View>
         );
@@ -114,9 +118,9 @@ export default function KanjiCard({ kanji, showNavigation = false, onNext, onPre
               <Text style={styles.mnemonicText}>{kanji.mnemonic}</Text>
             </View>
             <View style={styles.mnemonicTip}>
-              <Text style={styles.tipLabel}>Conseil</Text>
+              <Text style={styles.tipLabel}>{t('kanji.tip')}</Text>
               <Text style={styles.tipText}>
-                Visualise cette image dans ta tête chaque fois que tu vois ce kanji !
+                {t('kanji.tipText')}
               </Text>
             </View>
           </View>

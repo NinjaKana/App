@@ -13,8 +13,10 @@ import {
 } from 'react-native';
 import { COLORS, FONTS, SIZES } from '../styles/theme';
 import audioService from '../services/audioService';
+import { useTranslation } from 'react-i18next';
 
-export default function SRSCard({ card, onAnswer }) {
+export default function SRSCard({ card, onAnswer, isLastCard = false }) {
+  const { t } = useTranslation();
   const [isFlipped, setIsFlipped] = useState(false);
   const [flipAnim] = useState(new Animated.Value(0));
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
@@ -39,8 +41,10 @@ export default function SRSCard({ card, onAnswer }) {
 
   const handleDifficultySelect = (difficulty) => {
     onAnswer(card, difficulty);
-    setIsFlipped(false);
-    flipAnim.setValue(0);
+    if (!isLastCard) {
+      setIsFlipped(false);
+      flipAnim.setValue(0);
+    }
   };
 
   const frontInterpolate = flipAnim.interpolate({
@@ -75,10 +79,10 @@ export default function SRSCard({ card, onAnswer }) {
         </View>
 
         <Text style={styles.character}>{card.character}</Text>
-        <Text style={styles.hint}>Qu'est-ce que c'est ?</Text>
+        <Text style={styles.hint}>{t('srs.whatIsThis')}</Text>
 
         <TouchableOpacity style={styles.flipButton} onPress={handleFlip}>
-          <Text style={styles.flipButtonText}>Afficher la réponse</Text>
+          <Text style={styles.flipButtonText}>{t('srs.showAnswer')}</Text>
         </TouchableOpacity>
       </Animated.View>
 
@@ -105,7 +109,7 @@ export default function SRSCard({ card, onAnswer }) {
         <Text style={styles.romaji}>{card.romaji}</Text>
         {card.meaning && <Text style={styles.meaning}>{card.meaning}</Text>}
 
-        <Text style={styles.difficultyLabel}>Comment était-ce ?</Text>
+        <Text style={styles.difficultyLabel}>{t('srs.howWasIt')}</Text>
 
         <View style={styles.difficultyButtons}>
           <TouchableOpacity
@@ -113,7 +117,7 @@ export default function SRSCard({ card, onAnswer }) {
             onPress={() => handleDifficultySelect(0)}
           >
             <Text style={styles.difficultyText}>❌</Text>
-            <Text style={styles.difficultyName}>Oublié</Text>
+            <Text style={styles.difficultyName}>{t('srs.forgotten')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -121,7 +125,7 @@ export default function SRSCard({ card, onAnswer }) {
             onPress={() => handleDifficultySelect(1)}
           >
             <Text style={styles.difficultyText}>😐</Text>
-            <Text style={styles.difficultyName}>Difficile</Text>
+            <Text style={styles.difficultyName}>{t('srs.hard')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -129,7 +133,7 @@ export default function SRSCard({ card, onAnswer }) {
             onPress={() => handleDifficultySelect(2)}
           >
             <Text style={styles.difficultyText}>👍</Text>
-            <Text style={styles.difficultyName}>Bien</Text>
+            <Text style={styles.difficultyName}>{t('srs.good')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -137,7 +141,7 @@ export default function SRSCard({ card, onAnswer }) {
             onPress={() => handleDifficultySelect(3)}
           >
             <Text style={styles.difficultyText}>😊</Text>
-            <Text style={styles.difficultyName}>Facile</Text>
+            <Text style={styles.difficultyName}>{t('srs.easy')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -145,7 +149,7 @@ export default function SRSCard({ card, onAnswer }) {
             onPress={() => handleDifficultySelect(4)}
           >
             <Text style={styles.difficultyText}>🌟</Text>
-            <Text style={styles.difficultyName}>Parfait</Text>
+            <Text style={styles.difficultyName}>{t('srs.perfect')}</Text>
           </TouchableOpacity>
         </View>
       </Animated.View>

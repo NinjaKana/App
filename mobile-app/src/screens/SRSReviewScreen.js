@@ -23,9 +23,11 @@ import { incrementQuestProgress } from '../services/questsSystem';
 import { incrementSRSRecoveryProgress } from '../services/livesSystem';
 import { useTheme } from '../contexts/ThemeContext';
 import { FONTS, SIZES } from '../styles/theme';
+import { useTranslation } from 'react-i18next';
 
 export default function SRSReviewScreen({ route, navigation }) {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const styles = createStyles(colors);
 
   const [cards, setCards] = useState([]);
@@ -85,14 +87,13 @@ export default function SRSReviewScreen({ route, navigation }) {
   const renderNoCards = () => (
     <View style={styles.centerContainer}>
       <Text style={styles.emoji}>🎉</Text>
-      <Text style={styles.title}>Aucune carte à réviser !</Text>
+      <Text style={styles.title}>{t('srs.noCards')}</Text>
       <Text style={styles.textSecondary}>
-        Toutes tes cartes SRS sont à jour.{'\n'}
-        Reviens plus tard pour de nouvelles révisions !
+        {t('srs.allCardsUpToDate')}
       </Text>
 
       <TouchableOpacity style={styles.button} onPress={handleClose}>
-        <Text style={styles.buttonText}>Retour</Text>
+        <Text style={styles.buttonText}>{t('back')}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -106,41 +107,40 @@ export default function SRSReviewScreen({ route, navigation }) {
       <Modal visible={showResults} animationType="fade" transparent={false}>
         <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
           <View style={styles.resultsContainer}>
-            <Text style={styles.resultsTitle}>🎉 Révisions Terminées !</Text>
+            <Text style={styles.resultsTitle}>{t('srs.reviewComplete')}</Text>
 
             <View style={styles.statsGrid}>
               <View style={styles.statCard}>
                 <Text style={styles.statValue}>{`${totalReviewed}`}</Text>
-                <Text style={styles.statLabel}>Cartes révisées</Text>
+                <Text style={styles.statLabel}>{t('srs.cardsReviewed')}</Text>
               </View>
 
               <View style={styles.statCard}>
                 <Text style={[styles.statValue, { color: colors.success }]}>
                   {`${correctCount}`}
                 </Text>
-                <Text style={styles.statLabel}>Correctes</Text>
+                <Text style={styles.statLabel}>{t('srs.correctCards')}</Text>
               </View>
 
               <View style={styles.statCard}>
                 <Text style={[styles.statValue, { color: colors.primary }]}>
                   {`${accuracy}%`}
                 </Text>
-                <Text style={styles.statLabel}>Précision</Text>
+                <Text style={styles.statLabel}>{t('srs.accuracy')}</Text>
               </View>
             </View>
 
             {totalReviewed >= 5 && (
               <View style={styles.bonusContainer}>
-                <Text style={styles.bonusTitle}>💝 Bonus Anti-Duolingo !</Text>
+                <Text style={styles.bonusTitle}>{t('srs.bonusTitle')}</Text>
                 <Text style={styles.bonusText}>
-                  Tu as fait {totalReviewed} révisions !{'\n'}
-                  Clique sur "❤️ Récupérer une vie" sur l'écran d'accueil pour gagner +1 vie gratuite !
+                  {t('srs.bonusText', { count: totalReviewed })}
                 </Text>
               </View>
             )}
 
             <TouchableOpacity style={styles.button} onPress={handleClose}>
-              <Text style={styles.buttonText}>Terminé</Text>
+              <Text style={styles.buttonText}>{t('done')}</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -158,17 +158,16 @@ export default function SRSReviewScreen({ route, navigation }) {
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
           <Text style={styles.modalEmoji}>🎉</Text>
-          <Text style={styles.modalTitle}>5 révisions correctes !</Text>
+          <Text style={styles.modalTitle}>{t('srs.fiveCorrectReviews')}</Text>
           <Text style={styles.modalText}>
-            Tu peux maintenant récupérer une vie gratuitement dans l'onglet
-            Profil.
+            {t('srs.fiveCorrectReviewsMessage')}
           </Text>
 
           <TouchableOpacity
             style={styles.modalButton}
             onPress={() => setShowLifeRecovered(false)}
           >
-            <Text style={styles.modalButtonText}>Compris !</Text>
+            <Text style={styles.modalButtonText}>{t('understood')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -181,7 +180,7 @@ export default function SRSReviewScreen({ route, navigation }) {
         <View style={styles.centerContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
           <Text style={[styles.text, { marginTop: SIZES.margin }]}>
-            Chargement des cartes...
+            {t('srs.loadingCards')}
           </Text>
         </View>
       </SafeAreaView>
@@ -223,7 +222,7 @@ export default function SRSReviewScreen({ route, navigation }) {
         </View>
 
         {/* SRS Card */}
-        <SRSCard card={currentCard} onAnswer={handleAnswer} />
+        <SRSCard key={currentCard.id} card={currentCard} onAnswer={handleAnswer} isLastCard={currentIndex === cards.length - 1} />
 
         {/* Results Modal */}
         {renderResults()}
