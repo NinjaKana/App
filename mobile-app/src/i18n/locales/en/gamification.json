@@ -1,0 +1,98 @@
+{
+  "badges": {
+    "first_step": {
+      "name": "Chakra Awakening",
+      "description": "Complete your first lesson"
+    },
+    "lesson_master": {
+      "name": "Jutsu Mastery",
+      "description": "Complete 25 lessons"
+    },
+    "scholar": {
+      "name": "Sage of Mount Myoboku",
+      "description": "Complete all lessons (47)"
+    },
+    "week_warrior": {
+      "name": "Will of Fire",
+      "description": "7-day streak"
+    },
+    "month_master": {
+      "name": "Rock Lee's Determination",
+      "description": "30-day streak"
+    },
+    "centurion": {
+      "name": "Hundred Battles",
+      "description": "Complete 100 exercises"
+    },
+    "perfectionist": {
+      "name": "Sharingan Awakened",
+      "description": "10 perfect exercises in a row"
+    },
+    "srs_beginner": {
+      "name": "Shadow Clone",
+      "description": "Review 50 cards"
+    },
+    "memory_palace": {
+      "name": "Shaolin Temple",
+      "description": "50 cards at \"mature\" status"
+    },
+    "hiragana_master": {
+      "name": "Hiragana Calligrapher",
+      "description": "Complete all Hiragana lessons"
+    },
+    "katakana_master": {
+      "name": "Katakana Calligrapher",
+      "description": "Complete all Katakana lessons"
+    },
+    "kanji_master": {
+      "name": "Rinnegan of Kanji",
+      "description": "Learn 100 kanji (complete N5)"
+    }
+  },
+  "badgeCategories": {
+    "progression": "Ninja Path",
+    "streak": "Consistency",
+    "exercises": "Precision",
+    "srs": "Memorization",
+    "mastery": "Mastery"
+  },
+  "rarity": {
+    "common": "common",
+    "uncommon": "uncommon",
+    "rare": "rare",
+    "legendary": "legendary",
+    "mythic": "mythic"
+  },
+  "quests": {
+    "complete_lessons": {
+      "title": "Dojo Training",
+      "description": "Complete {{target}} lessons"
+    },
+    "srs_reviews": {
+      "title": "Shadow Clone Technique",
+      "description": "Review {{target}} cards"
+    },
+    "perfect_exercises": {
+      "title": "Sharingan Precision",
+      "description": "Get {{target}} exercises right without errors"
+    },
+    "daily_challenge": {
+      "title": "Special Mission",
+      "description": "Complete today's challenge"
+    },
+    "maintain_streak": {
+      "title": "Will of Fire",
+      "description": "Keep your flame alive today"
+    }
+  },
+  "newBadge": "New Badge!",
+  "levelRewards": {
+    "2": "You passed the Chunin exam! +1 heart",
+    "3": "Your special skills are recognized!",
+    "4": "You are now an elite ninja!",
+    "5": "Welcome to the Anbu special forces!",
+    "6": "You join the legendary Sannin!",
+    "7": "The village recognizes you as Kage!",
+    "8": "火影 - You are the Hokage! Living legend!"
+  }
+}

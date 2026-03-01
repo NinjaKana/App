@@ -1,0 +1,79 @@
+{
+  "slides": {
+    "welcome": {
+      "title": "Read Japanese in 30 days",
+      "subtitle": "Hiragana & Katakana",
+      "description": "Learn the 92 characters you need to read Japanese. No distractions. Just a proven system that works.",
+      "highlight": "46 hiragana + 46 katakana + bonus kanji"
+    },
+    "method": {
+      "title": "Never Forget",
+      "subtitle": "SRS Memorization",
+      "description": "Our spaced repetition algorithm shows you each character at the perfect moment — right before you forget.",
+      "highlight": "Memorize 90% of content in 3x less time"
+    },
+    "gamification": {
+      "title": "Lives System",
+      "subtitle": "How it works",
+      "description": "You have 7 lives (hearts). 3 consecutive errors in a quiz = -1 life. At 0 lives, you're locked out.\n\nRecovery:\n- Automatic: +1 life every 3h\n- Reviews: 5 SRS reviews = +1 life\n- Premium subscription: unlimited lives",
+      "highlight": "Tip: Memorize well before starting a quiz!"
+    },
+    "encouragement": {
+      "title": "For beginners",
+      "subtitle": "It's normal to find this hard",
+      "description": "Japanese is a complex language. If you find the first lessons difficult, that's NORMAL!\n\nThe first 3 lessons are more forgiving (5 errors instead of 3). Take your time, memorize well, and persevere.",
+      "highlight": "Mastery comes with practice. You will improve!"
+    },
+    "ranks": {
+      "title": "Ninja Ranks",
+      "subtitle": "Genin to Hokage",
+      "description": "Earn Ki by training. Unlock 28 legendary techniques: Sharingan, Super Saiyan, Ultra Instinct...",
+      "highlight": "8 ranks - 28 badges - 5 rarities"
+    },
+    "goal": {
+      "title": "Your training",
+      "subtitle": "How much time per day?",
+      "description": "10-15 min/day is enough to read Japanese in 30 days."
+    }
+  },
+  "goals": {
+    "casual": {
+      "label": "5 min/day",
+      "description": "Beginner Genin"
+    },
+    "regular": {
+      "label": "10 min/day",
+      "description": "Chunin Training"
+    },
+    "serious": {
+      "label": "15 min/day",
+      "description": "Jonin Discipline"
+    },
+    "intense": {
+      "label": "30 min/day",
+      "description": "Rock Lee Mode"
+    }
+  },
+  "levels": {
+    "beginner": {
+      "label": "Complete beginner",
+      "description": "I know nothing about Japanese"
+    },
+    "hiragana": {
+      "label": "I know Hiragana",
+      "description": "The basic characters"
+    },
+    "katakana": {
+      "label": "Hiragana + Katakana",
+      "description": "Both alphabets"
+    },
+    "basic": {
+      "label": "Basic vocabulary",
+      "description": "I know ~100 words"
+    }
+  },
+  "skip": "Skip",
+  "next": "Next",
+  "getStarted": "Let's go!",
+  "recommended": "Recommended"
+}

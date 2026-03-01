@@ -1,0 +1,60 @@
+{
+  "title": "NinjaKana Premium",
+  "headerTitle": "Premium",
+  "heroTitle": "Go Premium",
+  "heroSubtitle": "Unlock all features and read Japanese faster",
+  "featuresTitle": "Features included",
+  "features": {
+    "allLessons": {
+      "title": "All lessons",
+      "description": "Access every lesson in each category"
+    },
+    "unlimitedLearning": {
+      "title": "Unlimited learning",
+      "description": "Exercises and reviews with no daily limit"
+    },
+    "allKanji": {
+      "title": "All Kanji",
+      "description": "100 essential JLPT N5 kanji"
+    },
+    "optimalMemory": {
+      "title": "Optimal memorization",
+      "description": "Unlimited SRS to lock in knowledge"
+    },
+    "unlimitedLives": {
+      "title": "Unlimited lives",
+      "description": "Learn without interruptions or waiting"
+    },
+    "noAds": {
+      "title": "No ads",
+      "description": "Maximum focus"
+    }
+  },
+  "choosePlan": "Choose your plan",
+  "plans": {
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "lifetime": "Lifetime",
+    "perMonth": "/month",
+    "perYear": "/year",
+    "oneTime": "one time",
+    "popular": "Popular",
+    "savings": "Save {{percent}}"
+  },
+  "becomePremium": "Become Premium",
+  "restorePurchases": "Restore my purchases",
+  "purchaseSuccess": "Welcome to Premium!",
+  "purchaseSuccessMessage": "Thank you for subscribing. Enjoy all the features!",
+  "restoreSuccess": "Purchases restored",
+  "restoreSuccessMessage": "Your Premium subscription has been restored!",
+  "restoreEmpty": "No purchases",
+  "restoreEmptyMessage": "No active subscription found.",
+  "purchaseError": "Error",
+  "purchaseErrorMessage": "An error occurred",
+  "offerUnavailable": "Offer unavailable",
+  "invalidPurchaseConfig": "Invalid purchase configuration",
+  "legalText": "Subscription auto-renews unless cancelled at least 24h before the end of the current period. Manage your subscription in your App Store account settings.",
+  "termsOfUse": "Terms of use",
+  "privacy": "Privacy",
+  "adLimitReached": "Limit reached ({{max}} ads/day)"
+}

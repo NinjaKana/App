@@ -159,7 +159,7 @@
     "chooseWhatToLearn": "Choisis ce que tu veux apprendre",
     "lessonsCount": "{{count}} leçons",
     "premiumContent": "Contenu Premium",
-    "premiumContentMessage": "Cette leçon est réservée aux membres Premium.\n\nLes 5 premières leçons de chaque catégorie sont gratuites.",
+    "premiumContentMessage": "Cette leçon est réservée aux membres Premium.\n\nLes 3 premières leçons de chaque catégorie sont gratuites.",
     "becomePremium": "Devenir Premium",
     "lockedLesson": "Leçon verrouillée",
     "lockedLessonMessage": "Complète la leçon précédente pour débloquer celle-ci !",
@@ -218,7 +218,10 @@
     "limitReached": "Limite atteinte",
     "limitReachedMessage": "Tu as utilisé tous tes bonus pubs pour aujourd'hui ({{max}}/jour).",
     "adError": "Impossible de charger la publicité",
-    "meaningHint": "Signification: {{hint}}"
+    "meaningHint": "Signification: {{hint}}",
+    "orTry": "ou essayez",
+    "watchAdShort": "Pub (+10)",
+    "srsShort": "SRS (+5)"
   },
 
   "srs": {

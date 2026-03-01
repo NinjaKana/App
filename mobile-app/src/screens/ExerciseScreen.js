@@ -42,7 +42,7 @@ import { FONTS, SIZES } from '../styles/theme';
 import { usePremium } from '../contexts/PremiumContext';
 import { canWatchRewardedAd, logRewardedAdWatched, AdUnitIds } from '../services/adService';
 import { checkPremiumStatus } from '../services/premiumService';
-import { RewardedAd, RewardedAdEventType, AdEventType } from 'react-native-google-mobile-ads';
+import { RewardedAd, RewardedAdEventType, AdEventType } from '../services/adShim';
 import { useTranslation } from 'react-i18next';
 
 export default function ExerciseScreen({ route, navigation }) {
@@ -305,12 +305,29 @@ export default function ExerciseScreen({ route, navigation }) {
 
     // Sauvegarder progression
     const progress = await getProgress();
+    const isNewLesson = !progress.lessonsCompleted?.includes(lesson.id);
+    const charactersCount = lesson.characters?.length || 0;
+
+    const statsKeyMap = {
+      hiragana: 'hiraganaLearned',
+      katakana: 'katakanaLearned',
+      kanji: 'kanjiLearned',
+      vocabulary: 'wordsLearned',
+    };
+    const statsKey = statsKeyMap[lesson.category];
+
     const updatedProgress = {
       ...progress,
       totalPoints: (progress.totalPoints || 0) + stats.totalPoints,
       lessonsCompleted: [...new Set([...(progress.lessonsCompleted || []), lesson.id])],
       exercisesCompleted: (progress.exercisesCompleted || 0) + stats.total,
       correctAnswers: (progress.correctAnswers || 0) + stats.correct,
+      stats: {
+        ...progress.stats,
+        ...(isNewLesson && statsKey ? {
+          [statsKey]: (progress.stats?.[statsKey] || 0) + charactersCount,
+        } : {}),
+      },
     };
     await saveProgress(updatedProgress);
 
@@ -320,10 +337,16 @@ export default function ExerciseScreen({ route, navigation }) {
     // Incrementer quete "studied_today"
     await incrementQuestProgress('studied_today');
 
-    // Si nouvelle lecon completee, incrementer quete
-    const isNewLesson = !progress.lessonsCompleted?.includes(lesson.id);
     if (isNewLesson) {
       await incrementQuestProgress('lesson_completed');
+
+      // Paywall toutes les 3 nouvelles lecons completees
+      if (!isPremium) {
+        const newTotal = updatedProgress.lessonsCompleted?.length || 0;
+        if (newTotal > 0 && newTotal % 3 === 0) {
+          openPaywall();
+        }
+      }
     }
 
     // Programmer notifications de retention
@@ -437,67 +460,55 @@ export default function ExerciseScreen({ route, navigation }) {
         <Text style={styles.limitText}>
           {t('exercise.dailyLimitMessage', { count: limits?.exercises?.baseLimit || 25 })}
         </Text>
+
+        {/* Hard Paywall - Premium CTA en premier et proéminent */}
+        <TouchableOpacity
+          style={styles.hardPaywallButton}
+          onPress={openPaywall}
+        >
+          <Text style={styles.hardPaywallIcon}>👑</Text>
+          <Text style={styles.hardPaywallTitle}>{t('exercise.unlimitedExercises')}</Text>
+          <Text style={styles.hardPaywallSubtitle}>{t('exercise.becomePremium')}</Text>
+        </TouchableOpacity>
+
+        {/* Options alternatives en plus petit */}
+        <View style={styles.altOptionsContainer}>
+          <Text style={styles.altOptionsTitle}>{t('exercise.orTry')}</Text>
+          <View style={styles.altOptionsRow}>
+            {/* Option: Pub */}
+            {adBonusAvailable && (
+              <TouchableOpacity
+                style={styles.altOptionButton}
+                onPress={handleWatchAdForExercises}
+                disabled={adLoading}
+              >
+                {adLoading ? (
+                  <ActivityIndicator color={colors.textSecondary} size="small" />
+                ) : (
+                  <>
+                    <Text style={styles.altOptionIcon}>📺</Text>
+                    <Text style={styles.altOptionText}>{t('exercise.watchAdShort')}</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            )}
+
+            {/* Option: SRS */}
+            <TouchableOpacity
+              style={styles.altOptionButton}
+              onPress={handleSRSForExercises}
+            >
+              <Text style={styles.altOptionIcon}>🧠</Text>
+              <Text style={styles.altOptionText}>{t('exercise.srsShort')}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
         {timeUntilReset ? (
           <Text style={styles.limitTimer}>
             {'\u{23F0}'} {t('exercise.newExercisesIn', { time: timeUntilReset })}
           </Text>
         ) : null}
-
-        {/* Options pour débloquer plus d'exercices */}
-        <View style={styles.limitOptionsContainer}>
-          <Text style={styles.limitOptionsTitle}>{t('exercise.unlockMoreExercises')}</Text>
-
-          {/* Option 1: Pub */}
-          {adBonusAvailable && (
-            <TouchableOpacity
-              style={[styles.optionButton, styles.optionButtonAd]}
-              onPress={handleWatchAdForExercises}
-              disabled={adLoading}
-            >
-              {adLoading ? (
-                <ActivityIndicator color={colors.text} size="small" />
-              ) : (
-                <>
-                  <Text style={styles.optionButtonIcon}>📺</Text>
-                  <View style={styles.optionButtonContent}>
-                    <Text style={styles.optionButtonTitle}>{t('exercise.watchAd')}</Text>
-                    <Text style={styles.optionButtonSubtitle}>
-                      {t('exercise.watchAdBonus', { count: (limits?.exercises?.adBonusMax || 3) - (limits?.exercises?.adBonusUsed || 0) })}
-                    </Text>
-                  </View>
-                </>
-              )}
-            </TouchableOpacity>
-          )}
-
-          {/* Option 2: SRS */}
-          <TouchableOpacity
-            style={[styles.optionButton, styles.optionButtonSRS]}
-            onPress={handleSRSForExercises}
-          >
-            <Text style={styles.optionButtonIcon}>🧠</Text>
-            <View style={styles.optionButtonContent}>
-              <Text style={styles.optionButtonTitle}>{t('exercise.srsReviews')}</Text>
-              <Text style={styles.optionButtonSubtitle}>
-                {t('exercise.srsExerciseBonus')}
-              </Text>
-            </View>
-          </TouchableOpacity>
-
-          {/* Option 3: Premium */}
-          <TouchableOpacity
-            style={[styles.optionButton, styles.optionButtonPremium]}
-            onPress={openPaywall}
-          >
-            <Text style={styles.optionButtonIcon}>👑</Text>
-            <View style={styles.optionButtonContent}>
-              <Text style={styles.optionButtonTitle}>{t('exercise.becomePremium')}</Text>
-              <Text style={styles.optionButtonSubtitle}>
-                {t('exercise.unlimitedExercises')}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
 
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <Text style={styles.backButtonText}>{t('back')}</Text>
@@ -631,16 +642,8 @@ export default function ExerciseScreen({ route, navigation }) {
     );
   };
 
-  // Gere la fin de lecon avec paywall strategique apres lecon 3
+  // Gere la fin de lecon avec paywall strategique toutes les 3 lecons
   const handleFinish = async () => {
-    // Afficher paywall apres lecon 3 pour utilisateurs gratuits (conversion +28%)
-    if (lesson.id === 3 && !isPremium) {
-      const paywallShown = await getData(STORAGE_KEYS.PAYWALL_LESSON3_SHOWN, false);
-      if (!paywallShown) {
-        await saveData(STORAGE_KEYS.PAYWALL_LESSON3_SHOWN, true);
-        openPaywall();
-      }
-    }
     navigation.goBack();
   };
 
@@ -1002,6 +1005,61 @@ const createStyles = (colors) => StyleSheet.create({
   },
   backButtonText: {
     fontSize: FONTS.medium,
+    color: colors.textSecondary,
+  },
+  // Hard Paywall styles
+  hardPaywallButton: {
+    backgroundColor: colors.primary,
+    borderRadius: SIZES.radius * 1.5,
+    padding: SIZES.padding * 2,
+    alignItems: 'center',
+    width: '100%',
+    marginTop: SIZES.margin * 2,
+    marginBottom: SIZES.margin,
+  },
+  hardPaywallIcon: {
+    fontSize: 48,
+    marginBottom: SIZES.marginSmall,
+  },
+  hardPaywallTitle: {
+    fontSize: FONTS.xLarge,
+    fontWeight: 'bold',
+    color: colors.background,
+    marginBottom: 4,
+  },
+  hardPaywallSubtitle: {
+    fontSize: FONTS.medium,
+    color: colors.background,
+    opacity: 0.9,
+  },
+  altOptionsContainer: {
+    width: '100%',
+    marginTop: SIZES.margin,
+    alignItems: 'center',
+  },
+  altOptionsTitle: {
+    fontSize: FONTS.small,
+    color: colors.textMuted,
+    marginBottom: SIZES.marginSmall,
+  },
+  altOptionsRow: {
+    flexDirection: 'row',
+    gap: SIZES.margin,
+  },
+  altOptionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    borderRadius: SIZES.radiusSmall,
+    paddingVertical: SIZES.paddingSmall,
+    paddingHorizontal: SIZES.padding,
+    gap: SIZES.marginSmall,
+  },
+  altOptionIcon: {
+    fontSize: 16,
+  },
+  altOptionText: {
+    fontSize: FONTS.small,
     color: colors.textSecondary,
   },
   // Out of Lives Modal (Duolingo-inspired)

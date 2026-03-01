@@ -1,0 +1,29 @@
+{
+  "streak": {
+    "day1": "{{emoji}} I just started learning Japanese!\n\n🇯🇵 Day one of my language journey!",
+    "week1": "{{emoji}} 1 WEEK of daily Japanese!\n\n🎯 7-day streak - I'm on fire!",
+    "month1": "{{emoji}} 1 MONTH of learning Japanese!\n\n⭐ 30 consecutive days - Consistency pays off!",
+    "day100": "{{emoji}} 100 DAYS of Japanese!\n\n💎 I'm officially hooked on learning!",
+    "year1": "{{emoji}} 1 YEAR of Japanese EVERY SINGLE DAY!\n\n👑 365 days - Nothing can stop me!",
+    "over50": "{{emoji}} {{streak}} days of Japanese in a row!\n\n🏆 Level {{level}} - {{title}}",
+    "over14": "{{emoji}} {{streak}}-day Japanese streak!\n\n💪 The habit is taking shape!",
+    "default": "{{emoji}} I've been learning Japanese for {{streak}} days!\n\n🔥 My streak keeps going!",
+    "badges": "\n\n🏅 {{count}} badges unlocked",
+    "cta": "\n\n📱 Join me on {{appName}}!",
+    "shareTitle": "{{streak}} days of Japanese!",
+    "shareDialogTitle": "Share my streak",
+    "shareSubject": "I've been learning Japanese for {{streak}} days!"
+  },
+  "badge": {
+    "unlocked": "🏆 New badge unlocked!\n\n{{icon}} {{name}}\n\"{{description}}\"\n\n✨ {{rarity}} badge!",
+    "cta": "\n\n📱 Learn Japanese with me!",
+    "shareTitle": "Badge {{name}} unlocked!",
+    "shareDialogTitle": "Share my badge"
+  },
+  "levelUp": {
+    "message": "🎉 Level Up!\n\n{{emoji}} Level {{level}} - {{title}}\n\n📈 I'm making progress in Japanese!",
+    "cta": "\n\n📱 Join the adventure!",
+    "shareTitle": "Level {{level}} reached!",
+    "shareDialogTitle": "Share my level"
+  }
+}

@@ -1,0 +1,181 @@
+{
+  "proTip": "Use the audio button to hear the correct pronunciation!",
+  "gotIt": "Got it!",
+  "hiragana": {
+    "title": "Hiragana ひらがな",
+    "sections": [
+      {
+        "heading": "What is it?",
+        "content": "Hiragana is one of the three Japanese writing systems. They represent sounds (syllables) and are used for native Japanese words."
+      },
+      {
+        "heading": "Structure",
+        "content": "46 basic characters organized in rows by consonant (k, s, t, n, h, m, y, r, w) and columns by vowel (a, i, u, e, o)."
+      },
+      {
+        "heading": "Tips",
+        "content": "• Start with the vowels (あいうえお)\n• Learn one row at a time\n• Practice handwriting\n• Associate each sound with a mnemonic image"
+      },
+      {
+        "heading": "Example",
+        "content": "あ (a) looks like a person saying \"Ah!\"\nき (ki) looks like a key"
+      }
+    ]
+  },
+  "katakana": {
+    "title": "Katakana カタカナ",
+    "sections": [
+      {
+        "heading": "Usage",
+        "content": "Katakana is used for:\n• Foreign words (コーヒー = coffee)\n• Foreign proper names\n• Onomatopoeia\n• Emphasis (like italics)"
+      },
+      {
+        "heading": "Difference with Hiragana",
+        "content": "Same sounds, more angular shapes. If hiragana = cursive, katakana = block letters."
+      },
+      {
+        "heading": "Tips",
+        "content": "• Learn them AFTER hiragana\n• Associate each katakana with its hiragana equivalent\n• Practice with common words: テレビ (TV), パン (bread)"
+      }
+    ]
+  },
+  "dakuten": {
+    "title": "Voiced Characters (Dakuten ゛)",
+    "sections": [
+      {
+        "heading": "What is it?",
+        "content": "The dakuten (゛) or \"ten-ten\" is a diacritical mark that transforms certain sounds into voiced versions. It's placed at the top right of the character."
+      },
+      {
+        "heading": "Transformations",
+        "content": "• K → G (か→が ka→ga)\n• S → Z (さ→ざ sa→za)\n• T → D (た→だ ta→da)\n• H → B (は→ば ha→ba)\n\nNote: し becomes じ (shi→ji) and つ becomes づ (tsu→zu)"
+      },
+      {
+        "heading": "Pronunciation",
+        "content": "Voiced sounds are pronounced with vocal cord vibration:\n• GA, GI, GU, GE, GO (like in 'go')\n• ZA, JI, ZU, ZE, ZO (like in 'zoo')\n• DA, DI, DU, DE, DO (like in 'do')\n• BA, BI, BU, BE, BO (like in 'ball')"
+      },
+      {
+        "heading": "Tip",
+        "content": "First pronounce the base sound (ka, sa, ta, ha) then add 'voice': it's like going from a whisper to normal voice!"
+      }
+    ]
+  },
+  "handakuten": {
+    "title": "Semi-voiced Characters (Handakuten ゜)",
+    "sections": [
+      {
+        "heading": "What is it?",
+        "content": "The handakuten (゜) or \"maru\" (circle) transforms only the H row into P sounds. It's a small circle placed at the top right of the character."
+      },
+      {
+        "heading": "Transformation H → P",
+        "content": "• は → ぱ (ha → pa)\n• ひ → ぴ (hi → pi)\n• ふ → ぷ (hu → pu)\n• へ → ぺ (he → pe)\n• ほ → ぽ (ho → po)"
+      },
+      {
+        "heading": "Pronunciation",
+        "content": "The P sound is explosive, like in English:\n• PA as in 'papa'\n• PI as in 'pizza'\n• PU as in 'pull'\n• PE as in 'pet'\n• PO as in 'pot'"
+      },
+      {
+        "heading": "Difference",
+        "content": "Don't confuse:\n• Dakuten (゛) = H → B (vibration)\n• Handakuten (゜) = H → P (air burst)"
+      }
+    ]
+  },
+  "combinations": {
+    "title": "Combinations (Yōon 拗音)",
+    "sections": [
+      {
+        "heading": "What is it?",
+        "content": "Yōon are combinations of two characters forming a single sound. The 2nd character (や, ゆ, よ) is written smaller."
+      },
+      {
+        "heading": "Structure",
+        "content": "Consonant + i + small ya/yu/yo:\n• きゃ = kya (ki + ya)\n• しゅ = shu (shi + yu)\n• ちょ = cho (chi + yo)\n• りゃ = rya (ri + ya)"
+      },
+      {
+        "heading": "Pronunciation",
+        "content": "Both characters are pronounced as ONE sound:\n• KYA (like 'Kya!' when screaming)\n• SHU (like 'shoe')\n• CHO (like 'cho' in chocolate)\n• NYA (like a cat's meow)"
+      },
+      {
+        "heading": "Common usage",
+        "content": "Very frequent in Japanese:\n• きゃく (kyaku) = guest/customer\n• しゅう (shuu) = week\n• ちょっと (chotto) = a little\n• りょう (ryou) = dormitory"
+      }
+    ]
+  },
+  "kanji": {
+    "title": "Kanji 漢字",
+    "sections": [
+      {
+        "heading": "What is it?",
+        "content": "Characters of Chinese origin representing concepts. Each kanji usually has multiple readings (on'yomi and kun'yomi)."
+      },
+      {
+        "heading": "Readings",
+        "content": "• On'yomi (音読み): Sino-Japanese reading, used in compound words\n• Kun'yomi (訓読み): Native Japanese reading, often standalone"
+      },
+      {
+        "heading": "JLPT N5",
+        "content": "For JLPT N5, you need to know ~100 basic kanji: numbers, days, directions, people, etc."
+      },
+      {
+        "heading": "Method",
+        "content": "• Learn the meaning first\n• Then the common readings\n• Practice with real words\n• Use mnemonics!"
+      }
+    ]
+  },
+  "vocabulary": {
+    "title": "Vocabulary 語彙",
+    "sections": [
+      {
+        "heading": "Approach",
+        "content": "Learn vocabulary in context, not in isolation. Words stick better with example sentences."
+      },
+      {
+        "heading": "Available themes",
+        "content": "• Greetings and politeness (こんにちは, ありがとう...)\n• Days of the week (月曜日, 火曜日...)\n• Colors (赤, 青, 白...)\n• Family (お父さん, お母さん...)\n• Basic food (水, ご飯, パン...)"
+      },
+      {
+        "heading": "Tips",
+        "content": "• Review regularly with SRS\n• Listen to pronunciation (audio button)\n• Use words in sentences\n• Learn 5-10 new words per day maximum"
+      },
+      {
+        "heading": "JLPT N5 Vocabulary",
+        "content": "These lessons cover essential vocabulary for JLPT N5 (beginner level). About 800 words to master for the test."
+      }
+    ]
+  },
+  "numbers": {
+    "title": "Numbers 数字",
+    "sections": [
+      {
+        "heading": "System",
+        "content": "Japanese uses two systems:\n• Sino-Japanese: いち、に、さん...\n• Native Japanese: ひとつ、ふたつ..."
+      },
+      {
+        "heading": "Counters",
+        "content": "Japanese uses 'counters' depending on the object:\n• 人 (nin) for people\n• 本 (hon) for long objects\n• 枚 (mai) for flat objects"
+      },
+      {
+        "heading": "Irregularities",
+        "content": "Watch out for phonetic changes:\n• 1人 = ひとり (not いちにん)\n• 2人 = ふたり\n• 4 = よん or し\n• 7 = なな or しち"
+      }
+    ]
+  },
+  "default": {
+    "title": "General Tips",
+    "sections": [
+      {
+        "heading": "Consistency",
+        "content": "15 minutes a day is better than 2 hours once a week. Regularity is key!"
+      },
+      {
+        "heading": "Spaced repetition",
+        "content": "Use the SRS (Spaced Repetition System) to review at the optimal moment and retain knowledge long-term."
+      },
+      {
+        "heading": "Immersion",
+        "content": "• Listen to Japanese (anime, music, podcasts)\n• Change your phone language\n• Label objects in your home"
+      }
+    ]
+  }
+}

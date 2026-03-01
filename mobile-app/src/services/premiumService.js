@@ -56,7 +56,7 @@ export const FREE_LIMITS = {
   LIVES_MAX: 7,
   KANJI_UNLOCKED: 20,
   AI_QUESTIONS_PER_DAY: 3,
-  FREE_LESSONS_PER_CATEGORY: 5,  // 5 premières leçons gratuites par catégorie
+  FREE_LESSONS_PER_CATEGORY: 3,  // 3 premières leçons gratuites par catégorie
   // Bonus exercices
   AD_BONUS_EXERCISES: 10,       // +10 exercices par pub regardée
   AD_BONUS_MAX_PER_DAY: 3,     // Max 3 pubs/jour pour exercices

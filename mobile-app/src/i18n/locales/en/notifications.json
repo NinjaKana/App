@@ -1,0 +1,36 @@
+{
+  "streakDanger": {
+    "title": "🔥 Your streak is in danger!",
+    "body": "Only a few hours left to keep your {{streak}}-day streak!"
+  },
+  "dailyReminder": {
+    "titles": [
+      "🇯🇵 Time for Japanese!",
+      "📚 Your daily lesson awaits",
+      "⭐ 5 minutes to improve?",
+      "🎯 Today's goal: learn!"
+    ],
+    "bodies": [
+      "A few minutes is all it takes to improve.",
+      "Keep your streak alive!",
+      "Your brain will thank you.",
+      "Small steps lead to great journeys."
+    ]
+  },
+  "newChallenge": {
+    "title": "🎌 New challenge available!",
+    "body": "Discover today's Japanese proverb."
+  },
+  "badgeProgress": {
+    "title": "🏆 Badge almost unlocked!",
+    "body": "Just {{remaining}} more to unlock \"{{badge}}\"!"
+  },
+  "inactivity": {
+    "title": "👋 We miss you!",
+    "body": "It's been {{days}} days... Come back and learn Japanese!"
+  },
+  "welcomeBack": {
+    "title": "🎉 Welcome back!",
+    "body": "Ready to resume your learning?"
+  }
+}
